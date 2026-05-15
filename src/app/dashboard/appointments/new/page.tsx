@@ -5,7 +5,7 @@ import { AppointmentForm } from '@/components/appointments/appointment-form'
 export default async function NewAppointmentPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/login')
+  if (!user) redirect('/login')
 
   const { data: business } = await supabase
     .from('businesses').select('*').eq('owner_id', user.id).single()

@@ -12,7 +12,7 @@ import Link from 'next/link'
 export default async function ClientsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/login')
+  if (!user) redirect('/login')
 
   const { data: business } = await supabase
     .from('businesses').select('id').eq('owner_id', user.id).single()

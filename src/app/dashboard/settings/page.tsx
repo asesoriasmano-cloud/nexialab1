@@ -5,7 +5,7 @@ import { SettingsForm } from '@/components/settings/settings-form'
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/login')
+  if (!user) redirect('/login')
 
   const { data: business } = await supabase
     .from('businesses')

@@ -119,10 +119,10 @@ export default function LandingPage() {
               <a href="#categories" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Categorías</a>
             </div>
             <div className="flex items-center gap-3">
-              <Link href="/auth/login">
+              <Link href="/login">
                 <Button variant="ghost" size="sm">Iniciar sesión</Button>
               </Link>
-              <Link href="/auth/register">
+              <Link href="/register">
                 <Button size="sm" className="bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-700 hover:to-pink-600 text-white border-0">
                   Empezar gratis
                 </Button>
@@ -153,7 +153,7 @@ export default function LandingPage() {
             Gestiona citas, clientes y pagos en un solo lugar. Sin complicaciones.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/auth/register">
+            <Link href="/register">
               <Button size="lg" className="bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-700 hover:to-pink-600 text-white border-0 text-base px-8 h-12">
                 Empezar gratis — sin tarjeta
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -310,7 +310,7 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/auth/register">
+                <Link href="/register">
                   <Button
                     className={`w-full ${
                       plan.popular
@@ -380,7 +380,7 @@ export default function LandingPage() {
           <p className="text-xl text-violet-200 mb-8">
             Únete a cientos de negocios que ya usan CitaPro. Configura en 5 minutos.
           </p>
-          <Link href="/auth/register">
+          <Link href="/register">
             <Button size="lg" className="bg-white text-violet-600 hover:bg-violet-50 text-base px-10 h-12">
               Empezar gratis ahora
               <ArrowRight className="ml-2 h-4 w-4" />

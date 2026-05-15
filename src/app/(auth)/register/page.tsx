@@ -78,7 +78,7 @@ export default function RegisterPage() {
             Enviamos un email de confirmación a <strong>{email}</strong>. 
             Haz clic en el enlace para activar tu cuenta.
           </p>
-          <Link href="/auth/login">
+          <Link href="/login">
             <Button className="w-full bg-gradient-to-r from-violet-600 to-pink-500 border-0 text-white">
               Ir al inicio de sesión
             </Button>
@@ -206,7 +206,7 @@ export default function RegisterPage() {
       <CardFooter>
         <p className="text-center text-sm text-gray-500 w-full">
           ¿Ya tienes cuenta?{' '}
-          <Link href="/auth/login" className="text-violet-600 hover:underline font-medium">
+          <Link href="/login" className="text-violet-600 hover:underline font-medium">
             Iniciar sesión
           </Link>
         </p>
