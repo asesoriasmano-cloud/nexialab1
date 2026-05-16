@@ -185,3 +185,32 @@ export async function createPublicAppointment(data: {
 
   return appointment
 }
+
+export async function updateInternalNotes(appointmentId: string, notes: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('No autorizado')
+
+  const { error } = await supabase
+    .from('appointments')
+    .update({ internal_notes: notes, updated_at: new Date().toISOString() })
+    .eq('id', appointmentId)
+
+  if (error) throw error
+  revalidatePath(`/dashboard/appointments/${appointmentId}`)
+}
+
+export async function deleteAppointment(appointmentId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('No autorizado')
+
+  const { error } = await supabase
+    .from('appointments')
+    .delete()
+    .eq('id', appointmentId)
+
+  if (error) throw error
+  revalidatePath('/dashboard/appointments')
+  revalidatePath('/dashboard/calendar')
+}

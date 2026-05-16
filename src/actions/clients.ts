@@ -53,6 +53,9 @@ export async function updateClientAction(clientId: string, data: {
   revalidatePath('/dashboard/clients')
 }
 
+// Alias used by client-detail component
+export const updateClient = updateClientAction
+
 export async function deleteClientAction(clientId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
