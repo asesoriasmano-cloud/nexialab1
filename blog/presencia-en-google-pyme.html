@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Por qué tu PYME no aparece en Google (y cómo solucionarlo) — NexiaLab</title>
+<meta name="description" content="Descubre los 5 errores que hacen invisible a una PYME chilena en Google y qué puedes hacer esta semana para cambiar eso. Sin tecnicismos.">
+<meta name="keywords" content="presencia en Google PYME, SEO local Chile, Google My Business Chile, posicionamiento web PYME chilena">
+<link rel="canonical" href="https://nexialab.pro/blog/presencia-en-google-pyme.html">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --forest:#1a3a28;--forest2:#254d38;--forest3:#0a1a10;
+  --lime:#c8f135;--lime2:#a8d020;
+  --bg:#f5f2ed;--bg2:#ece8e0;--white:#ffffff;
+  --ink:#080c07;--muted:#5e5a52;--muted2:#98948a;
+  --border:#ddd8cc;--amber:#e8960e;--rose:#d44030;--teal:#0a9870;
+  --ease-out-quart:cubic-bezier(0.25,1,0.5,1);
+  --ease-out-expo:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+
+.grain{position:fixed;inset:-50%;z-index:1;width:200%;height:200%;pointer-events:none;opacity:.028;animation:grainMove .8s steps(8) infinite;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:160px 160px}
+@keyframes grainMove{0%{transform:translate(0,0)}10%{transform:translate(-3%,-4%)}20%{transform:translate(-6%,2%)}30%{transform:translate(3%,-6%)}40%{transform:translate(-2%,3%)}50%{transform:translate(-5%,1%)}60%{transform:translate(4%,-4%)}70%{transform:translate(1%,5%)}80%{transform:translate(-4%,2%)}90%{transform:translate(3%,-3%)}100%{transform:translate(0,0)}}
+
+[data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease-out-expo),transform .7s var(--ease-out-expo)}
+[data-reveal].revealed{opacity:1;transform:none}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;transition:background .4s,backdrop-filter .4s}
+.nav.scrolled{background:rgba(245,242,237,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1160px;margin:0 auto;height:68px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:'Playfair Display',serif;font-size:21px;font-weight:900;color:var(--white);transition:color .3s;letter-spacing:-.01em;position:relative;z-index:2}
+.nav.scrolled .nav-logo{color:var(--forest)}
+.nav-logo em{font-style:italic;color:var(--lime)}
+.nav.scrolled .nav-logo em{color:var(--lime2)}
+.nav-links{display:flex;align-items:center;gap:32px;position:relative;z-index:2}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(255,255,255,.75);transition:color .2s}
+.nav.scrolled .nav-links a{color:var(--muted)}
+.nav-links a:hover{color:#fff}
+.nav.scrolled .nav-links a:hover{color:var(--ink)}
+.nav-links a.active{color:rgba(200,241,53,.9)}
+.nav.scrolled .nav-links a.active{color:var(--forest);font-weight:700}
+.nav-cta{background:var(--lime);color:var(--forest3) !important;padding:9px 22px;font-weight:700 !important;font-size:13px !important;transition:background .2s,transform .2s !important}
+.nav-cta:hover{background:var(--lime2) !important;transform:translateY(-1px)}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;z-index:2}
+.nav-hamburger span{width:24px;height:2px;background:rgba(255,255,255,.7);border-radius:2px;transition:.25s}
+.nav.scrolled .nav-hamburger span{background:var(--forest)}
+
+.win-symbol{display:flex;gap:5px;align-items:flex-end}
+.win-s{border-radius:2px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1.5px;padding:2.5px;flex-shrink:0}
+.win-symbol.sz-nav .win-s{width:16px;height:24px}
+.win-symbol.sz-footer .win-s{width:13px;height:20px}
+.ws-dark{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}
+.ws-lit{background:rgba(10,10,20,.9);border:1px solid rgba(108,99,255,.7);box-shadow:0 0 12px rgba(108,99,255,.25)}
+.nav.scrolled .ws-dark{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.12)}
+.nav.scrolled .ws-lit{background:#fff;border-color:var(--lime2);box-shadow:0 0 10px rgba(168,208,32,.3)}
+.ws-pane-dark{background:rgba(255,255,255,.05);border-radius:1px}
+.ws-pane-lit{background:rgba(245,197,24,.13);border-radius:1px;animation:wflicker 4s ease-in-out infinite}
+.ws-pane-lit:nth-child(2){animation-delay:.5s}.ws-pane-lit:nth-child(3){animation-delay:1.1s}.ws-pane-lit:nth-child(4){animation-delay:.8s}
+@keyframes wflicker{0%,100%{opacity:1}45%{opacity:.75}55%{opacity:.9}}
+
+/* ARTICLE HERO */
+.art-hero{background:var(--forest3);padding:140px 40px 72px;position:relative;overflow:hidden}
+.art-hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 50% 70% at 20% 60%,rgba(200,241,53,.05) 0%,transparent 60%)}
+.art-hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 80%)}
+.art-hero-inner{max-width:760px;margin:0 auto;position:relative;z-index:2}
+.art-breadcrumb{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:24px}
+.art-breadcrumb a{color:rgba(200,241,53,.7);transition:color .2s}
+.art-breadcrumb a:hover{color:var(--lime)}
+.art-breadcrumb span{color:rgba(255,255,255,.2)}
+.art-category{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;background:rgba(200,241,53,.1);border:1px solid rgba(200,241,53,.2);color:var(--lime);padding:5px 14px;margin-bottom:20px}
+.art-title{font-family:'Playfair Display',serif;font-size:clamp(30px,4.5vw,52px);font-weight:900;color:#fff;line-height:1.1;margin-bottom:20px}
+.art-title em{color:var(--lime);font-style:italic}
+.art-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.art-meta-item{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:6px}
+.art-meta-dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.2)}
+
+/* ARTICLE LAYOUT */
+.art-layout{max-width:760px;margin:0 auto;padding:64px 40px 100px;display:grid;grid-template-columns:1fr;gap:0}
+
+/* ARTICLE BODY */
+.art-body{font-size:16px;line-height:1.8;color:var(--ink)}
+.art-body p{margin-bottom:20px}
+.art-body h2{font-family:'Playfair Display',serif;font-size:clamp(22px,2.8vw,30px);font-weight:900;color:var(--forest);line-height:1.2;margin:48px 0 16px;padding-top:8px;border-top:2px solid var(--lime)}
+.art-body h2 em{font-style:italic;color:var(--forest2)}
+.art-body strong{font-weight:700;color:var(--ink)}
+.art-body em{font-style:italic}
+
+/* ACTION BOX */
+.action-box{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--lime);padding:16px 20px;margin:20px 0;font-size:14px;color:var(--muted)}
+.action-box strong{display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime2);margin-bottom:6px}
+
+/* INTRO BOX */
+.intro-box{background:var(--forest3);padding:28px 32px;margin-bottom:40px;position:relative;overflow:hidden;border:1px solid rgba(200,241,53,.1)}
+.intro-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--lime),transparent)}
+.intro-box p{font-size:17px;line-height:1.75;color:rgba(255,255,255,.82);margin:0}
+.intro-box strong{color:var(--lime)}
+
+/* CTA SECTION */
+.art-cta{background:var(--forest3);padding:40px;margin-top:56px;border:1px solid rgba(200,241,53,.12);position:relative;overflow:hidden}
+.art-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 100% at 50% 100%,rgba(200,241,53,.05) 0%,transparent 65%)}
+.art-cta-inner{position:relative;z-index:1}
+.art-cta-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,241,53,.75);margin-bottom:14px}
+.art-cta h3{font-family:'Playfair Display',serif;font-size:clamp(20px,2.5vw,26px);color:#fff;font-weight:900;line-height:1.25;margin-bottom:20px}
+.art-cta h3 em{color:var(--lime);font-style:italic}
+.art-cta-btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.btn-wa{display:inline-flex;align-items:center;gap:10px;background:#25d366;color:#fff;padding:14px 24px;font-size:14px;font-weight:700;transition:background .2s,transform .2s}
+.btn-wa:hover{background:#1db954;transform:translateY(-2px)}
+.btn-nexi{display:inline-flex;align-items:center;gap:10px;background:rgba(200,241,53,.1);border:1px solid rgba(200,241,53,.25);color:var(--lime);padding:13px 22px;font-size:14px;font-weight:600;transition:background .2s,border-color .2s}
+.btn-nexi:hover{background:rgba(200,241,53,.18);border-color:rgba(200,241,53,.4);cursor:pointer}
+.art-cta-note{margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;color:rgba(255,255,255,.4)}
+
+/* TAGS */
+.art-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:40px;padding-top:32px;border-top:1px solid var(--border)}
+.art-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border:1px solid var(--border);color:var(--muted2);transition:all .2s}
+.art-tag:hover{border-color:var(--forest);color:var(--forest)}
+
+/* BACK LINK */
+.art-back{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);transition:color .2s,gap .2s;margin-bottom:48px}
+.art-back:hover{color:var(--forest);gap:12px}
+
+/* FOOTER */
+footer{background:var(--forest3);border-top:1px solid rgba(255,255,255,.05);padding:40px}
+.footer-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.footer-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:rgba(255,255,255,.72)}
+.footer-logo em{font-style:italic;color:rgba(200,241,53,.8)}
+.footer-tagline{font-size:11px;color:rgba(255,255,255,.52);margin-top:4px}
+.footer-links{display:flex;gap:22px;flex-wrap:wrap}
+.footer-links a{font-size:12px;color:rgba(255,255,255,.58);transition:color .2s}
+.footer-links a:hover{color:rgba(255,255,255,.85)}
+.footer-copy{width:100%;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.08em;color:rgba(255,255,255,.45);padding-top:20px;border-top:1px solid rgba(255,255,255,.04);margin-top:8px}
+
+/* CHAT & WA */
+.chat-widget-btn{position:fixed;bottom:100px;right:28px;z-index:500;display:flex;align-items:center;cursor:pointer}
+.chat-widget-circle{width:58px;height:58px;background:var(--forest3);border:2px solid var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(200,241,53,.25);transition:transform .25s,box-shadow .2s;flex-shrink:0;position:relative}
+.chat-widget-btn:hover .chat-widget-circle{transform:scale(1.1);box-shadow:0 6px 28px rgba(200,241,53,.4)}
+.chat-widget-circle svg{width:26px;height:26px;fill:var(--lime)}
+.chat-widget-label{background:var(--forest3);border:1px solid rgba(200,241,53,.25);color:rgba(255,255,255,.85);font-size:12px;font-weight:600;padding:8px 14px 8px 18px;border-radius:24px 0 0 24px;margin-right:-10px;white-space:nowrap;opacity:0;transform:translateX(10px);transition:opacity .25s,transform .25s;pointer-events:none}
+.chat-widget-btn:hover .chat-widget-label{opacity:1;transform:translateX(0)}
+.chat-widget-dot{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--lime);border:2px solid var(--forest3);animation:waPulse 2.5s ease-out infinite}
+.chat-modal-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.chat-modal-overlay.open{opacity:1;visibility:visible}
+.chat-modal{position:fixed;bottom:100px;right:28px;z-index:601;width:400px;height:600px;max-width:calc(100vw - 40px);max-height:calc(100vh - 140px);border-radius:16px;overflow:hidden;border:1px solid rgba(200,241,53,.2);box-shadow:0 24px 80px rgba(0,0,0,.5);transform:scale(.92) translateY(20px);opacity:0;visibility:hidden;transition:transform .35s,opacity .3s,visibility .3s}
+.chat-modal.open{transform:scale(1) translateY(0);opacity:1;visibility:visible}
+.chat-modal iframe{width:100%;height:100%;border:none;display:block}
+.chat-modal-close{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:background .2s}
+.chat-modal-close:hover{background:rgba(0,0,0,.8);color:#fff}
+.wa-float{position:fixed;bottom:28px;right:28px;z-index:500;display:flex;align-items:center;cursor:pointer}
+.wa-float-btn{width:58px;height:58px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.45);transition:transform .25s,background .2s;flex-shrink:0;position:relative}
+.wa-float:hover .wa-float-btn{background:#1db954;transform:scale(1.1)}
+.wa-float-btn svg{width:28px;height:28px;fill:#fff}
+.wa-float-label{background:#1a3a28;color:#fff;font-size:12px;font-weight:600;padding:8px 14px 8px 18px;border-radius:24px 0 0 24px;margin-right:-10px;white-space:nowrap;opacity:0;transform:translateX(10px);transition:opacity .25s,transform .25s;pointer-events:none}
+.wa-float:hover .wa-float-label{opacity:1;transform:translateX(0)}
+.wa-float-btn::after{content:'';position:absolute;width:58px;height:58px;border-radius:50%;border:2px solid rgba(37,211,102,.5);animation:waPulse 2.2s ease-out infinite}
+@keyframes waPulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+
+@media(max-width:680px){
+  .nav{padding:0 20px}.nav-links{display:none}.nav-hamburger{display:flex}
+  .art-hero{padding:120px 20px 52px}.art-layout{padding:40px 20px 80px}
+  .footer-inner{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div id="mobile-nav" style="display:none;position:fixed;inset:0;background:var(--forest3);z-index:200;padding:80px 32px 32px;flex-direction:column;gap:4px">
+  <a href="/" style="display:block;padding:16px 0;font-size:17px;font-weight:600;color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.06)" onclick="closeMobile()">Inicio</a>
+  <a href="/servicios.html" style="display:block;padding:16px 0;font-size:17px;font-weight:600;color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.06)" onclick="closeMobile()">Servicios</a>
+  <a href="/blog/" style="display:block;padding:16px 0;font-size:17px;font-weight:700;color:var(--lime);border-bottom:1px solid rgba(255,255,255,.06)" onclick="closeMobile()">Blog</a>
+  <a href="/#contacto" style="display:block;margin-top:24px;background:var(--lime);color:var(--forest3);padding:16px;text-align:center;font-size:15px;font-weight:700" onclick="closeMobile()">Diagnóstico gratuito →</a>
+</div>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" style="display:flex;align-items:center;gap:9px">
+      <div class="win-symbol sz-nav">
+        <div class="win-s ws-dark"><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div></div>
+        <div class="win-s ws-lit"><div class="ws-pane-lit"></div><div class="ws-pane-lit"></div><div class="ws-pane-lit"></div><div class="ws-pane-lit"></div></div>
+        <div class="win-s ws-dark"><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div></div>
+      </div>
+      Nexia<em>Lab</em>
+    </a>
+    <div class="nav-links">
+      <a href="/ecosistema.html">Ecosistema</a>
+      <a href="/servicios.html">Servicios</a>
+      <a href="/casos.html">Casos reales</a>
+      <a href="/#proceso">Cómo funciona</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="/#contacto" class="nav-cta">Diagnóstico gratuito →</a>
+    </div>
+    <div class="nav-hamburger" id="hamburger" onclick="toggleMobile()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- ARTICLE HERO -->
+<div class="art-hero">
+  <div class="art-hero-glow"></div>
+  <div class="art-hero-grid"></div>
+  <div class="art-hero-inner">
+    <div class="art-breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <span>Presencia Digital</span>
+    </div>
+    <div class="art-category">Presencia Digital · SEO Local</div>
+    <h1 class="art-title">Por qué tu PYME no aparece en Google<br><em>(y cómo solucionarlo)</em></h1>
+    <div class="art-meta">
+      <div class="art-meta-item">📅 25 de mayo, 2026</div>
+      <div class="art-meta-dot"></div>
+      <div class="art-meta-item">⏱ 5 min de lectura</div>
+      <div class="art-meta-dot"></div>
+      <div class="art-meta-item">Por NexiaLab</div>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE CONTENT -->
+<div class="art-layout">
+  <div>
+    <a href="blog-index.html" class="art-back" data-reveal>← Volver al blog</a>
+
+    <div class="art-body" data-reveal>
+
+      <div class="intro-box">
+        <p>El <strong>81% de los consumidores</strong> busca en Google antes de tomar una decisión de compra. Si tu negocio no aparece en esa búsqueda, para ese cliente simplemente no existes. Muchos dueños de PYMEs en Chile invierten en redes sociales, en tarjetas de presentación, incluso en publicidad impresa — y sin embargo, cuando alguien escribe "electricista Providencia" o "catering Santiago" en el buscador, su negocio brilla por su ausencia. No es mala suerte ni mala tecnología. Son errores concretos que tienen solución.</p>
+      </div>
+
+      <h2>1. Tu perfil de Google Business está incompleto o ni siquiera existe</h2>
+      <p>El Perfil de Empresa en Google (antes llamado Google My Business) es la herramienta gratuita más poderosa para negocios locales. Si no lo tienes creado, Google simplemente no sabe que existes como negocio físico o de servicio local. Si lo tienes pero está a medias — sin fotos, sin horario, sin descripción ni categoría correcta — el algoritmo te prioriza menos frente a la competencia que sí lo tiene bien configurado.</p>
+      <p>La buena noticia: completar este perfil toma menos de una hora. Y ese tiempo puede ser lo que marque la diferencia entre aparecer en el bloque de los primeros tres resultados locales o quedarte enterrado en la página tres.</p>
+      <div class="action-box">
+        <strong>Acción concreta esta semana</strong>
+        Busca "Perfil de Empresa Google" en Google, reclama o crea tu ficha, y completa todos los campos disponibles. Sube al menos cinco fotos reales del negocio.
+      </div>
+
+      <h2>2. Tu sitio web no menciona dónde estás ni a quién le sirves</h2>
+      <p>Una empresa de Viña del Mar que no menciona "Viña del Mar" en ninguna parte de su sitio web está perdiendo clientes todos los días. Google necesita señales geográficas claras para decidir a quién mostrarte cuando alguien busca en tu zona. El algoritmo no adivina: necesita que tú se lo digas explícitamente.</p>
+      <p>Incluir el nombre de tu ciudad, comuna o incluso tu barrio en los títulos de las páginas, en los textos y en las descripciones no es un tecnicismo de marketing. Es lo mínimo para que Google entienda que eres relevante para una búsqueda local. Lo mismo aplica para el tipo de cliente al que le sirves.</p>
+      <div class="action-box">
+        <strong>Acción concreta esta semana</strong>
+        Revisa la página principal de tu sitio y asegúrate de que en el primer párrafo aparezca tu ciudad y lo que haces. Es el cambio más simple con mayor impacto inmediato.
+      </div>
+
+      <h2>3. No tienes reseñas, o las que tienes no se responden</h2>
+      <p>Las reseñas de Google no son solo un tema de reputación: son un factor directo de posicionamiento. El algoritmo favorece a los negocios con más reseñas, más recientes y con respuestas activas del propietario. En Chile, la mayoría de las PYMEs tienen clientes satisfechos que nunca dejan reseña simplemente porque nadie se los pidió.</p>
+      <p>Un mensaje de WhatsApp enviado después de cerrar un servicio — algo tan simple como "¿Quedaste conforme? Si puedes dejarnos una reseña en Google te lo agradecemos mucho, nos ayuda harto" — puede triplicar la velocidad a la que acumulas credibilidad digital. Y responder cada reseña, positiva o negativa, le muestra a Google y a futuros clientes que hay alguien activo detrás del negocio.</p>
+      <div class="action-box">
+        <strong>Acción concreta esta semana</strong>
+        Contacta a tus últimos cinco clientes satisfechos y pídeles que te dejen una reseña. Luego responde todas las que ya tienes, aunque sean viejas.
+      </div>
+
+      <h2>4. Tu sitio web carga lento o se ve mal en el celular</h2>
+      <p>Más del 72% de las búsquedas en Chile se hacen desde el teléfono. Google lo sabe, y por eso penaliza directamente en el ranking a los sitios que cargan lento o que se ven mal en pantallas pequeñas. Si tu página tarda más de tres segundos en cargar en un celular, una parte importante de tus visitantes se va antes de ver una sola línea de tu contenido.</p>
+      <p>Este es uno de los problemas más frecuentes y menos atendidos en PYMEs chilenas. El sitio se ve "bien" en el computador del diseñador, pero en el teléfono del cliente es un desastre. Y Google lo detecta — y te baja en el ranking por eso.</p>
+      <div class="action-box">
+        <strong>Acción concreta esta semana</strong>
+        Entra a <strong>pagespeed.web.dev</strong> (herramienta gratuita de Google) y pon la URL de tu sitio. Si el puntaje móvil está bajo 70, tienes un problema que vale la pena resolver esta semana.
+      </div>
+
+      <h2>5. Tu sitio no responde las preguntas que tu cliente está haciendo</h2>
+      <p>Google existe para responder preguntas. Si tu sitio web no responde preguntas — sobre tus servicios, tus precios, cómo funciona tu proceso, cuánto demoras, qué te diferencia — no tiene nada útil que mostrarle al buscador cuando alguien busca lo que tú ofreces.</p>
+      <p>Un blog con cuatro o cinco artículos bien enfocados en los temas que busca tu cliente ideal puede generarte más visitas orgánicas que meses de pauta pagada. No necesitas publicar todos los días ni contratar a un periodista. Necesitas publicar con intención: textos que respondan las dudas reales de tus clientes, escritos con las mismas palabras que ellos usan al buscar.</p>
+      <div class="action-box">
+        <strong>Acción concreta esta semana</strong>
+        Escribe tres preguntas frecuentes que te hacen tus clientes antes de contratarte. Cada una puede convertirse en un artículo de blog o en una sección de tu sitio web.
+      </div>
+
+      <p style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);font-size:15px;color:var(--muted);line-height:1.85"><strong style="color:var(--ink)">Aparecer en Google no requiere un presupuesto grande ni conocimientos técnicos avanzados.</strong> Requiere hacer bien las cosas básicas: perfil completo, sitio optimizado para móvil, reseñas activas y contenido que responda lo que tu cliente busca. Cada punto de este artículo es accionable esta misma semana. Si no sabes por dónde empezar o quieres que alguien revise exactamente qué le falta a tu negocio, el diagnóstico gratuito de NexiaLab es el primer paso.</p>
+
+    </div>
+
+    <!-- CTA FINAL -->
+    <div class="art-cta" data-reveal>
+      <div class="art-cta-inner">
+        <div class="art-cta-eyebrow">¿Listo para el siguiente paso?</div>
+        <h3>¿Quieres saber exactamente qué<br>le falta a <em>tu negocio para aparecer?</em></h3>
+        <p style="font-size:14px;color:rgba(255,255,255,.65);line-height:1.7;max-width:500px">Habla con <strong style="color:var(--lime)">Nexi</strong>, nuestra agente IA disponible 24/7 en nexialab.pro — o pide tu diagnóstico gratuito directamente por WhatsApp. Sin costo, sin compromiso.</p>
+        <div class="art-cta-btns">
+          <a href="https://wa.me/56965088060?text=Hola%2C%20leí%20el%20artículo%20sobre%20Google%20y%20quiero%20un%20diagnóstico%20gratuito" target="_blank" class="btn-wa">
+            💬 Diagnóstico gratuito por WhatsApp
+          </a>
+          <button class="btn-nexi" onclick="openChatWidget()">
+            🤖 Hablar con Nexi ahora
+          </button>
+        </div>
+        <div class="art-cta-note">✓ Respuesta en menos de 24 hrs · ✓ Sin costo · ✓ Todo Chile</div>
+      </div>
+    </div>
+
+    <!-- TAGS -->
+    <div class="art-tags" data-reveal>
+      <span class="art-tag">SEO Local</span>
+      <span class="art-tag">Google My Business</span>
+      <span class="art-tag">PYME Chile</span>
+      <span class="art-tag">Presencia Digital</span>
+      <span class="art-tag">Posicionamiento Web</span>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="win-symbol sz-footer">
+          <div class="win-s ws-dark"><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div></div>
+          <div class="win-s ws-lit"><div class="ws-pane-lit"></div><div class="ws-pane-lit"></div><div class="ws-pane-lit"></div><div class="ws-pane-lit"></div></div>
+          <div class="win-s ws-dark"><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div><div class="ws-pane-dark"></div></div>
+        </div>
+        <div>
+          <div class="footer-logo">Nexia<em>Lab</em></div>
+          <div class="footer-tagline">Consultoría Digital para PYMEs · Todo Chile</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-links">
+      <a href="/">Inicio</a><a href="/ecosistema.html">Ecosistema</a>
+      <a href="/servicios.html">Servicios</a><a href="/casos.html">Casos reales</a><a href="/blog/">Blog</a><a href="/#contacto">Contacto</a>
+    </div>
+    <div class="footer-copy">© 2026 NexiaLab · Consultoría digital para PYMEs · La Serena, Chile · +569 65088060 · info@nexialab.pro</div>
+  </div>
+</footer>
+
+<div class="chat-widget-btn" onclick="toggleChatWidget()">
+  <span class="chat-widget-label">Habla con Nexi</span>
+  <div class="chat-widget-circle">
+    <div class="chat-widget-dot"></div>
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+  </div>
+</div>
+<div class="chat-modal-overlay" id="chatOverlay" onclick="closeChatWidget()"></div>
+<div class="chat-modal" id="chatModal">
+  <button class="chat-modal-close" onclick="closeChatWidget()">✕</button>
+  <iframe id="chatIframe" src="" data-src="https://chatnexialabpro.netlify.app" title="Nexi" allow="clipboard-write" loading="lazy"></iframe>
+</div>
+<a href="https://wa.me/56965088060" target="_blank" rel="noopener" class="wa-float">
+  <span class="wa-float-label">¿Hablamos?</span>
+  <div class="wa-float-btn">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </div>
+</a>
+
+<script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>60),{passive:true});
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('revealed');obs.unobserve(x.target)}}),{threshold:.08,rootMargin:'0px 0px -32px 0px'});
+document.querySelectorAll('[data-reveal]').forEach(el=>obs.observe(el));
+const mNav=document.getElementById('mobile-nav');let mo=false;
+function toggleMobile(){mo=!mo;mNav.style.display=mo?'flex':'none';document.body.style.overflow=mo?'hidden':'';}
+function closeMobile(){mo=false;mNav.style.display='none';document.body.style.overflow='';}
+let co=false;
+function toggleChatWidget(){co?closeChatWidget():openChatWidget();}
+function openChatWidget(){co=true;const m=document.getElementById('chatModal'),o=document.getElementById('chatOverlay'),f=document.getElementById('chatIframe');if(!f.src||f.src===window.location.href)f.src=f.dataset.src;m.classList.add('open');o.classList.add('open');}
+function closeChatWidget(){co=false;document.getElementById('chatModal').classList.remove('open');document.getElementById('chatOverlay').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&co)closeChatWidget();});
+</script>
+</body>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecosistema Completo — NexiaLab</title>
+<meta name="description" content="Web + SEO + Marketing + Leads, todo conectado con IA. El servicio que las agencias no te ofrecen porque no saben integrarlo. Precio fijo, sin sorpresas.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --forest:#1a3a28;
+  --forest2:#254d38;
+  --forest3:#0a1a10;
+  --lime:#c8f135;
+  --lime2:#a8d020;
+  --bg:#f5f2ed;
+  --bg2:#ece8e0;
+  --white:#ffffff;
+  --ink:#080c07;
+  --muted:#5e5a52;
+  --muted2:#98948a;
+  --border:#ddd8cc;
+  --amber:#e8960e;
+  --teal:#0a9870;
+  --ease-out-quart:cubic-bezier(0.25,1,0.5,1);
+  --ease-out-expo:cubic-bezier(0.16,1,0.3,1);
+}
+
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+/* GRAIN */
+.grain{position:fixed;inset:-50%;z-index:1;width:200%;height:200%;pointer-events:none;opacity:.028;animation:grainMove 0.8s steps(8) infinite;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:160px 160px}
+@keyframes grainMove{0%{transform:translate(0,0)}10%{transform:translate(-3%,-4%)}20%{transform:translate(-6%,2%)}30%{transform:translate(3%,-6%)}40%{transform:translate(-2%,3%)}50%{transform:translate(-5%,1%)}60%{transform:translate(4%,-4%)}70%{transform:translate(1%,5%)}80%{transform:translate(-4%,2%)}90%{transform:translate(3%,-3%)}100%{transform:translate(0,0)}}
+
+/* SCROLL REVEAL */
+[data-reveal]{opacity:0;transform:translateY(40px);transition:opacity .8s var(--ease-out-expo),transform .8s var(--ease-out-expo)}
+[data-reveal="left"]{transform:translateX(-40px)}
+[data-reveal="right"]{transform:translateX(40px)}
+[data-reveal="scale"]{transform:scale(.94);transform-origin:center bottom}
+[data-reveal].revealed{opacity:1;transform:none}
+[data-reveal-delay="1"]{transition-delay:.1s}
+[data-reveal-delay="2"]{transition-delay:.2s}
+[data-reveal-delay="3"]{transition-delay:.3s}
+[data-reveal-delay="4"]{transition-delay:.4s}
+[data-reveal-delay="5"]{transition-delay:.5s}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;transition:background .4s,border-color .4s,backdrop-filter .4s}
+.nav.scrolled{background:rgba(245,242,237,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1160px;margin:0 auto;height:68px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:'Playfair Display',serif;font-size:21px;font-weight:900;color:var(--white);transition:color .3s;letter-spacing:-.01em;position:relative;z-index:2}
+.nav.scrolled .nav-logo{color:var(--forest)}
+.nav-logo em{font-style:italic;color:var(--lime)}
+.nav.scrolled .nav-logo em{color:var(--lime2)}
+.nav-back{font-size:12px;font-weight:500;color:rgba(255,255,255,.6);transition:color .2s;display:flex;align-items:center;gap:6px}
+.nav.scrolled .nav-back{color:var(--muted)}
+.nav-back:hover{color:#fff}
+.nav.scrolled .nav-back:hover{color:var(--forest)}
+.nav-cta-sm{background:var(--lime);color:var(--forest3) !important;padding:9px 22px;font-weight:700;font-size:13px;transition:background .2s,transform .2s}
+.nav-cta-sm:hover{background:var(--lime2);transform:translateY(-1px)}
+
+/* HERO */
+.hero{background:var(--forest3);min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 40px 100px;position:relative;overflow:hidden}
+.hero-bg-img{position:absolute;inset:0;background:url('hero-bg.jpg') center center/cover no-repeat;opacity:.12;pointer-events:none;z-index:0}
+.hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 65% 40%,rgba(200,241,53,.06) 0%,transparent 65%),radial-gradient(ellipse 40% 40% at 5% 80%,rgba(26,58,40,.5) 0%,transparent 60%);animation:glowBreath 6s ease-in-out infinite alternate}
+@keyframes glowBreath{from{opacity:.7}to{opacity:1}}
+.hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 80%);animation:gridDrift 20s linear infinite}
+@keyframes gridDrift{from{background-position:0 0}to{background-position:80px 80px}}
+.hero-inner{max-width:1160px;margin:0 auto;width:100%;position:relative;z-index:2}
+.hero-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,241,53,.6);margin-bottom:28px;display:flex;align-items:center;gap:10px}
+.hero-tag::before{content:'';display:block;width:24px;height:1px;background:rgba(200,241,53,.4)}
+.hero-h1{font-family:'Playfair Display',serif;font-size:clamp(52px,7vw,96px);font-weight:900;line-height:.95;color:#fff;letter-spacing:-.03em;margin-bottom:32px}
+.hero-h1 em{font-style:italic;color:var(--lime)}
+.hero-sub{font-size:18px;line-height:1.65;color:rgba(255,255,255,.65);max-width:600px;margin-bottom:48px}
+.hero-sub strong{color:#fff;font-weight:600}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.btn-lime{display:inline-flex;align-items:center;gap:10px;background:var(--lime);color:var(--forest3);padding:15px 28px;font-size:14px;font-weight:700;transition:background .2s,transform .2s}
+.btn-lime:hover{background:var(--lime2);transform:translateY(-2px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);padding:14px 24px;font-size:13px;font-weight:500;transition:border-color .2s,color .2s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.5);color:#fff}
+.hero-metrics{display:flex;flex-wrap:wrap;gap:32px;margin-top:64px;padding-top:48px;border-top:1px solid rgba(255,255,255,.07)}
+.hero-metric-val{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:var(--lime);line-height:1}
+.hero-metric-lbl{font-size:11px;color:rgba(255,255,255,.45);margin-top:5px;line-height:1.4;max-width:100px}
+
+/* SECTION COMMON */
+.section{padding:100px 40px}
+.section-inner{max-width:1160px;margin:0 auto}
+.section-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-tag::before{content:'';display:block;width:16px;height:1px;background:var(--muted2)}
+.section-tag.light{color:rgba(200,241,53,.5)}
+.section-tag.light::before{background:rgba(200,241,53,.3)}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(34px,4.5vw,58px);font-weight:900;line-height:1.05;letter-spacing:-.025em;color:var(--ink)}
+.section-title em{color:var(--forest);font-style:italic}
+.section-title.light{color:#fff}
+.section-title.light em{color:var(--lime)}
+.section-lead{font-size:17px;line-height:1.7;color:var(--muted);max-width:560px;margin-top:18px}
+.section-lead.light{color:rgba(255,255,255,.6)}
+
+/* PROBLEMA */
+.prob{background:var(--bg)}
+.prob-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-top:56px;border:1px solid var(--border)}
+.prob-item{background:var(--white);padding:32px 28px}
+.prob-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted2);margin-bottom:20px}
+.prob-icon{font-size:28px;margin-bottom:14px}
+.prob-label{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--ink);margin-bottom:8px;line-height:1.2}
+.prob-desc{font-size:12px;line-height:1.6;color:var(--muted)}
+.prob-price{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted2);margin-top:16px;padding-top:16px;border-top:1px solid var(--bg2)}
+.prob-price span{color:var(--forest);font-weight:600}
+.prob-total{margin-top:40px;padding:24px 32px;background:var(--forest3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.prob-total-txt{font-size:13px;color:rgba(255,255,255,.6)}
+.prob-total-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--lime)}
+.prob-total-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(200,241,53,.4);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+
+/* SOLUCIÓN — cómo funciona */
+.como{background:var(--forest3);overflow:hidden}
+.como-inner{max-width:1160px;margin:0 auto;padding:0}
+.como-steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:56px;border-top:1px solid rgba(255,255,255,.06)}
+.como-step{padding:36px 28px;border-right:1px solid rgba(255,255,255,.06);position:relative}
+.como-step:last-child{border-right:none}
+.como-step-num{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;color:rgba(200,241,53,.35);text-transform:uppercase;margin-bottom:20px}
+.como-step-icon{font-size:32px;margin-bottom:18px}
+.como-step-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#fff;margin-bottom:10px}
+.como-step-desc{font-size:12px;line-height:1.6;color:rgba(255,255,255,.5)}
+.como-step-arrow{position:absolute;right:-12px;top:50%;transform:translateY(-50%);z-index:2;color:rgba(200,241,53,.3);font-size:20px}
+.como-step:last-child .como-step-arrow{display:none}
+.como-unifier{margin-top:0;padding:40px 28px;background:rgba(200,241,53,.04);border-top:1px solid rgba(200,241,53,.1);display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.como-unifier-icon{font-size:40px;flex-shrink:0}
+.como-unifier-txt h3{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--lime);margin-bottom:8px}
+.como-unifier-txt p{font-size:13px;line-height:1.65;color:rgba(255,255,255,.55);max-width:640px}
+
+/* PLANES */
+.planes{background:var(--bg)}
+.planes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);margin-top:56px}
+.svc-card{background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:relative;overflow:hidden;transition:transform .4s var(--ease-out-quart),box-shadow .4s var(--ease-out-quart),border-color .3s}
+.svc-card:last-child{border-right:none}
+.svc-card:hover{transform:translateY(-8px);box-shadow:0 24px 64px rgba(10,26,16,.14);border-color:rgba(26,58,40,.25);z-index:2}
+.svc-card.feat{background:var(--forest3);border-color:rgba(255,255,255,.08)}
+.svc-card.feat:hover{border-color:rgba(200,241,53,.2)}
+.svc-feat-badge{position:absolute;top:0;right:0;background:var(--lime);color:var(--forest3);padding:4px 14px 4px 16px;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;clip-path:polygon(8px 0%,100% 0%,100% 100%,8px 100%,0% 50%)}
+.svc-top{padding:28px 26px 0}
+.svc-tag{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2);margin-bottom:14px}
+.svc-card.feat .svc-tag{color:rgba(200,241,53,.7)}
+.svc-icon{width:48px;height:48px;background:rgba(26,58,40,.07);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px;transition:transform .3s var(--ease-out-quart)}
+.svc-card:hover .svc-icon{transform:scale(1.12) rotate(-3deg)}
+.svc-card.feat .svc-icon{background:rgba(200,241,53,.08)}
+.svc-name{font-family:'Playfair Display',serif;font-size:22px;line-height:1.15;font-weight:900;color:var(--ink);margin-bottom:8px}
+.svc-card.feat .svc-name{color:#fff}
+.svc-tagline{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.svc-card.feat .svc-tagline{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.07)}
+.svc-price-wrap{padding:18px 26px}
+.svc-setup{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.svc-card.feat .svc-setup{color:rgba(200,241,53,.4)}
+.svc-price{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--ink)}
+.svc-card.feat .svc-price{color:var(--lime)}
+.svc-currency{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);display:block;margin-top:2px}
+.svc-card.feat .svc-currency{color:rgba(200,241,53,.75)}
+.svc-list{list-style:none;padding:0 26px 4px;flex:1}
+.svc-list li{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--bg2);font-size:12.5px;color:#3a3530;line-height:1.45}
+.svc-list li:last-child{border-bottom:none}
+.svc-card.feat .svc-list li{color:rgba(255,255,255,.78);border-color:rgba(255,255,255,.05)}
+.svc-check{color:var(--teal);flex-shrink:0;font-size:10px;margin-top:2px}
+.svc-card.feat .svc-check{color:var(--lime)}
+.svc-x{color:var(--muted2);flex-shrink:0;font-size:10px;margin-top:2px}
+.svc-guarantee{margin:12px 26px 0;padding:10px 14px;background:rgba(10,152,112,.06);border:1px solid rgba(10,152,112,.15);font-size:11px;color:var(--teal);line-height:1.5}
+.svc-card.feat .svc-guarantee{background:rgba(200,241,53,.05);border-color:rgba(200,241,53,.18);color:rgba(200,241,53,.85)}
+.svc-cta-wrap{margin:18px 26px 26px;display:flex;flex-direction:column;gap:8px}
+.svc-cta{display:flex;align-items:center;justify-content:space-between;background:var(--forest);color:#fff;padding:13px 18px;font-size:13px;font-weight:600;text-decoration:none;transition:background .2s,transform .2s;cursor:pointer}
+.svc-cta:hover{background:var(--forest2);transform:translateX(4px)}
+.svc-card.feat .svc-cta{background:var(--lime);color:var(--forest3)}
+.svc-card.feat .svc-cta:hover{background:var(--lime2)}
+.svc-cta-arrow{transition:transform .2s}
+.svc-cta:hover .svc-cta-arrow{transform:translateX(4px)}
+.svc-note{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted2);text-align:center;margin-top:20px;line-height:1.6}
+
+/* MOATS */
+.moats{background:var(--bg2)}
+.moats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);margin-top:56px}
+.moat-item{padding:40px 36px;border-right:1px solid var(--border);position:relative;overflow:hidden;transition:transform .3s var(--ease-out-quart)}
+.moat-item:last-child{border-right:none}
+.moat-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--lime);transform:scaleY(0);transform-origin:bottom;transition:transform .4s var(--ease-out-quart)}
+.moat-item:hover::before{transform:scaleY(1)}
+.moat-item:hover{transform:translateX(4px)}
+.moat-num{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--muted2);text-transform:uppercase;margin-bottom:20px}
+.moat-icon{font-size:32px;margin-bottom:16px}
+.moat-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--ink);margin-bottom:10px;line-height:1.2}
+.moat-title em{color:var(--forest);font-style:italic}
+.moat-desc{font-size:13px;line-height:1.65;color:var(--muted)}
+
+/* CTA FINAL */
+.cta-final{background:var(--forest3);padding:100px 40px;position:relative;overflow:hidden}
+.cta-final-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(200,241,53,.05) 0%,transparent 70%)}
+.cta-final-inner{max-width:720px;margin:0 auto;text-align:center;position:relative;z-index:2}
+.cta-final-tag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,241,53,.4);margin-bottom:20px}
+.cta-final-h2{font-family:'Playfair Display',serif;font-size:clamp(38px,5vw,62px);font-weight:900;color:#fff;line-height:1.05;letter-spacing:-.025em;margin-bottom:20px}
+.cta-final-h2 em{font-style:italic;color:var(--lime)}
+.cta-final-sub{font-size:16px;line-height:1.7;color:rgba(255,255,255,.55);margin-bottom:40px}
+.cta-btns{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.btn-wa{display:inline-flex;align-items:center;gap:10px;background:#25d366;color:#fff;padding:15px 28px;font-size:14px;font-weight:700;transition:background .2s,transform .2s}
+.btn-wa:hover{background:#1db954;transform:translateY(-2px)}
+.btn-ghost-light{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:14px 24px;font-size:13px;transition:border-color .2s,color .2s}
+.btn-ghost-light:hover{border-color:rgba(255,255,255,.5);color:#fff}
+.cta-final-fine{margin-top:32px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);line-height:1.6}
+
+/* FOOTER */
+.footer{background:var(--forest3);border-top:1px solid rgba(255,255,255,.05);padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap}
+.footer-inner{max-width:1160px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:#fff}
+.footer-logo em{color:var(--lime);font-style:italic}
+.footer-txt{font-size:11px;color:rgba(255,255,255,.3)}
+.footer-back{font-size:12px;color:rgba(255,255,255,.4);transition:color .2s;display:flex;align-items:center;gap:6px}
+.footer-back:hover{color:rgba(255,255,255,.7)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .prob-grid{grid-template-columns:repeat(2,1fr)}
+  .como-steps{grid-template-columns:repeat(2,1fr)}
+  .como-step:nth-child(2){border-right:none}
+  .planes-grid{grid-template-columns:1fr}
+  .svc-card{border-right:none;border-bottom:1px solid var(--border)}
+  .svc-card:last-child{border-bottom:none}
+  .moats-grid{grid-template-columns:1fr}
+  .moat-item{border-right:none;border-bottom:1px solid var(--border)}
+  .moat-item:last-child{border-bottom:none}
+  .nav{padding:0 20px}
+}
+@media(max-width:640px){
+  .hero{padding:100px 20px 80px}
+  .section{padding:72px 20px}
+  .prob-grid{grid-template-columns:1fr}
+  .como-steps{grid-template-columns:1fr}
+  .como-step{border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}
+  .como-step-arrow{display:none}
+  .hero-metrics{gap:24px}
+  .cta-final{padding:72px 20px}
+  .footer{padding:24px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Nexia<em>Lab</em></a>
+    <a href="index.html" class="nav-back">← Volver al inicio</a>
+    <a href="https://wa.me/56965088060?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20el%20Ecosistema%20Completo" target="_blank" class="nav-cta-sm">Diagnóstico gratis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-img"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">Nexia Lab — Servicio Premium</div>
+    <h1 class="hero-h1" data-reveal><em>Ecosistema</em><br>completo.</h1>
+    <p class="hero-sub" data-reveal data-reveal-delay="2">El que nadie menciona. <strong>Te armamos todo lo que necesitas</strong>: web + SEO + marketing + leads. Todo conectado, todo funcionando desde el primer día.</p>
+    <div class="hero-ctas" data-reveal data-reveal-delay="3">
+      <a href="https://wa.me/56965088060?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20el%20Ecosistema%20Completo" target="_blank" class="btn-lime">Quiero un diagnóstico gratuito →</a>
+      <a href="#planes" class="btn-ghost">Ver planes y precios</a>
+    </div>
+    <div class="hero-metrics" data-reveal data-reveal-delay="4">
+      <div>
+        <div class="hero-metric-val">3</div>
+        <div class="hero-metric-lbl">planes con precio fijo y público</div>
+      </div>
+      <div>
+        <div class="hero-metric-val">6m</div>
+        <div class="hero-metric-lbl">compromiso mínimo, sin letra chica</div>
+      </div>
+      <div>
+        <div class="hero-metric-val">1</div>
+        <div class="hero-metric-lbl">proveedor para todo el ecosistema</div>
+      </div>
+      <div>
+        <div class="hero-metric-val">IA</div>
+        <div class="hero-metric-lbl">automatización inteligente incluida</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section class="section prob">
+  <div class="section-inner">
+    <div class="section-tag" data-reveal>El problema</div>
+    <h2 class="section-title" data-reveal>Estás pagando por<br>4 servicios <em>desconectados.</em></h2>
+    <p class="section-lead" data-reveal>Cada proveedor trabaja en su silo. El diseñador no sabe de SEO. El de marketing no sabe de leads. Y tú coordinando a todos. Esto es lo que cuesta hacerlo solo:</p>
+    <div class="prob-grid" data-reveal data-reveal-delay="1">
+      <div class="prob-item">
+        <div class="prob-num">01</div>
+        <div class="prob-icon">🌐</div>
+        <div class="prob-label">Web / WebKit</div>
+        <div class="prob-desc">Landing o sitio corporativo. Un proveedor lo construye y desaparece. Hosting aparte, dominio aparte, mantención aparte.</div>
+        <div class="prob-price">Precio mercado: <span>$300K–$700K CLP</span> one-shot + mantención</div>
+      </div>
+      <div class="prob-item">
+        <div class="prob-num">02</div>
+        <div class="prob-icon">🔍</div>
+        <div class="prob-label">SEO</div>
+        <div class="prob-desc">Otra agencia, otra cuenta, otro reporte. Nadie sabe si el contenido SEO está generando leads o solo tráfico vacío.</div>
+        <div class="prob-price">Precio mercado: <span>$220K–$400K CLP</span>/mes retainer</div>
+      </div>
+      <div class="prob-item">
+        <div class="prob-num">03</div>
+        <div class="prob-icon">📣</div>
+        <div class="prob-label">Marketing combo</div>
+        <div class="prob-desc">Google Ads + redes sociales. Tercera agencia, tercera factura. La pauta corre pero nadie mide si convierte en ventas.</div>
+        <div class="prob-price">Precio mercado: <span>$500K–$600K CLP</span>/mes + pauta aparte</div>
+      </div>
+      <div class="prob-item">
+        <div class="prob-num">04</div>
+        <div class="prob-icon">🎯</div>
+        <div class="prob-label">Leads</div>
+        <div class="prob-desc">Email marketing, CRM, embudos. Cuarto proveedor que no sabe qué hace la web ni el SEO. Los leads llegan fríos.</div>
+        <div class="prob-price">Precio mercado: <span>$400K–$900K CLP</span>/mes retainer</div>
+      </div>
+    </div>
+    <div class="prob-total" data-reveal data-reveal-delay="2">
+      <div>
+        <div class="prob-total-txt">Total comprado por separado, al precio mediano del mercado</div>
+        <div class="prob-total-num">~$1.400.000 CLP/mes</div>
+        <div class="prob-total-sub">+ setup inicial + 4 reuniones de coordinación al mes + 4 reportes diferentes</div>
+      </div>
+      <div style="font-size:13px;color:rgba(255,255,255,.4);max-width:280px;line-height:1.6">Sin contar el tiempo que pierdes coordinando proveedores que no se hablan entre sí.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="section como">
+  <div class="section-inner como-inner">
+    <div class="section-tag light" data-reveal>La solución</div>
+    <h2 class="section-title light" data-reveal>Cuatro piezas.<br><em>Un solo sistema.</em></h2>
+    <p class="section-lead light" data-reveal>Nexia Lab entrega los 4 servicios conectados bajo una sola estrategia. Un solo proveedor. Un solo reporte. Un solo precio fijo.</p>
+    <div class="como-steps">
+      <div class="como-step" data-reveal data-reveal-delay="1">
+        <div class="como-step-num">Pilar 01</div>
+        <div class="como-step-icon">🌐</div>
+        <div class="como-step-name">Web</div>
+        <div class="como-step-desc">Landing o sitio corporativo. Hosting incluido. Optimizado para convertir desde el primer día.</div>
+        <div class="como-step-arrow">→</div>
+      </div>
+      <div class="como-step" data-reveal data-reveal-delay="2">
+        <div class="como-step-num">Pilar 02</div>
+        <div class="como-step-icon">🔍</div>
+        <div class="como-step-name">SEO</div>
+        <div class="como-step-desc">Posicionamiento orgánico, contenido y Google Business Profile. Tráfico que no pagas cada mes.</div>
+        <div class="como-step-arrow">→</div>
+      </div>
+      <div class="como-step" data-reveal data-reveal-delay="3">
+        <div class="como-step-num">Pilar 03</div>
+        <div class="como-step-icon">📣</div>
+        <div class="como-step-name">Marketing</div>
+        <div class="como-step-desc">Google Ads, Meta Ads y gestión de redes sociales. Todo bajo una estrategia unificada.</div>
+        <div class="como-step-arrow">→</div>
+      </div>
+      <div class="como-step" data-reveal data-reveal-delay="4">
+        <div class="como-step-num">Pilar 04</div>
+        <div class="como-step-icon">🎯</div>
+        <div class="como-step-name">Leads</div>
+        <div class="como-step-desc">Email marketing con Mailchimp, embudos automatizados y nurturing. Leads calificados, no solo visitas.</div>
+      </div>
+    </div>
+    <div class="como-unifier" data-reveal>
+      <div class="como-unifier-icon">🤖</div>
+      <div class="como-unifier-txt">
+        <h3>Todo conectado, automático</h3>
+        <p>El visitante llega por Google Ads → la web lo captura → el sistema identifica de dónde vino y qué vio → dispara la secuencia email correcta → te notifica con el lead calificado por WhatsApp. Todo automático. Sin que tengas que configurarlo tú.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANES -->
+<section class="section planes" id="planes">
+  <div class="section-inner">
+    <div class="section-tag" data-reveal>Planes y precios</div>
+    <h2 class="section-title" data-reveal>Precio fijo.<br><em>Sin sorpresas.</em></h2>
+    <p class="section-lead" data-reveal>Compromiso mínimo 6 meses. La pauta publicitaria (Google/Meta) siempre a cargo del cliente, pagada directo a las plataformas. Hosting y Mailchimp básico incluidos en el fee mensual.</p>
+    <div class="planes-grid">
+
+      <!-- ARRANQUE -->
+      <div class="svc-card" data-reveal data-reveal-delay="1">
+        <div class="svc-top">
+          <div class="svc-tag">Plan 01 — Entrada</div>
+          <div class="svc-icon">🌱</div>
+          <div class="svc-name">Arranque</div>
+          <div class="svc-tagline">Para el negocio que necesita presencia digital real por primera vez.</div>
+        </div>
+        <div class="svc-price-wrap">
+          <div class="svc-setup">Setup: $390.000 CLP</div>
+          <div class="svc-price">$490.000</div>
+          <div class="svc-currency">CLP / mes + IVA · mínimo 6 meses</div>
+        </div>
+        <ul class="svc-list">
+          <li><span class="svc-check">✓</span> Landing page 1-page (hasta 6 secciones)</li>
+          <li><span class="svc-check">✓</span> Hosting + dominio .cl configurado</li>
+          <li><span class="svc-check">✓</span> Google Business Profile optimizado</li>
+          <li><span class="svc-check">✓</span> 1 campaña Google Ads activa</li>
+          <li><span class="svc-check">✓</span> 8 posts/mes en 1 red social</li>
+          <li><span class="svc-check">✓</span> 1 newsletter/mes en Mailchimp</li>
+          <li><span class="svc-check">✓</span> Chat automático en web (FAQ del negocio)</li>
+          <li><span class="svc-check">✓</span> Reporte mensual + reunión 30 min</li>
+          <li><span class="svc-x">✗</span> <span style="color:var(--muted2)">Meta Ads / blog SEO / CRM</span></li>
+        </ul>
+        <div class="svc-guarantee">📊 Reporte mensual con métricas reales. Sin reportes de vanidad.</div>
+        <div class="svc-cta-wrap">
+          <a href="https://wa.me/56965088060?text=Hola%2C%20me%20interesa%20el%20Plan%20Arranque%20del%20Ecosistema%20Completo" target="_blank" class="svc-cta">Quiero el Plan Arranque <span class="svc-cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- CRECIMIENTO -->
+      <div class="svc-card feat" data-reveal data-reveal-delay="2">
+        <div class="svc-feat-badge">Más popular</div>
+        <div class="svc-top">
+          <div class="svc-tag">Plan 02 — Recomendado</div>
+          <div class="svc-icon">🚀</div>
+          <div class="svc-name">Crecimiento</div>
+          <div class="svc-tagline">Para el negocio listo para captar clientes de forma sistemática.</div>
+        </div>
+        <div class="svc-price-wrap">
+          <div class="svc-setup">Setup: $590.000 CLP</div>
+          <div class="svc-price">$790.000</div>
+          <div class="svc-currency">CLP / mes + IVA · mínimo 6 meses</div>
+        </div>
+        <ul class="svc-list">
+          <li><span class="svc-check">✓</span> Sitio corporativo 7 páginas</li>
+          <li><span class="svc-check">✓</span> Hosting + SEO técnico inicial</li>
+          <li><span class="svc-check">✓</span> 2 artículos SEO/mes + 3 páginas optimizadas</li>
+          <li><span class="svc-check">✓</span> Google Ads + Meta Ads (2 campañas)</li>
+          <li><span class="svc-check">✓</span> 15 posts/mes en 2 redes sociales</li>
+          <li><span class="svc-check">✓</span> Embudo email completo (3 secuencias Mailchimp)</li>
+          <li><span class="svc-check">✓</span> Lead magnet diseñado</li>
+          <li><span class="svc-check">✓</span> Automatización: scoring de leads + secuencia email</li>
+          <li><span class="svc-check">✓</span> Reporte mensual + reunión estratégica 45 min</li>
+        </ul>
+        <div class="svc-guarantee">⚡ Ahorro estimado vs comprar suelto: ~$500.000 CLP/mes</div>
+        <div class="svc-cta-wrap">
+          <a href="https://wa.me/56965088060?text=Hola%2C%20me%20interesa%20el%20Plan%20Crecimiento%20del%20Ecosistema%20Completo" target="_blank" class="svc-cta">Quiero el Plan Crecimiento <span class="svc-cta-arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- ECOSISTEMA -->
+      <div class="svc-card" data-reveal data-reveal-delay="3">
+        <div class="svc-top">
+          <div class="svc-tag">Plan 03 — Full</div>
+          <div class="svc-icon">🌐</div>
+          <div class="svc-name">Ecosistema</div>
+          <div class="svc-tagline">Para el negocio que quiere el sistema completo funcionando en piloto automático.</div>
+        </div>
+        <div class="svc-price-wrap">
+          <div class="svc-setup">Setup: $890.000 CLP</div>
+          <div class="svc-price">$1.290.000</div>
+          <div class="svc-currency">CLP / mes + IVA · mínimo 6 meses</div>
+        </div>
+        <ul class="svc-list">
+          <li><span class="svc-check">✓</span> Web hasta 12 páginas o e-commerce 50 productos</li>
+          <li><span class="svc-check">✓</span> SEO agresivo: 4 artículos + link building 3/mes</li>
+          <li><span class="svc-check">✓</span> Google + Meta + LinkedIn Ads (4 campañas)</li>
+          <li><span class="svc-check">✓</span> 24 piezas/mes en 3 redes sociales</li>
+          <li><span class="svc-check">✓</span> CRM completo + 5 secuencias Mailchimp</li>
+          <li><span class="svc-check">✓</span> WhatsApp Business API integrado</li>
+          <li><span class="svc-check">✓</span> Sistema automatizado: califica leads + genera propuestas</li>
+          <li><span class="svc-check">✓</span> Dashboard tiempo real 24/7</li>
+          <li><span class="svc-check">✓</span> Reunión estratégica 60 min + revisión trimestral</li>
+        </ul>
+        <div class="svc-guarantee">📊 Ahorro estimado vs comprar suelto: ~$1.700.000 CLP/mes</div>
+        <div class="svc-cta-wrap">
+          <a href="https://wa.me/56965088060?text=Hola%2C%20me%20interesa%20el%20Plan%20Ecosistema%20Completo" target="_blank" class="svc-cta">Quiero el Plan Ecosistema <span class="svc-cta-arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+    <p class="svc-note" data-reveal data-reveal-delay="4">
+      Precio en CLP + IVA. Pauta publicitaria (Google/Meta/LinkedIn) siempre a cargo del cliente, pagada directo a las plataformas.<br>
+      Precio se reajusta anualmente según variación IPC. Cancelación con 30 días de aviso, sin multa post período mínimo.
+    </p>
+  </div>
+</section>
+
+<!-- MOATS -->
+<section class="section moats">
+  <div class="section-inner">
+    <div class="section-tag" data-reveal>Por qué Nexia Lab</div>
+    <h2 class="section-title" data-reveal>Lo que la competencia<br>no puede <em>copiar.</em></h2>
+    <div class="moats-grid">
+      <div class="moat-item" data-reveal data-reveal-delay="1">
+        <div class="moat-num">Diferencial 01</div>
+        <div class="moat-icon">💰</div>
+        <div class="moat-title">Precio fijo<br><em>y publicado.</em></div>
+        <div class="moat-desc">El 90% de las agencias chilenas oculta su precio detrás de un "agendar diagnóstico". Nosotros publicamos todo. Sin sorpresas, sin vendedores que negocian. El precio que ves es el que pagas.</div>
+      </div>
+      <div class="moat-item" data-reveal data-reveal-delay="2">
+        <div class="moat-num">Diferencial 02</div>
+        <div class="moat-icon">🤖</div>
+        <div class="moat-title">Automatización<br><em>real, no promesas.</em></div>
+        <div class="moat-desc">No es una agencia que "usa IA" como argumento de venta. Es un sistema que conecta web, SEO, marketing y leads. Automatiza el flujo completo: desde el clic del anuncio hasta la notificación del lead calificado en tu WhatsApp.</div>
+      </div>
+      <div class="moat-item" data-reveal data-reveal-delay="3">
+        <div class="moat-num">Diferencial 03</div>
+        <div class="moat-icon">🏭</div>
+        <div class="moat-title">Expertise<br><em>vertical real.</em></div>
+        <div class="moat-desc">Trabajamos con OTECs, pymes industriales y empresas de cumplimiento normativo en Chile. Conocemos los procesos, el lenguaje y los resultados que importan en tu industria. No somos una agencia generalista.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="cta-final-glow"></div>
+  <div class="cta-final-inner">
+    <div class="cta-final-tag">Siguiente paso</div>
+    <h2 class="cta-final-h2">Diagnóstico<br><em>gratuito.</em></h2>
+    <p class="cta-final-sub">Conversamos 30 minutos. Revisamos tu situación actual. Te decimos honestamente qué plan calza y qué resultados son realistas en tu caso. Sin compromiso.</p>
+    <div class="cta-btns">
+      <a href="https://wa.me/56965088060?text=Hola%2C%20quiero%20el%20diagn%C3%B3stico%20gratuito%20del%20Ecosistema%20Completo" target="_blank" class="btn-wa">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Agendar diagnóstico por WhatsApp
+      </a>
+      <a href="mailto:info@nexialab.pro" class="btn-ghost-light">Prefiero email →</a>
+    </div>
+    <p class="cta-final-fine">Sin costo. Sin compromiso. Sin vendedores que te llaman 5 veces.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">Nexia<em>Lab</em></div>
+    <div class="footer-txt">© 2026 Nexia Lab SpA — Chile</div>
+    <a href="index.html" class="footer-back">← Volver al inicio</a>
+  </div>
+</footer>
+
+<script>
+// NAV scroll
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+// Scroll reveal
+const revealEls = document.querySelectorAll('[data-reveal]');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('revealed');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => observer.observe(el));
+</script>
+<script src="assets/nexia-chat.js"></script>
+</body>
+</html>
