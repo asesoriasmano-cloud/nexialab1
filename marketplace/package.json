@@ -1,5 +1,5 @@
 {
-  "name": "marketplace-petvet-cl",
+  "name": "registro-petvet-chile",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -33,5 +33,6 @@
     "tailwindcss": "4.3.3",
     "tsx": "4.23.13",
     "typescript": "5.9.3"
-  }
+  },
+  "description": "Marketplace/directorio curado del rubro pet y veterinario en Chile."
 }

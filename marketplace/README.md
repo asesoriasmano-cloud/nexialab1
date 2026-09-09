@@ -9,13 +9,26 @@ Dos carriles de oferta — **empresas verificadas** (con sello) y
 de que cualquier ficha se publique. Fase 1 es directorio con leads; el modelo
 de datos ya deja el espacio para las transacciones de fase 2.
 
-Vive en `marketplace/` dentro de este repo. El sitio estático de la raíz
-(Nexia Lab) no se toca.
+## De dónde sale
+
+La idea es una derivada del trabajo con PatasSanas.cl, veterinaria a domicilio
+en La Serena. El problema de un negocio chico del rubro no es solo operar: es
+que lo encuentren. Un emprendimiento que hoy solo tiene Instagram no tiene
+dónde mostrarse con seriedad frente a alguien que está eligiendo a quién
+confiarle su mascota.
+
+De ahí el carril de **emprendimientos con diferenciación**: no entran por
+tamaño ni por RUT, entran por lo que hacen distinto, y esa diferenciación es un
+campo con reglas, no una descripción suelta. La cola de revisión existe para
+que estar inscrito valga algo — si entra cualquiera, el sello no significa
+nada, y sin eso el emprendimiento no gana promoción, solo ruido.
+
+**Es un proyecto independiente.** No es parte de Nexia Lab ni depende de él; se
+desarrolla y se despliega aparte.
 
 ## Levantarlo
 
 ```bash
-cd marketplace
 npm install       # el postinstall corre `prisma generate`
 npm run dev       # http://localhost:3000
 ```
