@@ -1,0 +1,299 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Tokens de la seccion 2 del spec. Todo el color de la app sale de aqui;
+   no se usan las escalas de color por defecto de Tailwind.
+   ========================================================================== */
+
+@theme {
+  --color-tinta: #1f3d2e;        /* verde bosque, headers y tinta institucional */
+  --color-tinta-alta: #162c21;   /* variante para hover sobre fondo verde */
+  --color-papel: #f7f3e8;        /* papel calido */
+  --color-papel-borde: #e2dbc7;  /* linea de guia impresa */
+  --color-papel-hueco: #efe9d8;  /* casillas y celdas del formulario */
+  --color-sello: #b5482f;        /* rojo ladrillo del timbre y del folio */
+  --color-sello-hover: #8f3823;  /* mismo ladrillo, un punto mas oscuro */
+  --color-sello-tenue: #d9c0b6;  /* trazo del timbre sin peso de texto */
+  --color-negro: #1a1a17;        /* negro calido para texto sobre papel */
+  --color-salvia: #7c8b6f;       /* bordes y estados secundarios */
+  --color-salvia-tinta: #4f5a46; /* misma familia, con contraste AA para texto */
+
+  --font-folio: var(--font-fraunces), "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-ui: var(--font-public-sans), "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-papel);
+    color: var(--color-negro);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Foco visible en todo elemento interactivo (criterio de aceptacion). */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-sello);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  ::selection {
+    background: var(--color-tinta);
+    color: var(--color-papel);
+  }
+}
+
+/*
+ * Las clases del sistema van en la capa `components` para que cualquier
+ * utilidad de Tailwind puesta en el marcado (por ejemplo `text-papel/70`
+ * sobre el verde del header) siga ganando en la cascada.
+ */
+@layer components {
+  /* ------------------------------------------------------------------------
+     Tipografia de documento
+     ---------------------------------------------------------------------- */
+
+  .folio-type {
+    font-family: var(--font-folio);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .rotulo {
+    /* Etiqueta de campo de formulario oficial. Sin mayusculas sostenidas. */
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--color-salvia-tinta);
+  }
+
+  .texto-medida {
+    max-width: 68ch;
+  }
+
+  /* ------------------------------------------------------------------------
+     Cartilla: la ficha de negocio
+     ---------------------------------------------------------------------- */
+
+  .cartilla {
+    position: relative;
+    background: var(--color-papel);
+    /* Sin radius parejo ni sombra gris: la ficha se define por sus reglas. */
+    border: 1px solid var(--color-papel-borde);
+    border-top: 3px solid var(--color-tinta);
+  }
+
+  .cartilla:hover,
+  .cartilla:focus-within {
+    border-color: var(--color-salvia);
+  }
+
+  /* Carril emprendimientos: borde de recorte, como una ficha desprendida. */
+  .cartilla--emprendimiento {
+    border-top: 1px solid var(--color-papel-borde);
+    border-left: 3px double var(--color-salvia);
+  }
+
+  .cartilla--destacada {
+    border-top-color: var(--color-sello);
+  }
+
+  /* Lineas de guia, como papel pautado de formulario. */
+  .regla-campo {
+    border-bottom: 1px solid var(--color-papel-borde);
+  }
+
+  .regla-doble {
+    border-bottom: 3px double var(--color-papel-borde);
+  }
+
+  /* Separador vertical: reemplaza los "·" y "—" que el spec descarta. */
+  .divisor-vertical::before {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 0.85em;
+    margin-inline: 0.6rem;
+    vertical-align: -0.05em;
+    background: var(--color-papel-borde);
+  }
+
+  /* ------------------------------------------------------------------------
+     Sello de verificacion
+     ---------------------------------------------------------------------- */
+
+  .sello {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.6rem;
+    color: var(--color-sello);
+    border: 2px solid currentColor;
+    /* Doble anillo de timbre, sin sombra difusa. */
+    box-shadow:
+      0 0 0 1px var(--color-papel),
+      0 0 0 3px color-mix(in srgb, var(--color-sello) 22%, transparent);
+    transform: rotate(-6deg);
+    transform-origin: center;
+    font-family: var(--font-folio);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .sello--estampa {
+    animation: estampar 520ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  }
+
+  /* ------------------------------------------------------------------------
+     Pestanas de categoria (carpeta, no chips)
+     ---------------------------------------------------------------------- */
+
+  .carpeta {
+    border-top: 1px solid var(--color-papel-borde);
+  }
+
+  .pestana {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.55rem 0.9rem 0.5rem;
+    margin-bottom: -1px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    color: var(--color-salvia-tinta);
+    background: transparent;
+    white-space: nowrap;
+  }
+
+  .pestana:hover {
+    color: var(--color-tinta);
+    background: var(--color-papel-hueco);
+  }
+
+  .pestana[aria-current="page"] {
+    color: var(--color-tinta);
+    background: var(--color-papel);
+    border-color: var(--color-papel-borde);
+    /* La pestana activa "abre" la carpeta tapando la linea inferior. */
+    box-shadow: 0 1px 0 0 var(--color-papel);
+    font-weight: 600;
+  }
+
+  .pestana[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    inset-inline: -1px;
+    top: -1px;
+    height: 3px;
+    background: var(--color-tinta);
+  }
+
+  /* ------------------------------------------------------------------------
+     Controles con aspecto de casilla impresa
+     ---------------------------------------------------------------------- */
+
+  .campo {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    background: var(--color-papel-hueco);
+    border: 1px solid var(--color-papel-borde);
+    border-bottom: 2px solid var(--color-salvia);
+    color: var(--color-negro);
+    font-family: var(--font-ui);
+    font-size: 0.9375rem;
+  }
+
+  .campo::placeholder {
+    color: var(--color-salvia-tinta);
+  }
+
+  .campo:focus {
+    background: var(--color-papel);
+    border-bottom-color: var(--color-sello);
+  }
+
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.1rem;
+    border: 1px solid var(--color-tinta);
+    background: var(--color-tinta);
+    color: var(--color-papel);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+  }
+
+  .boton:hover {
+    background: var(--color-tinta-alta);
+  }
+
+  .boton:disabled {
+    cursor: progress;
+    opacity: 0.65;
+  }
+
+  .boton--secundario {
+    background: transparent;
+    color: var(--color-tinta);
+  }
+
+  .boton--secundario:hover {
+    background: var(--color-papel-hueco);
+  }
+
+  .boton--sello {
+    border-color: var(--color-sello);
+    background: var(--color-sello);
+    color: var(--color-papel);
+  }
+
+  .boton--sello:hover {
+    background: var(--color-sello-hover);
+  }
+
+  /* Fondo de papel: trama de guia muy tenue, sin gradientes de color. */
+  .papel-pautado {
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-papel-borde) 55%, transparent) 0 1px,
+      transparent 1px 2rem
+    );
+  }
+}
+
+/*
+ * Unico momento de animacion permitido por el spec: el timbre estampandose
+ * al cargar la ficha, una vez, no en cada hover.
+ */
+@keyframes estampar {
+  0% {
+    opacity: 0;
+    transform: rotate(-16deg) scale(1.9);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(-4deg) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-6deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sello--estampa {
+    animation: none;
+  }
+}

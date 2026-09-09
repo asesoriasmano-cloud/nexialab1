@@ -1,0 +1,201 @@
+// Esquema de la seccion 3 del spec, mapeado directo a tablas Postgres.
+// Fase 1 = directorio + leads. Los campos de fase 2 (offer.bookable,
+// offer.price_range) ya existen para no necesitar migracion estructural.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Tier {
+  empresa
+  emprendimiento
+}
+
+enum BusinessStatus {
+  pending
+  approved
+  rejected
+}
+
+enum Source {
+  osint
+  manual
+  self_signup
+}
+
+enum OfferType {
+  producto
+  servicio
+}
+
+enum MediaType {
+  logo
+  foto
+  video
+}
+
+enum LeadStatus {
+  nuevo
+  contactado
+  cerrado
+}
+
+enum ReviewDecision {
+  pending
+  approved
+  rejected
+}
+
+model Category {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  icon     String?
+  parentId String? @map("parent_id")
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+
+  /// Orden de las pestanas en la home. No esta en el spec pero evita
+  /// depender del orden de insercion para el layout de carpeta.
+  position Int @default(0)
+
+  businesses Business[]
+
+  @@index([parentId])
+  @@map("category")
+}
+
+model Business {
+  id   String  @id @default(cuid())
+  name String
+  rut  String?
+
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  tier                Tier
+  description         String  @db.Text
+  differentiationTag  String? @map("differentiation_tag")
+
+  region String
+  comuna String
+  address String?
+  lat     Float?
+  lng     Float?
+
+  phone     String?
+  whatsapp  String?
+  email     String?
+  website   String?
+  instagram String?
+
+  gmbPlaceId     String? @map("gmb_place_id")
+  gmbRating      Float?  @map("gmb_rating")
+  gmbReviewCount Int?    @map("gmb_review_count")
+
+  status BusinessStatus @default(pending)
+  source Source         @default(manual)
+
+  featured      Boolean   @default(false)
+  featuredUntil DateTime? @map("featured_until") @db.Date
+
+  /// Folio secuencial visible en la cartilla (ej. N° 0142). Se asigna al
+  /// aprobar, con la secuencia de Postgres de mas abajo.
+  folioNumber String? @unique @map("folio_number")
+
+  /// Slug de la URL /[categoria]/[slug].
+  slug String @unique
+
+  createdAt  DateTime @default(now()) @map("created_at")
+  approvedAt DateTime? @map("approved_at")
+  approvedBy String?   @map("approved_by")
+
+  offers        Offer[]
+  media         Media[]
+  leads         Lead[]
+  ingestionLogs IngestionLog[]
+
+  @@index([status, tier])
+  @@index([categoryId, status])
+  @@index([region, comuna])
+  @@map("business")
+}
+
+model Offer {
+  id         String   @id @default(cuid())
+  businessId String   @map("business_id")
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String    @db.Text
+  type        OfferType
+  priceRange  String?   @map("price_range")
+
+  /// Fase 2: al ponerlo en true la oferta pasa a ser reservable sin
+  /// cambiar el esquema.
+  bookable Boolean @default(false)
+
+  /// Precio real en pesos, opcional en fase 1.
+  priceClp Int? @map("price_clp")
+
+  position Int @default(0)
+
+  @@index([businessId])
+  @@map("offer")
+}
+
+model Media {
+  id         String   @id @default(cuid())
+  businessId String   @map("business_id")
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  type MediaType
+  url  String
+  alt  String?
+
+  position Int @default(0) @map("order")
+
+  @@index([businessId])
+  @@map("media")
+}
+
+model Lead {
+  id         String   @id @default(cuid())
+  businessId String   @map("business_id")
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  contactName  String  @map("contact_name")
+  contactPhone String? @map("contact_phone")
+  contactEmail String? @map("contact_email")
+  message      String  @db.Text
+
+  status    LeadStatus @default(nuevo)
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@index([businessId, status])
+  @@map("lead")
+}
+
+model IngestionLog {
+  id         String   @id @default(cuid())
+  businessId String   @map("business_id")
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  runId          String  @map("run_id")
+  rawSourceData  Json    @map("raw_source_data")
+  confidenceScore Float? @map("confidence_score")
+  reviewerNotes  String? @map("reviewer_notes") @db.Text
+
+  decision  ReviewDecision @default(pending)
+  decidedAt DateTime?      @map("decided_at")
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  @@index([businessId])
+  @@index([runId])
+  @@map("ingestion_log")
+}
