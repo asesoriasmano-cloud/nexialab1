@@ -62,7 +62,18 @@
         <div class="file-status" id="status-ms">No cargado</div>
       </div>
     </div>
-    <div style="text-align:center">
+    <div style="text-align:center;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
+      <label style="font-size:0.82rem;color:var(--muted)">Mes/Año MS:
+        <select id="sel-mes" style="padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text)">
+          <option value="1">Enero</option><option value="2">Febrero</option>
+          <option value="3">Marzo</option><option value="4">Abril</option>
+          <option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option>
+          <option value="9">Septiembre</option><option value="10">Octubre</option>
+          <option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <input id="inp-anio" type="number" min="2020" max="2030" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text)">
+      </label>
       <button class="btn" id="btn-procesar" onclick="procesar()" disabled>
         ⚡ Procesar Comisiones
       </button>

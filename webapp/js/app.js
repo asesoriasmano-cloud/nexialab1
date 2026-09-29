@@ -12,6 +12,9 @@ const APP = (() => {
     cargarMaestroDesdeStorage();
     setupFileUploads();
     renderMaestro();
+    const now = new Date();
+    document.getElementById("sel-mes").value = now.getMonth() + 1;
+    document.getElementById("inp-anio").value = now.getFullYear();
   }
 
   // ── Tabs ──
@@ -42,6 +45,17 @@ const APP = (() => {
 
   function normRut(rut) {
     return String(rut).trim().toUpperCase().replace(/\./g, "").replace(/\s/g, "");
+  }
+
+  function colVal(row, ...names) {
+    for (const n of names) {
+      if (row[n] !== undefined && row[n] !== "") return row[n];
+    }
+    const lower = names.map(n => n.toLowerCase());
+    for (const k of Object.keys(row)) {
+      if (lower.includes(k.toLowerCase()) && row[k] !== undefined && row[k] !== "") return row[k];
+    }
+    return "";
   }
 
   function mapearGrupo(tc) {
@@ -215,44 +229,70 @@ const APP = (() => {
   }
 
   // ── Procesamiento ──
+  function parseDateField(val) {
+    if (!val) return null;
+    if (typeof val === "number") return excelDateToJS(val);
+    const d = new Date(val);
+    return isNaN(d) ? null : d;
+  }
+
   window.procesar = function() {
     if (!maestro.length) return showToast("Carga el maestro primero", "error");
 
+    const mesMS = parseInt(document.getElementById("sel-mes").value);
+    const anioMS = parseInt(document.getElementById("inp-anio").value);
     const rutsSet = new Set(maestro.map(v => v.rut));
 
     // Procesar data_20
     const d20 = (dataCargada.data20 || [])
       .filter(r => {
-        const aud = String(r.AUDITORIA || r.auditoria || "").trim();
+        const aud = String(colVal(r, "AUDITORIA", "auditoria")).trim();
         return aud !== "SE DESCUENTA";
       })
       .map(r => ({
-        rut: normRut(r["RUT EJEUTIVO"] || r["RUT EJECUTIVO"] || r.rut_ejecutivo || ""),
-        monto: parseFloat(r.MONTO || r.monto) || 0,
-        fecha: r.FECHA,
+        rut: normRut(colVal(r, "RUT EJEUTIVO", "RUT EJECUTIVO", "rut_ejecutivo")),
+        monto: parseFloat(colVal(r, "MONTO", "monto")) || 0,
+        fecha: colVal(r, "FECHA", "fecha"),
       }))
       .filter(r => r.rut);
 
     // Procesar data_21
     const d21 = (dataCargada.data21 || [])
       .map(r => ({
-        rut: normRut(r["RUT EJECUTIVO"] || r["RUT EJEUTIVO"] || r.rut_ejecutivo || ""),
-        monto: parseFloat(r.MONTO || r.monto) || 0,
-        fecha: r.FECHA,
+        rut: normRut(colVal(r, "RUT EJECUTIVO", "RUT EJEUTIVO", "rut_ejecutivo")),
+        monto: parseFloat(colVal(r, "MONTO", "monto")) || 0,
+        fecha: colVal(r, "FECHA", "fecha"),
       }))
       .filter(r => r.rut);
 
-    // Procesar MS
+    // Procesar MS — filtrar por mes/año y excluir rechazos
     const msRechazos = ["Rechazo Auditoría Marcel", "Rechazo Control de Ingresos"];
     const msData = (dataCargada.ms || [])
-      .filter(r => !msRechazos.includes(String(r.Auditoria || r.auditoria || "").trim()))
-      .map(r => ({
-        rut: normRut(r.Rut_ejecutivo || r.rut_ejecutivo || ""),
-        monto: parseFloat(r.monto || r.MONTO) || 0,
-        mecanismo: String(r.Mecanismo || r.mecanismo || "").trim().toUpperCase(),
-        planName: String(r.plan_name || r.Plan_name || ""),
-      }))
+      .filter(r => {
+        const aud = String(colVal(r, "Auditoria", "auditoria")).trim();
+        if (msRechazos.includes(aud)) return false;
+        // Filter by month/year: prefer Mes/Año columns, fallback to date
+        let m = parseInt(colVal(r, "Mes", "mes"));
+        let a = parseInt(colVal(r, "Año", "año", "anio", "Anio"));
+        if (!m || !a || isNaN(m) || isNaN(a)) {
+          const d = parseDateField(colVal(r, "date", "Date", "fecha", "FECHA"));
+          if (d) { m = d.getMonth() + 1; a = d.getFullYear(); }
+        }
+        return m === mesMS && a === anioMS;
+      })
+      .map(r => {
+        let mec = String(colVal(r, "Mecanismo", "mecanismo")).trim().toUpperCase();
+        if (mec.startsWith("=") || !mec) mec = "SUPERIOR";
+        return {
+          rut: normRut(colVal(r, "Rut_ejecutivo", "rut_ejecutivo")),
+          monto: parseFloat(colVal(r, "monto", "MONTO", "amount")) || 0,
+          mecanismo: mec,
+          planName: String(colVal(r, "plan_name", "Plan_name")),
+        };
+      })
       .filter(r => r.rut);
+
+    console.log(`Procesando: d20=${d20.length}, d21=${d21.length}, MS mes ${mesMS}/${anioMS}=${msData.length} registros`);
 
     // Agregar por ejecutiva
     const fechaCorte = calcularFechaCorte(d20, d21);
@@ -366,7 +406,7 @@ const APP = (() => {
     renderDashboard();
     renderMensajes();
     document.querySelector('[data-tab="tab-resultados"]').click();
-    showToast(`${resultados.length} reportes procesados`);
+    showToast(`${resultados.length} reportes · d20:${d20.length} d21:${d21.length} MS:${msData.length}`);
   };
 
   function calcularFechaCorte(d20, d21) {
