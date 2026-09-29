@@ -1,0 +1,235 @@
+/**
+ * Motor de reglas de negocio — 3 esquemas de comisión.
+ * Port directo de reglas_negocio.py
+ */
+const ENGINE = (() => {
+  function buscarTramo(tramos, valor) {
+    for (const t of tramos) {
+      if (valor >= t.min && valor <= t.max) return t;
+    }
+    return tramos[0];
+  }
+
+  function clampKpi(pctRaw, piso, tope) {
+    if (pctRaw < piso) return 0;
+    return Math.min(pctRaw, tope);
+  }
+
+  function pct(real, meta) {
+    if (meta <= 0) return 0;
+    return (real / meta) * 100;
+  }
+
+  function round1(n) {
+    return Math.round(n * 10) / 10;
+  }
+
+  function clp(monto) {
+    return "$" + Math.round(monto).toLocaleString("es-CL");
+  }
+
+  function calcularGrupoA({ metaQ, metaMonto, metaMs, realQ, realMonto, realMs, diasTrabajados = 0, diasMes = 30 }) {
+    const cfg = CONFIG.GRUPO_A;
+    const piso = cfg.piso_pct;
+    const tope = cfg.tope_pct;
+
+    const prop = (diasTrabajados > 0 && diasMes > 0) ? diasTrabajados / diasMes : 1.0;
+    const metaQAdj = metaQ * prop;
+    const metaMontoAdj = metaMonto * prop;
+    const metaMsAdj = metaMs * prop;
+
+    const pctQ = pct(realQ, metaQAdj);
+    const pctMonto = pct(realMonto, metaMontoAdj);
+    const pctMs = pct(realMs, metaMsAdj);
+
+    const cq = clampKpi(pctQ, piso, tope);
+    const cm = clampKpi(pctMonto, piso, tope);
+    const cms = clampKpi(pctMs, piso, tope);
+
+    const aporteQ = cq * 0.25;
+    const aporteM = cm * 0.40;
+    const aporteMs = cms * 0.35;
+    const globalPct = aporteQ + aporteM + aporteMs;
+
+    const tramo = buscarTramo(cfg.tramos_comision, globalPct);
+    let comision = tramo.valor;
+    if (prop < 1 && prop > 0) comision = Math.round(comision * prop);
+
+    return {
+      pctQ: round1(pctQ), pctMonto: round1(pctMonto), pctMs: round1(pctMs),
+      pctQClamped: round1(cq), pctMontoClamped: round1(cm), pctMsClamped: round1(cms),
+      cumplimientoGlobal: round1(globalPct),
+      comision,
+      tramoLabel: `${tramo.min}%-${tramo.max}%`,
+    };
+  }
+
+  function factorReajuste(monto) {
+    for (const r of CONFIG.GRUPO_B.reajustes_factores) {
+      if (monto >= r.min && monto <= r.max) return r.factor;
+    }
+    return 0;
+  }
+
+  function calcularGrupoB({ metaCaptacion, metaMs, realCaptacion, realMs, realReajustes = 0, realDonaciones = 0 }) {
+    const cfg = CONFIG.GRUPO_B;
+    const piso = cfg.piso_pct;
+    const tope = cfg.tope_pct;
+
+    const pctCap = pct(realCaptacion, metaCaptacion);
+    const pctMsVal = pct(realMs, metaMs);
+
+    const ccap = clampKpi(pctCap, piso, tope);
+    const cms = clampKpi(pctMsVal, piso, tope);
+
+    const pondCap = (ccap / 100) * 70;
+    const pondMs = (cms / 100) * 30;
+    const globalRaw = pondCap + pondMs;
+    const globalPct = Math.ceil(globalRaw * 10) / 10;
+
+    const tramo = buscarTramo(cfg.tramos_comision, globalPct);
+    const variable1 = tramo.valor;
+    const factor = factorReajuste(realReajustes);
+    const variable2 = Math.round(realReajustes * factor);
+    const variable3 = Math.round(realDonaciones * cfg.donaciones_pct);
+
+    return {
+      pctCaptacion: round1(pctCap), pctMs: round1(pctMsVal),
+      pctCaptacionClamped: round1(ccap), pctMsClamped: round1(cms),
+      cumplimientoGlobal: globalPct,
+      variable1, variable2, variable3,
+      comisionTotal: variable1 + variable2 + variable3,
+      tramoLabel: `${tramo.min}%-${tramo.max}%`,
+    };
+  }
+
+  function calcularGrupoC({ ventaTotal, montoPreferente = 0, montoGold = 0 }) {
+    const montoGeneral = Math.max(0, ventaTotal - montoPreferente - montoGold);
+    const tramo = buscarTramo(CONFIG.GRUPO_C.tramos, ventaTotal);
+
+    const comGen = Math.round(montoGeneral * tramo.general);
+    const comPref = Math.round(montoPreferente * tramo.preferente);
+    const comGold = Math.round(montoGold * tramo.gold);
+
+    return {
+      ventaTotal, montoGeneral, montoPreferente, montoGold,
+      pctGeneral: tramo.general, pctPreferente: tramo.preferente, pctGold: tramo.gold,
+      comGeneral: comGen, comPreferente: comPref, comGold: comGold,
+      comisionTotal: comGen + comPref + comGold,
+      tramoLabel: `${clp(tramo.min)}-${clp(tramo.max)}`,
+    };
+  }
+
+  function construirMensaje(row) {
+    const fecha = row.fechaCorte || "N/A";
+    const lines = [
+      `📊 *Reporte Diario de Ventas*`,
+      `━━━━━━━━━━━━━━━━━━━━━━`,
+      ``,
+      `👤 *${row.nombre}*`,
+      `📅 Corte: ${fecha}`,
+    ];
+
+    if (row.grupo === "S") {
+      lines.push(...bloqueSuper(row));
+    } else {
+      if (row.grupo === "A") lines.push(...bloqueA(row));
+      else if (row.grupo === "B") lines.push(...bloqueB(row));
+      else if (row.grupo === "C") lines.push(...bloqueC(row));
+      lines.push("", "━━━ *Comision Proyectada* ━━━", `💵 *${clp(row.comision)}*`);
+    }
+    lines.push("", "━━━━━━━━━━━━━━━━━━━━━━", `📋 _${row.alerta || ""}_`);
+    return lines.join("\n");
+  }
+
+  function barra(pctVal, largo = 10, tope = 100) {
+    const ratio = tope > 0 ? Math.min(pctVal / tope, 1.0) : 0;
+    const llenos = Math.floor(ratio * largo);
+    return "█".repeat(llenos) + "░".repeat(largo - llenos);
+  }
+
+  function bloqueA(r) {
+    const g = r.cumplimientoGlobal || 0;
+    return [
+      "", "*Esquema:* 3 KPIs ponderados (tope 140%)", "",
+      "━━━ *Metricas* ━━━",
+      `📌 Q Acuerdos: *${r.pctQ}%* (peso 25%)`,
+      `💰 Monto Acuerdos: *${r.pctMonto}%* (peso 40%)`,
+      `🏦 Mec. Superior: *${r.pctMs}%* (peso 35%)`,
+      "", `📈 Cumplimiento Global: *${g}%* ${barra(g, 10, 140)}`,
+      `📊 Tramo: ${r.tramo}`,
+    ];
+  }
+
+  function bloqueB(r) {
+    const g = r.cumplimientoGlobal || 0;
+    return [
+      "", "*Esquema:* 2 KPIs + Reajustes (tope 300%)", "",
+      "━━━ *Metricas* ━━━",
+      `💰 Captacion: *${r.pctCaptacion}%* (peso 70%)`,
+      `🏦 Mec. Superior: *${r.pctMs}%* (peso 30%)`,
+      "", `📈 Cumplimiento Global: *${g}%* ${barra(g, 10, 300)}`,
+      `📊 Tramo: ${r.tramo}`,
+      "", "━━━ *Desglose Comision* ━━━",
+      `  V1 (Tabla): ${clp(r.variable1 || 0)}`,
+      `  V2 (Reajustes): ${clp(r.variable2 || 0)}`,
+      `  V3 (Donaciones): ${clp(r.variable3 || 0)}`,
+    ];
+  }
+
+  function bloqueC(r) {
+    return [
+      "", "*Esquema:* Comision por produccion (sin metas)", "",
+      "━━━ *Produccion del Mes* ━━━",
+      `💰 Venta Total: *${clp(r.ventaTotal || 0)}*`,
+      "", `  General: ${clp(r.montoGeneral || 0)} → ${clp(r.comGeneral || 0)}`,
+      `  Preferente: ${clp(r.montoPreferente || 0)} → ${clp(r.comPreferente || 0)}`,
+      `  Gold: ${clp(r.montoGold || 0)} → ${clp(r.comGold || 0)}`,
+    ];
+  }
+
+  function bloqueSuper(r) {
+    const a = r.acumulado || {};
+    const ga = a.grupo_a || {};
+    const gb = a.grupo_b || {};
+    const gc = a.grupo_c || {};
+    const divA = Math.max(ga.n || 1, 1);
+    const divB = Math.max(gb.n || 1, 1);
+    return [
+      "", "*Resumen Acumulado del Equipo*", "",
+      `━━━ *Grupo A (${ga.n || 0} ejecutivas)* ━━━`,
+      `  Q Acuerdos prom.: *${((ga.real_q || 0) / divA).toFixed(1)}%*`,
+      `  Monto Acuerdos prom.: *${((ga.real_monto || 0) / divA).toFixed(1)}%*`,
+      `  Mec. Superior prom.: *${((ga.real_ms || 0) / divA).toFixed(1)}%*`,
+      `  Comision grupo: *${clp(ga.comision_total || 0)}*`,
+      "",
+      `━━━ *Grupo B (${gb.n || 0} ejecutivas)* ━━━`,
+      `  Captacion prom.: *${((gb.real_captacion || 0) / divB).toFixed(1)}%*`,
+      `  Mec. Superior prom.: *${((gb.real_ms || 0) / divB).toFixed(1)}%*`,
+      `  Reajustes acum.: *${clp(gb.real_reajustes || 0)}*`,
+      `  Donaciones acum.: *${clp(gb.real_donaciones || 0)}*`,
+      `  Comision grupo: *${clp(gb.comision_total || 0)}*`,
+      "",
+      `━━━ *Grupo C (${gc.n || 0} ejecutivas)* ━━━`,
+      `  Venta Total acum.: *${clp(gc.venta_total || 0)}*`,
+      `  General acum.: *${clp(gc.monto_general || 0)}*`,
+      `  Preferente acum.: *${clp(gc.monto_preferente || 0)}*`,
+      `  Gold acum.: *${clp(gc.monto_gold || 0)}*`,
+      `  Comision grupo: *${clp(gc.comision_total || 0)}*`,
+      "",
+      "━━━ *TOTAL EQUIPO* ━━━",
+      `💵 Comision total proyectada: *${clp(a.comision_equipo || 0)}*`,
+    ];
+  }
+
+  function generarLinkWA(telefono, mensaje) {
+    let tel = String(telefono).replace(/\s/g, "").replace(/\+/g, "");
+    if (!tel.startsWith("56")) tel = "56" + tel;
+    return `https://wa.me/${tel}?text=${encodeURIComponent(mensaje)}`;
+  }
+
+  return {
+    calcularGrupoA, calcularGrupoB, calcularGrupoC,
+    construirMensaje, generarLinkWA, clp, round1,
+  };
+})();

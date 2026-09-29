@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportería Comercial</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <h1>Reportería Comercial — Fundación Hogar de Cristo</h1>
+  <p>Procesamiento local · Los datos no salen de tu navegador</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="tab-maestro">Maestro</button>
+  <button class="tab-btn" data-tab="tab-datos">Cargar Datos</button>
+  <button class="tab-btn" data-tab="tab-resultados">Resultados</button>
+  <button class="tab-btn" data-tab="tab-mensajes">Mensajes</button>
+</nav>
+
+<div class="container">
+
+  <!-- TAB: Maestro -->
+  <div id="tab-maestro" class="tab-panel active">
+    <div class="toolbar">
+      <h2 class="section-title">Equipo de Ejecutivas</h2>
+      <span id="maestro-count" class="small">0 ejecutivas</span>
+      <span class="spacer"></span>
+      <label class="btn btn-outline btn-sm">
+        📂 Subir Excel
+        <input type="file" accept=".xlsx,.xls" onchange="uploadMaestro(this)" hidden>
+      </label>
+    </div>
+    <div id="maestro-table"></div>
+    <p class="small" style="margin-top:12px;color:var(--muted)">
+      El maestro se guarda en tu navegador. Solo necesitas subirlo la primera vez o cuando haya cambios.
+    </p>
+  </div>
+
+  <!-- TAB: Cargar Datos -->
+  <div id="tab-datos" class="tab-panel">
+    <h2 class="section-title">Fuentes de Datos del Mes</h2>
+    <div class="upload-grid">
+      <div class="upload-zone" id="zone-data20" onclick="this.querySelector('input').click()">
+        <h3>📋 Data 20 — Fichas/Membresías</h3>
+        <p>Arrastra o haz clic para subir</p>
+        <input type="file" accept=".xlsx,.xls">
+        <div class="file-status" id="status-data20">No cargado</div>
+      </div>
+      <div class="upload-zone" id="zone-data21" onclick="this.querySelector('input').click()">
+        <h3>💳 Data 21 — VPOS</h3>
+        <p>Arrastra o haz clic para subir</p>
+        <input type="file" accept=".xlsx,.xls">
+        <div class="file-status" id="status-data21">No cargado</div>
+      </div>
+      <div class="upload-zone" id="zone-ms" onclick="this.querySelector('input').click()">
+        <h3>🏦 Mecanismo Superior</h3>
+        <p>Template filtrado del mes</p>
+        <input type="file" accept=".xlsx,.xls">
+        <div class="file-status" id="status-ms">No cargado</div>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <button class="btn" id="btn-procesar" onclick="procesar()" disabled>
+        ⚡ Procesar Comisiones
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB: Resultados -->
+  <div id="tab-resultados" class="tab-panel">
+    <div class="toolbar">
+      <h2 class="section-title">Dashboard</h2>
+      <span class="spacer"></span>
+      <button class="btn btn-outline btn-sm" onclick="exportarExcel()">📥 Exportar Excel</button>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="lbl">Total Equipo</div>
+        <div class="val" id="card-total" style="color:var(--green)">$0</div>
+      </div>
+      <div class="card">
+        <div class="lbl">Grupo A (3 KPIs)</div>
+        <div class="val" id="card-ga" style="font-size:1rem">—</div>
+      </div>
+      <div class="card">
+        <div class="lbl">Grupo B (2 KPIs+Reaj.)</div>
+        <div class="val" id="card-gb" style="font-size:1rem">—</div>
+      </div>
+      <div class="card">
+        <div class="lbl">Grupo C (Sin metas)</div>
+        <div class="val" id="card-gc" style="font-size:1rem">—</div>
+      </div>
+    </div>
+    <div id="dashboard-table">
+      <p class="empty">Carga los datos y presiona "Procesar" para ver resultados.</p>
+    </div>
+  </div>
+
+  <!-- TAB: Mensajes -->
+  <div id="tab-mensajes" class="tab-panel">
+    <div class="toolbar">
+      <h2 class="section-title">Mensajes WhatsApp</h2>
+      <span class="spacer"></span>
+    </div>
+    <div id="mensajes-list">
+      <p class="empty">Procesa los datos primero.</p>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/xlsx.full.min.js"></script>
+<script>if(typeof XLSX==="undefined"){var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";document.head.appendChild(s)}</script>
+<script src="js/config.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
