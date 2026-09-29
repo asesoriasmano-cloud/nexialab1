@@ -69,11 +69,16 @@ const APP = (() => {
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
 
+      const findCol = (row, names) => {
+        const key = Object.keys(row).find(k => names.includes(k.toLowerCase()));
+        return key ? row[key] : "";
+      };
+
       maestro = rows
-        .filter(r => r.rut || r.RUT || r["Ejecutivo normalizado"])
+        .filter(r => findCol(r, ["rut"]) || r["Ejecutivo normalizado"])
         .map(r => {
           const isReal = "Ejecutivo normalizado" in r || "tipo contrato" in r;
-          const rut = normRut(r.rut || r.RUT || "");
+          const rut = normRut(findCol(r, ["rut"]));
           const tc = r["tipo contrato"] || r.tipo_contrato || "";
           const grupo = isReal ? mapearGrupo(tc) : (r.grupo || "C").toUpperCase();
 
@@ -85,7 +90,7 @@ const APP = (() => {
           return {
             rut,
             nombre: r["Ejecutivo normalizado"] || r.nombre || "",
-            telefono: normTelefono(r.telefono || r.Telefono || ""),
+            telefono: normTelefono(findCol(r, ["telefono"]) || ""),
             tipoContrato: tc,
             grupo,
             metaVolumen: vol,
@@ -99,6 +104,7 @@ const APP = (() => {
 
       guardarMaestro();
       renderMaestro();
+      checkReadyToProcess();
       showToast(`Maestro cargado: ${maestro.length} ejecutivas`);
     };
     reader.readAsArrayBuffer(file);
