@@ -2,7 +2,7 @@
 Orquestador principal — ejecuta el ciclo completo de procesamiento y entrega.
 
 Uso:
-    python -m reporte_comercial.main [--modo link|api|preview]
+    python -m reporte_comercial.main [--modo link|api|preview] [--fuentes real|ejemplo]
 """
 import argparse
 import logging
@@ -11,7 +11,11 @@ from pathlib import Path
 import pandas as pd
 
 from reporte_comercial.config import ARCHIVOS
-from reporte_comercial.core.procesador import procesar_consolidado, guardar_consolidado
+from reporte_comercial.core.procesador import (
+    procesar_consolidado,
+    procesar_consolidado_real,
+    guardar_consolidado,
+)
 from reporte_comercial.core.mensaje import construir_mensaje
 from reporte_comercial.delivery.whatsapp_link import generar_links_masivos
 
@@ -23,19 +27,28 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def ejecutar(modo: str = "link", exportar: bool = True) -> pd.DataFrame:
-    logger.info("=== Inicio del ciclo de procesamiento ===")
+def ejecutar(modo: str = "link", fuentes: str = "real", exportar: bool = True) -> pd.DataFrame:
+    logger.info("=== Inicio del ciclo de procesamiento (fuentes: %s) ===", fuentes)
 
     logger.info("Paso 1: Cargando y cruzando fuentes de datos...")
-    consolidado = procesar_consolidado(
-        ruta_maestro=ARCHIVOS["maestro_vendedores"],
-        ruta_ventas=ARCHIVOS["ventas_diarias"],
-        ruta_mecanismo=ARCHIVOS["mecanismo_superior"],
-    )
+    if fuentes == "real":
+        consolidado = procesar_consolidado_real(
+            ruta_maestro=ARCHIVOS["maestro_vendedores"],
+            ruta_data20=ARCHIVOS["data_20"],
+            ruta_data21=ARCHIVOS["data_21"],
+            ruta_ms_template=ARCHIVOS["ms_template"],
+        )
+    else:
+        consolidado = procesar_consolidado(
+            ruta_maestro=ARCHIVOS["maestro_vendedores"],
+            ruta_ventas=ARCHIVOS["ventas_diarias"],
+            ruta_mecanismo=ARCHIVOS["mecanismo_superior"],
+        )
 
-    for g in ["A", "B", "C"]:
+    for g in ["A", "B", "C", "S"]:
         n = len(consolidado[consolidado["grupo"] == g])
-        logger.info("  Grupo %s: %d ejecutivas", g, n)
+        if n > 0:
+            logger.info("  Grupo %s: %d", g, n)
 
     if exportar:
         ruta_salida = guardar_consolidado(consolidado, ARCHIVOS["consolidado"])
@@ -84,8 +97,13 @@ def main():
         default="link",
         help="Modo de entrega: 'link' (wa.me), 'api' (WhatsApp Business API), 'preview' (solo generar)",
     )
+    parser.add_argument(
+        "--fuentes", choices=["real", "ejemplo"],
+        default="real",
+        help="Origen de datos: 'real' (data_20+data_21+MS template), 'ejemplo' (archivos pre-generados)",
+    )
     args = parser.parse_args()
-    ejecutar(modo=args.modo)
+    ejecutar(modo=args.modo, fuentes=args.fuentes)
 
 
 if __name__ == "__main__":

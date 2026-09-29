@@ -1,13 +1,19 @@
 """
 Bucle de procesamiento: cruza fuentes y genera consolidado por grupo.
+Soporta modo real (3 fuentes: data_20 + data_21 + MS template) y modo ejemplo.
 """
 import pandas as pd
+from datetime import date
 from pathlib import Path
 
 from reporte_comercial.core.ingesta import (
     cargar_maestro_vendedores,
     cargar_ventas_diarias,
     cargar_mecanismo_superior,
+)
+from reporte_comercial.core.ingesta_real import (
+    construir_ventas_desde_fuentes,
+    construir_ms_resumen,
 )
 from reporte_comercial.core.reglas_negocio import (
     calcular_grupo_a,
@@ -87,6 +93,41 @@ def procesar_consolidado(
     if mecanismo is not None and not mecanismo.empty and "fecha_corte" in mecanismo.columns:
         fecha_corte_mecanismo = mecanismo["fecha_corte"].max()
 
+    return _procesar_loop(maestro, ventas, fecha_corte_ventas, fecha_corte_mecanismo)
+
+
+def procesar_consolidado_real(
+    ruta_maestro: Path,
+    ruta_data20: Path,
+    ruta_data21: Path,
+    ruta_ms_template: Path,
+    mes_ms: int = 9,
+    anio_ms: int = 2026,
+) -> pd.DataFrame:
+    maestro = cargar_maestro_vendedores(ruta_maestro)
+    ruts = set(maestro["rut"].tolist())
+
+    ventas = construir_ventas_desde_fuentes(
+        ruta_data20, ruta_data21, ruta_ms_template, ruts, mes_ms, anio_ms
+    )
+    ms_resumen = construir_ms_resumen(ruta_ms_template, ruts, mes_ms, anio_ms)
+
+    fecha_corte_ventas = ventas["fecha_corte"].max() if not ventas.empty else date.today()
+    fecha_corte_mecanismo = (
+        ms_resumen["fecha_corte"].max()
+        if ms_resumen is not None and not ms_resumen.empty and "fecha_corte" in ms_resumen.columns
+        else None
+    )
+
+    return _procesar_loop(maestro, ventas, fecha_corte_ventas, fecha_corte_mecanismo)
+
+
+def _procesar_loop(
+    maestro: pd.DataFrame,
+    ventas: pd.DataFrame,
+    fecha_corte_ventas,
+    fecha_corte_mecanismo,
+) -> pd.DataFrame:
     resultados = []
     supervisoras = []
 

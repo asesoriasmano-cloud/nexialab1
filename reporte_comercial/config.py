@@ -12,7 +12,12 @@ ARCHIVOS = {
     "mecanismo_superior": DATA_DIR / "mecanismo_superior.xlsx",
     "consolidado": DATA_DIR / "consolidado_procesado.xlsx",
     "log_envios": DATA_DIR / "log_envios.xlsx",
+    "data_20": DATA_DIR / "data_20.xlsx",
+    "data_21": DATA_DIR / "data_21.xlsx",
+    "ms_template": DATA_DIR / "mecanismo_superior_template.xlsx",
 }
+
+SIMULACION_GOLD_PREFERENTE_SPLIT = 0.50
 
 # ──────────────────────────────────────────────────────────
 # GRUPO A — 3 ejecutivas (tipo contrato 1.4)
