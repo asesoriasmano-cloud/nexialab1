@@ -24,7 +24,7 @@ def construir_mensaje(row: dict) -> str:
         f"━━━━━━━━━━━━━━━━━━━━━━",
         f"",
         f"👤 *{row['nombre']}*",
-        f"📅 Corte: {fecha_str} | Equipo: {row['equipo']}",
+        f"📅 Corte: {fecha_str}" + (f" | Equipo: {row['equipo']}" if row.get('equipo') else ""),
     ]
 
     if grupo == "A":

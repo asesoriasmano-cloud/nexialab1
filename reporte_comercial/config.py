@@ -15,7 +15,7 @@ ARCHIVOS = {
 }
 
 # ──────────────────────────────────────────────────────────
-# GRUPO A — 7 ejecutivas
+# GRUPO A — 3 ejecutivas (tipo contrato 1.4)
 # 3 KPIs: Q Acuerdos (25%) + Monto $ Acuerdos (40%) + Mec. Superior (35%)
 # Piso 70% por KPI (bajo 70% → pondera 0%), tope 140% por KPI
 # Cumplimiento global ponderado → tabla de monto fijo
@@ -44,7 +44,7 @@ GRUPO_A = {
 }
 
 # ──────────────────────────────────────────────────────────
-# GRUPO B — 5 ejecutivas
+# GRUPO B — 7 ejecutivas (tipo contrato 3)
 # 2 KPIs: Captación/Monto (70%) + Mec. Superior (30%)
 # Piso 70% por KPI, tope 300%
 # Cumplimiento global → tabla de monto fijo
@@ -90,7 +90,7 @@ GRUPO_B = {
 }
 
 # ──────────────────────────────────────────────────────────
-# GRUPO C — 3 ejecutivas
+# GRUPO C — 3 ejecutivas (Sin meta)
 # Sin metas. Comisión desde la primera venta.
 # Tramo se determina por venta total del mes.
 # Se aplica % por categoría (General / Preferente / Gold).

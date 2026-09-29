@@ -12,12 +12,12 @@ class TestProcesador(unittest.TestCase):
             ARCHIVOS["mecanismo_superior"],
         )
 
-    def test_15_vendedores_procesados(self):
-        self.assertEqual(len(self.df), 15)
+    def test_13_vendedores_procesados(self):
+        self.assertEqual(len(self.df), 13)
 
     def test_distribucion_grupos(self):
-        self.assertEqual(len(self.df[self.df["grupo"] == "A"]), 7)
-        self.assertEqual(len(self.df[self.df["grupo"] == "B"]), 5)
+        self.assertEqual(len(self.df[self.df["grupo"] == "A"]), 3)
+        self.assertEqual(len(self.df[self.df["grupo"] == "B"]), 7)
         self.assertEqual(len(self.df[self.df["grupo"] == "C"]), 3)
 
     def test_comision_no_negativa(self):
