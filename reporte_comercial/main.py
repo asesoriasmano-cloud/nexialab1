@@ -2,12 +2,10 @@
 Orquestador principal — ejecuta el ciclo completo de procesamiento y entrega.
 
 Uso:
-    python -m reporte_comercial.main [--modo link|api] [--exportar]
+    python -m reporte_comercial.main [--modo link|api|preview]
 """
 import argparse
 import logging
-import sys
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -34,7 +32,10 @@ def ejecutar(modo: str = "link", exportar: bool = True) -> pd.DataFrame:
         ruta_ventas=ARCHIVOS["ventas_diarias"],
         ruta_mecanismo=ARCHIVOS["mecanismo_superior"],
     )
-    logger.info("Consolidado: %d vendedores procesados", len(consolidado))
+
+    for g in ["A", "B", "C"]:
+        n = len(consolidado[consolidado["grupo"] == g])
+        logger.info("  Grupo %s: %d ejecutivas", g, n)
 
     if exportar:
         ruta_salida = guardar_consolidado(consolidado, ARCHIVOS["consolidado"])
@@ -43,26 +44,13 @@ def ejecutar(modo: str = "link", exportar: bool = True) -> pd.DataFrame:
     logger.info("Paso 2: Generando mensajes individualizados...")
     registros_envio = []
     for _, row in consolidado.iterrows():
-        mensaje = construir_mensaje(
-            nombre=row["nombre"],
-            equipo=row["equipo"],
-            tipo_contrato=row["tipo_contrato"],
-            tramo_antiguedad=row["tramo_antiguedad"],
-            estado_meta=row["estado_meta"],
-            meta_efectiva=row["meta_efectiva"],
-            venta_acumulada=row["venta_acumulada"],
-            mandatos_aprobados=row["mandatos_aprobados"],
-            pct_avance=row["pct_avance"],
-            comision_proyectada=row["comision_proyectada"],
-            fecha_corte_ventas=row["fecha_corte_ventas"],
-            fecha_corte_mecanismo=row["fecha_corte_mecanismo"],
-            alerta_firma=row["alerta_firma"],
-            alerta_corte=row["alerta_corte"],
-        )
+        mensaje = construir_mensaje(row.to_dict())
         registros_envio.append({
             "rut": row["rut"],
             "nombre": row["nombre"],
             "telefono": row["telefono"],
+            "grupo": row["grupo"],
+            "comision": row.get("comision", 0),
             "mensaje": mensaje,
         })
 
@@ -96,12 +84,8 @@ def main():
         default="link",
         help="Modo de entrega: 'link' (wa.me), 'api' (WhatsApp Business API), 'preview' (solo generar)",
     )
-    parser.add_argument(
-        "--exportar", action="store_true", default=True,
-        help="Exportar consolidado a Excel",
-    )
     args = parser.parse_args()
-    ejecutar(modo=args.modo, exportar=args.exportar)
+    ejecutar(modo=args.modo)
 
 
 if __name__ == "__main__":

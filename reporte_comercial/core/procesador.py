@@ -1,10 +1,8 @@
 """
-Bucle de procesamiento: cruza las 3 fuentes y genera el consolidado.
+Bucle de procesamiento: cruza fuentes y genera consolidado por grupo.
 """
 import pandas as pd
-from datetime import date
 from pathlib import Path
-from typing import Optional
 
 from reporte_comercial.core.ingesta import (
     cargar_maestro_vendedores,
@@ -12,11 +10,18 @@ from reporte_comercial.core.ingesta import (
     cargar_mecanismo_superior,
 )
 from reporte_comercial.core.reglas_negocio import (
-    clasificar_antiguedad,
-    calcular_meta_efectiva,
-    calcular_comision,
+    calcular_grupo_a,
+    calcular_grupo_b,
+    calcular_grupo_c,
     generar_alerta_corte,
 )
+
+
+def _val(df, rut, col, default=0):
+    fila = df.loc[df["rut"] == rut]
+    if fila.empty or col not in df.columns:
+        return default
+    return fila[col].iloc[0]
 
 
 def procesar_consolidado(
@@ -30,69 +35,102 @@ def procesar_consolidado(
 
     fecha_corte_ventas = ventas["fecha_corte"].max()
     fecha_corte_mecanismo = None
-    if mecanismo is not None and not mecanismo.empty:
+    if mecanismo is not None and not mecanismo.empty and "fecha_corte" in mecanismo.columns:
         fecha_corte_mecanismo = mecanismo["fecha_corte"].max()
 
     resultados = []
 
     for _, v in maestro.iterrows():
         rut = v["rut"]
+        grupo = v["grupo"]
 
-        tramo = clasificar_antiguedad(v["antiguedad_meses"])
-        meta_efectiva, alerta_firma = calcular_meta_efectiva(
-            meta_base=v["meta_base"],
-            meta_asignada=v["meta_asignada"],
-            estado_meta=v["estado_meta"],
-            tipo_contrato=v["tipo_contrato"],
-            antiguedad_meses=v["antiguedad_meses"],
-        )
-
-        fila_ventas = ventas.loc[ventas["rut"] == rut]
-        venta_acumulada = (
-            fila_ventas["venta_acumulada"].iloc[0]
-            if not fila_ventas.empty
-            else 0.0
-        )
-
-        mandatos = None
-        if mecanismo is not None:
-            fila_mec = mecanismo.loc[mecanismo["rut"] == rut]
-            if not fila_mec.empty:
-                mandatos = fila_mec["mandatos_aprobados"].iloc[0]
-
-        pct_avance = (
-            round((venta_acumulada / meta_efectiva) * 100, 1)
-            if meta_efectiva > 0
-            else 0.0
-        )
-
-        comision = calcular_comision(
-            venta=venta_acumulada,
-            meta_efectiva=meta_efectiva,
-            tipo_contrato=v["tipo_contrato"],
-            mandatos_aprobados=mandatos,
-        )
-
-        alerta_corte = generar_alerta_corte(fecha_corte_mecanismo, fecha_corte_ventas)
-
-        resultados.append({
+        base = {
             "rut": rut,
             "nombre": v["nombre"],
             "telefono": v["telefono"],
             "equipo": v["equipo"],
-            "tipo_contrato": v["tipo_contrato"],
-            "tramo_antiguedad": tramo["etiqueta"],
-            "estado_meta": v["estado_meta"],
-            "meta_efectiva": meta_efectiva,
-            "venta_acumulada": venta_acumulada,
-            "mandatos_aprobados": mandatos if mandatos is not None else 0.0,
-            "pct_avance": pct_avance,
-            "comision_proyectada": comision,
+            "grupo": grupo,
             "fecha_corte_ventas": fecha_corte_ventas,
             "fecha_corte_mecanismo": fecha_corte_mecanismo,
-            "alerta_firma": alerta_firma,
-            "alerta_corte": alerta_corte,
-        })
+            "alerta_corte": generar_alerta_corte(fecha_corte_mecanismo, fecha_corte_ventas),
+        }
+
+        if grupo == "A":
+            r = calcular_grupo_a(
+                meta_q=v.get("meta_q_acuerdos", 0),
+                meta_monto=v.get("meta_monto_acuerdos", 0),
+                meta_ms=v.get("meta_mecanismo_superior", 0),
+                real_q=_val(ventas, rut, "real_q_acuerdos"),
+                real_monto=_val(ventas, rut, "real_monto_acuerdos"),
+                real_ms=_val(ventas, rut, "real_mecanismo_superior"),
+                dias_trabajados=int(v.get("dias_trabajados", 0)),
+                dias_mes=int(v.get("dias_mes", 30)),
+            )
+            base.update({
+                "esquema": "3 KPIs (tope 140%)",
+                "pct_q": r.pct_q,
+                "pct_monto": r.pct_monto,
+                "pct_ms": r.pct_ms,
+                "cumplimiento_global": r.cumplimiento_global,
+                "comision": r.comision,
+                "tramo": r.tramo_label,
+                "detalle": (
+                    f"Q:{r.pct_q}%[→{r.pct_q_clamped}%]×25% + "
+                    f"$:{r.pct_monto}%[→{r.pct_monto_clamped}%]×40% + "
+                    f"MS:{r.pct_ms}%[→{r.pct_ms_clamped}%]×35% = {r.cumplimiento_global}%"
+                ),
+            })
+
+        elif grupo == "B":
+            r = calcular_grupo_b(
+                meta_captacion=v.get("meta_captacion", 0),
+                meta_ms=v.get("meta_mecanismo_superior", 0),
+                real_captacion=_val(ventas, rut, "real_captacion"),
+                real_ms=_val(ventas, rut, "real_mecanismo_superior"),
+                real_reajustes=_val(ventas, rut, "real_reajustes"),
+                real_donaciones=_val(ventas, rut, "real_donaciones"),
+            )
+            base.update({
+                "esquema": "2 KPIs (tope 300%) + Reajustes",
+                "pct_captacion": r.pct_captacion,
+                "pct_ms": r.pct_ms,
+                "cumplimiento_global": r.cumplimiento_global,
+                "variable1": r.variable1,
+                "variable2": r.variable2,
+                "variable3": r.variable3,
+                "comision": r.comision_total,
+                "tramo": r.tramo_label,
+                "detalle": (
+                    f"Cap:{r.pct_captacion}%×70% + MS:{r.pct_ms}%×30% = {r.cumplimiento_global}% | "
+                    f"V1:${r.variable1:,} + V2:${r.variable2:,} + V3:${r.variable3:,}"
+                ),
+            })
+
+        elif grupo == "C":
+            r = calcular_grupo_c(
+                venta_total=_val(ventas, rut, "venta_total"),
+                monto_preferente=_val(ventas, rut, "monto_preferente"),
+                monto_gold=_val(ventas, rut, "monto_gold"),
+            )
+            base.update({
+                "esquema": "Sin metas — por produccion",
+                "venta_total": r.venta_total,
+                "monto_general": r.monto_general,
+                "monto_preferente": r.monto_preferente,
+                "monto_gold": r.monto_gold,
+                "com_general": r.com_general,
+                "com_preferente": r.com_preferente,
+                "com_gold": r.com_gold,
+                "comision": r.comision_total,
+                "tramo": r.tramo_label,
+                "detalle": (
+                    f"Gen:${r.monto_general:,}×{r.pct_general:.0%} + "
+                    f"Pref:${r.monto_preferente:,}×{r.pct_preferente:.0%} + "
+                    f"Gold:${r.monto_gold:,}×{r.pct_gold:.0%}"
+                ),
+            })
+
+        resultados.append(base)
 
     return pd.DataFrame(resultados)
 

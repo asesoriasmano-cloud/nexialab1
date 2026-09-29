@@ -1,74 +1,161 @@
-"""Tests para el motor de reglas de negocio."""
+"""Tests para los 3 esquemas de comisión."""
 import unittest
 from datetime import date
 from reporte_comercial.core.reglas_negocio import (
-    clasificar_antiguedad,
-    calcular_meta_efectiva,
-    calcular_comision,
+    calcular_grupo_a,
+    calcular_grupo_b,
+    calcular_grupo_c,
     generar_alerta_corte,
 )
 
 
-class TestClasificarAntiguedad(unittest.TestCase):
-    def test_nuevo(self):
-        t = clasificar_antiguedad(3)
-        self.assertEqual(t["etiqueta"], "Nuevo")
-        self.assertAlmostEqual(t["factor_meta"], 0.70)
+class TestGrupoA(unittest.TestCase):
+    def test_100pct_en_todo(self):
+        r = calcular_grupo_a(
+            meta_q=30, meta_monto=1_500_000, meta_ms=800_000,
+            real_q=30, real_monto=1_500_000, real_ms=800_000,
+        )
+        self.assertAlmostEqual(r.cumplimiento_global, 100.0)
+        self.assertEqual(r.comision, 316_000)
 
-    def test_en_desarrollo(self):
-        t = clasificar_antiguedad(10)
-        self.assertEqual(t["etiqueta"], "En desarrollo")
+    def test_bajo_70_pondera_cero(self):
+        r = calcular_grupo_a(
+            meta_q=30, meta_monto=1_500_000, meta_ms=800_000,
+            real_q=10, real_monto=500_000, real_ms=200_000,
+        )
+        self.assertEqual(r.pct_q_clamped, 0)
+        self.assertEqual(r.pct_monto_clamped, 0)
+        self.assertEqual(r.pct_ms_clamped, 0)
+        self.assertEqual(r.cumplimiento_global, 0)
+        self.assertEqual(r.comision, 0)
 
-    def test_consolidado(self):
-        t = clasificar_antiguedad(18)
-        self.assertEqual(t["etiqueta"], "Consolidado")
+    def test_tope_140(self):
+        r = calcular_grupo_a(
+            meta_q=30, meta_monto=1_500_000, meta_ms=800_000,
+            real_q=60, real_monto=3_000_000, real_ms=1_600_000,
+        )
+        self.assertEqual(r.pct_q_clamped, 140)
+        self.assertEqual(r.pct_monto_clamped, 140)
+        self.assertEqual(r.pct_ms_clamped, 140)
+        self.assertAlmostEqual(r.cumplimiento_global, 140.0)
+        self.assertEqual(r.comision, 683_300)
 
-    def test_senior(self):
-        t = clasificar_antiguedad(30)
-        self.assertEqual(t["etiqueta"], "Senior")
-        self.assertAlmostEqual(t["factor_meta"], 1.10)
+    def test_proporcionalidad_dias(self):
+        r_full = calcular_grupo_a(
+            meta_q=30, meta_monto=1_500_000, meta_ms=800_000,
+            real_q=30, real_monto=1_500_000, real_ms=800_000,
+        )
+        r_half = calcular_grupo_a(
+            meta_q=30, meta_monto=1_500_000, meta_ms=800_000,
+            real_q=15, real_monto=750_000, real_ms=400_000,
+            dias_trabajados=15, dias_mes=30,
+        )
+        self.assertAlmostEqual(r_half.cumplimiento_global, r_full.cumplimiento_global)
+        self.assertEqual(r_half.comision, r_full.comision // 2)
 
-
-class TestCalcularMetaEfectiva(unittest.TestCase):
-    def test_meta_firmada_senior(self):
-        meta, alerta = calcular_meta_efectiva(5_000_000, 5_500_000, "Firmada", "Indefinido", 30)
-        self.assertEqual(meta, 5_500_000 * 1.10)
-        self.assertEqual(alerta, "")
-
-    def test_meta_pendiente_aplica_provisoria(self):
-        meta, alerta = calcular_meta_efectiva(3_000_000, 3_500_000, "Pendiente", "Indefinido", 3)
-        expected = 3_500_000 * 0.70 * 0.90
-        self.assertAlmostEqual(meta, expected)
-        self.assertIn("provisoria", alerta.lower())
-
-
-class TestCalcularComision(unittest.TestCase):
-    def test_bajo_50_sin_comision(self):
-        c = calcular_comision(1_000_000, 5_000_000, "Indefinido")
-        self.assertEqual(c, 0.0)
-
-    def test_sobre_100_con_mandatos(self):
-        c = calcular_comision(6_000_000, 5_000_000, "Indefinido", mandatos_aprobados=5_500_000)
-        self.assertGreater(c, 0)
-
-    def test_factor_contrato_honorarios(self):
-        c_indef = calcular_comision(4_500_000, 5_000_000, "Indefinido")
-        c_honor = calcular_comision(4_500_000, 5_000_000, "Honorarios")
-        self.assertGreater(c_indef, c_honor)
+    def test_tramo_90_99(self):
+        r = calcular_grupo_a(
+            meta_q=30, meta_monto=1_500_000, meta_ms=800_000,
+            real_q=28, real_monto=1_400_000, real_ms=750_000,
+        )
+        self.assertGreaterEqual(r.cumplimiento_global, 90)
+        self.assertLess(r.cumplimiento_global, 100)
+        self.assertEqual(r.comision, 264_000)
 
 
-class TestGenerarAlertaCorte(unittest.TestCase):
+class TestGrupoB(unittest.TestCase):
+    def test_100pct_sin_extras(self):
+        r = calcular_grupo_b(
+            meta_captacion=350_000, meta_ms=70_000,
+            real_captacion=350_000, real_ms=70_000,
+        )
+        self.assertAlmostEqual(r.cumplimiento_global, 100.0)
+        self.assertEqual(r.variable1, 316_000)
+        self.assertEqual(r.variable2, 0)
+        self.assertEqual(r.variable3, 0)
+        self.assertEqual(r.comision_total, 316_000)
+
+    def test_bajo_70_pondera_cero(self):
+        r = calcular_grupo_b(
+            meta_captacion=350_000, meta_ms=70_000,
+            real_captacion=100_000, real_ms=20_000,
+        )
+        self.assertEqual(r.comision_total, 0)
+
+    def test_tope_300(self):
+        r = calcular_grupo_b(
+            meta_captacion=350_000, meta_ms=70_000,
+            real_captacion=1_050_000, real_ms=210_000,
+        )
+        self.assertEqual(r.pct_captacion_clamped, 300)
+        self.assertEqual(r.pct_ms_clamped, 300)
+        self.assertEqual(r.variable1, 1_365_000)
+
+    def test_reajustes_factor_05(self):
+        r = calcular_grupo_b(
+            meta_captacion=350_000, meta_ms=70_000,
+            real_captacion=350_000, real_ms=70_000,
+            real_reajustes=80_000,
+        )
+        self.assertEqual(r.variable2, 40_000)
+
+    def test_reajustes_factor_13(self):
+        r = calcular_grupo_b(
+            meta_captacion=350_000, meta_ms=70_000,
+            real_captacion=350_000, real_ms=70_000,
+            real_reajustes=250_000,
+        )
+        self.assertEqual(r.variable2, 325_000)
+
+    def test_donaciones_20pct(self):
+        r = calcular_grupo_b(
+            meta_captacion=350_000, meta_ms=70_000,
+            real_captacion=350_000, real_ms=70_000,
+            real_donaciones=100_000,
+        )
+        self.assertEqual(r.variable3, 20_000)
+
+
+class TestGrupoC(unittest.TestCase):
+    def test_tramo_1_bajo_100k(self):
+        r = calcular_grupo_c(venta_total=80_000, monto_preferente=30_000, monto_gold=10_000)
+        self.assertEqual(r.monto_general, 40_000)
+        self.assertAlmostEqual(r.pct_general, 0.02)
+        self.assertAlmostEqual(r.pct_preferente, 0.20)
+        self.assertAlmostEqual(r.pct_gold, 0.40)
+        self.assertEqual(r.com_general, 800)
+        self.assertEqual(r.com_preferente, 6_000)
+        self.assertEqual(r.com_gold, 4_000)
+        self.assertEqual(r.comision_total, 10_800)
+
+    def test_tramo_5_sobre_250k(self):
+        r = calcular_grupo_c(venta_total=300_000, monto_preferente=100_000, monto_gold=50_000)
+        self.assertAlmostEqual(r.pct_general, 0.60)
+        self.assertAlmostEqual(r.pct_preferente, 2.50)
+        self.assertAlmostEqual(r.pct_gold, 3.50)
+        expected = (150_000 * 0.60) + (100_000 * 2.50) + (50_000 * 3.50)
+        self.assertEqual(r.comision_total, round(expected))
+
+    def test_solo_general(self):
+        r = calcular_grupo_c(venta_total=200_000)
+        self.assertEqual(r.monto_general, 200_000)
+        self.assertEqual(r.monto_preferente, 0)
+        self.assertEqual(r.monto_gold, 0)
+        self.assertEqual(r.comision_total, round(200_000 * 0.50))
+
+
+class TestAlertaCorte(unittest.TestCase):
     def test_sin_mecanismo(self):
-        alerta = generar_alerta_corte(None, date(2026, 9, 29))
-        self.assertIn("Sin reporte", alerta)
+        a = generar_alerta_corte(None, date(2026, 9, 29))
+        self.assertIn("Sin reporte", a)
 
-    def test_desfase_mayor_7_dias(self):
-        alerta = generar_alerta_corte(date(2026, 9, 15), date(2026, 9, 29))
-        self.assertIn("desfase", alerta)
+    def test_desfase(self):
+        a = generar_alerta_corte(date(2026, 9, 15), date(2026, 9, 29))
+        self.assertIn("desfase", a)
 
-    def test_dentro_rango(self):
-        alerta = generar_alerta_corte(date(2026, 9, 26), date(2026, 9, 29))
-        self.assertNotIn("desfase", alerta)
+    def test_ok(self):
+        a = generar_alerta_corte(date(2026, 9, 26), date(2026, 9, 29))
+        self.assertNotIn("desfase", a)
 
 
 if __name__ == "__main__":
