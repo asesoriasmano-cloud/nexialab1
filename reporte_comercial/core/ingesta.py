@@ -24,6 +24,7 @@ def _normalizar_rut(rut) -> str:
 
 def cargar_maestro_vendedores(ruta: Path) -> pd.DataFrame:
     df = pd.read_excel(ruta, dtype={"rut": str, "telefono": str})
+    df = df.dropna(subset=["rut"]).reset_index(drop=True)
 
     if "Ejecutivo normalizado" in df.columns or "tipo contrato" in df.columns:
         df = _convertir_formato_real(df)
