@@ -27,21 +27,29 @@ def construir_mensaje(row: dict) -> str:
         f"📅 Corte: {fecha_str}" + (f" | Equipo: {row['equipo']}" if row.get('equipo') else ""),
     ]
 
-    if grupo == "A":
-        lineas += _bloque_grupo_a(row)
-    elif grupo == "B":
-        lineas += _bloque_grupo_b(row)
-    elif grupo == "C":
-        lineas += _bloque_grupo_c(row)
+    if grupo == "S":
+        lineas += _bloque_supervisora(row)
+        lineas += [
+            f"",
+            f"━━━━━━━━━━━━━━━━━━━━━━",
+            f"📋 _{row['alerta_corte']}_",
+        ]
+    else:
+        if grupo == "A":
+            lineas += _bloque_grupo_a(row)
+        elif grupo == "B":
+            lineas += _bloque_grupo_b(row)
+        elif grupo == "C":
+            lineas += _bloque_grupo_c(row)
 
-    lineas += [
-        f"",
-        f"━━━ *Comision Proyectada* ━━━",
-        f"💵 *{_clp(row['comision'])}*",
-        f"",
-        f"━━━━━━━━━━━━━━━━━━━━━━",
-        f"📋 _{row['alerta_corte']}_",
-    ]
+        lineas += [
+            f"",
+            f"━━━ *Comision Proyectada* ━━━",
+            f"💵 *{_clp(row['comision'])}*",
+            f"",
+            f"━━━━━━━━━━━━━━━━━━━━━━",
+            f"📋 _{row['alerta_corte']}_",
+        ]
 
     return "\n".join(lineas)
 
@@ -98,3 +106,40 @@ def _bloque_grupo_c(row: dict) -> list[str]:
         f"  Preferente: {_clp(row.get('monto_preferente', 0))} → {_clp(row.get('com_preferente', 0))}",
         f"  Gold: {_clp(row.get('monto_gold', 0))} → {_clp(row.get('com_gold', 0))}",
     ]
+
+
+def _bloque_supervisora(row: dict) -> list[str]:
+    acum = row.get("acumulado", {})
+    ga = acum.get("grupo_a", {})
+    gb = acum.get("grupo_b", {})
+    gc = acum.get("grupo_c", {})
+    total_com = acum.get("comision_equipo", 0)
+
+    lineas = [
+        f"",
+        f"*Resumen Acumulado del Equipo*",
+        f"",
+        f"━━━ *Grupo A ({ga.get('n', 0)} ejecutivas)* ━━━",
+        f"  Q Acuerdos acum.: *{ga.get('real_q', 0)}%* (prom {ga.get('real_q', 0) / max(ga.get('n', 1), 1):.1f}%)",
+        f"  Monto Acuerdos acum.: *{ga.get('real_monto', 0)}%* (prom {ga.get('real_monto', 0) / max(ga.get('n', 1), 1):.1f}%)",
+        f"  Mec. Superior acum.: *{ga.get('real_ms', 0)}%* (prom {ga.get('real_ms', 0) / max(ga.get('n', 1), 1):.1f}%)",
+        f"  Comision grupo: *{_clp(ga.get('comision_total', 0))}*",
+        f"",
+        f"━━━ *Grupo B ({gb.get('n', 0)} ejecutivas)* ━━━",
+        f"  Captacion acum.: *{gb.get('real_captacion', 0)}%* (prom {gb.get('real_captacion', 0) / max(gb.get('n', 1), 1):.1f}%)",
+        f"  Mec. Superior acum.: *{gb.get('real_ms', 0)}%* (prom {gb.get('real_ms', 0) / max(gb.get('n', 1), 1):.1f}%)",
+        f"  Reajustes acum.: *{_clp(gb.get('real_reajustes', 0))}*",
+        f"  Donaciones acum.: *{_clp(gb.get('real_donaciones', 0))}*",
+        f"  Comision grupo: *{_clp(gb.get('comision_total', 0))}*",
+        f"",
+        f"━━━ *Grupo C ({gc.get('n', 0)} ejecutivas)* ━━━",
+        f"  Venta Total acum.: *{_clp(gc.get('venta_total', 0))}*",
+        f"  General acum.: *{_clp(gc.get('monto_general', 0))}*",
+        f"  Preferente acum.: *{_clp(gc.get('monto_preferente', 0))}*",
+        f"  Gold acum.: *{_clp(gc.get('monto_gold', 0))}*",
+        f"  Comision grupo: *{_clp(gc.get('comision_total', 0))}*",
+        f"",
+        f"━━━ *TOTAL EQUIPO* ━━━",
+        f"💵 Comision total proyectada: *{_clp(total_com)}*",
+    ]
+    return lineas

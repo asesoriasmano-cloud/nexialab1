@@ -25,6 +25,7 @@ def generar_html(df: pd.DataFrame) -> str:
             "A": '<span style="background:#7c3aed;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">A</span>',
             "B": '<span style="background:#0891b2;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">B</span>',
             "C": '<span style="background:#d97706;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">C</span>',
+            "S": '<span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">SUP</span>',
         }.get(r["grupo"], "")
 
         cum = r.get("cumplimiento_global", "")

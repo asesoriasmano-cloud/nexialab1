@@ -57,7 +57,10 @@ def _convertir_formato_real(df: pd.DataFrame) -> pd.DataFrame:
     df = df.rename(columns=renombrar)
 
     def mapear_grupo(tc):
-        if isinstance(tc, str) and "sin" in tc.lower():
+        tc_str = str(tc).strip().lower()
+        if any(k in tc_str for k in ("sup", "jef", "coord", "lider")):
+            return "S"
+        if "sin" in tc_str:
             return "C"
         try:
             tc_num = float(tc)

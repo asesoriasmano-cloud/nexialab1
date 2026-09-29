@@ -24,6 +24,55 @@ def _val(df, rut, col, default=0):
     return fila[col].iloc[0]
 
 
+def _acumular_equipo(resultados: list[dict], ventas: pd.DataFrame) -> dict:
+    """Calcula acumulados por item para el resumen de la supervisora."""
+    acum = {
+        "grupo_a": {"n": 0, "real_q": 0, "meta_q": 0, "real_monto": 0, "meta_monto": 0,
+                     "real_ms": 0, "meta_ms": 0, "comision_total": 0},
+        "grupo_b": {"n": 0, "real_captacion": 0, "meta_captacion": 0,
+                     "real_ms": 0, "meta_ms": 0,
+                     "real_reajustes": 0, "real_donaciones": 0,
+                     "comision_total": 0},
+        "grupo_c": {"n": 0, "venta_total": 0, "monto_general": 0,
+                     "monto_preferente": 0, "monto_gold": 0,
+                     "comision_total": 0},
+        "comision_equipo": 0,
+    }
+
+    for r in resultados:
+        g = r.get("grupo")
+        com = r.get("comision", 0)
+        acum["comision_equipo"] += com
+
+        if g == "A":
+            a = acum["grupo_a"]
+            a["n"] += 1
+            a["real_q"] += r.get("pct_q", 0)
+            a["real_monto"] += r.get("pct_monto", 0)
+            a["real_ms"] += r.get("pct_ms", 0)
+            a["comision_total"] += com
+
+        elif g == "B":
+            b = acum["grupo_b"]
+            b["n"] += 1
+            b["real_captacion"] += r.get("pct_captacion", 0)
+            b["real_ms"] += r.get("pct_ms", 0)
+            b["real_reajustes"] += r.get("variable2", 0)
+            b["real_donaciones"] += r.get("variable3", 0)
+            b["comision_total"] += com
+
+        elif g == "C":
+            c = acum["grupo_c"]
+            c["n"] += 1
+            c["venta_total"] += r.get("venta_total", 0)
+            c["monto_general"] += r.get("monto_general", 0)
+            c["monto_preferente"] += r.get("monto_preferente", 0)
+            c["monto_gold"] += r.get("monto_gold", 0)
+            c["comision_total"] += com
+
+    return acum
+
+
 def procesar_consolidado(
     ruta_maestro: Path,
     ruta_ventas: Path,
@@ -39,6 +88,7 @@ def procesar_consolidado(
         fecha_corte_mecanismo = mecanismo["fecha_corte"].max()
 
     resultados = []
+    supervisoras = []
 
     for _, v in maestro.iterrows():
         rut = v["rut"]
@@ -48,12 +98,16 @@ def procesar_consolidado(
             "rut": rut,
             "nombre": v["nombre"],
             "telefono": v["telefono"],
-            "equipo": v["equipo"],
+            "equipo": v.get("equipo", ""),
             "grupo": grupo,
             "fecha_corte_ventas": fecha_corte_ventas,
             "fecha_corte_mecanismo": fecha_corte_mecanismo,
             "alerta_corte": generar_alerta_corte(fecha_corte_mecanismo, fecha_corte_ventas),
         }
+
+        if grupo == "S":
+            supervisoras.append(base)
+            continue
 
         if grupo == "A":
             r = calcular_grupo_a(
@@ -131,6 +185,17 @@ def procesar_consolidado(
             })
 
         resultados.append(base)
+
+    if supervisoras:
+        acum = _acumular_equipo(resultados, ventas)
+        for sup in supervisoras:
+            sup.update({
+                "esquema": "Supervisora — Resumen acumulado",
+                "comision": 0,
+                "tramo": "",
+                "acumulado": acum,
+            })
+            resultados.append(sup)
 
     return pd.DataFrame(resultados)
 

@@ -12,13 +12,21 @@ class TestProcesador(unittest.TestCase):
             ARCHIVOS["mecanismo_superior"],
         )
 
-    def test_13_vendedores_procesados(self):
-        self.assertEqual(len(self.df), 13)
+    def test_vendedores_procesados(self):
+        n_abc = len(self.df[self.df["grupo"].isin(["A", "B", "C"])])
+        self.assertEqual(n_abc, 13)
 
     def test_distribucion_grupos(self):
         self.assertEqual(len(self.df[self.df["grupo"] == "A"]), 3)
         self.assertEqual(len(self.df[self.df["grupo"] == "B"]), 7)
         self.assertEqual(len(self.df[self.df["grupo"] == "C"]), 3)
+
+    def test_supervisora_tiene_acumulado(self):
+        sup = self.df[self.df["grupo"] == "S"]
+        for _, row in sup.iterrows():
+            self.assertIn("acumulado", row)
+            self.assertIn("grupo_a", row["acumulado"])
+            self.assertIn("comision_equipo", row["acumulado"])
 
     def test_comision_no_negativa(self):
         self.assertTrue((self.df["comision"] >= 0).all())
