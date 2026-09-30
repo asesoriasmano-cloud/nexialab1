@@ -358,6 +358,9 @@ const APP = (() => {
           cumplimientoGlobal: r.cumplimientoGlobal,
           avanceRaw: r.avanceRaw,
           comision: r.comision, tramo: r.tramoLabel,
+          realQ: vt.realQAcuerdos || 0, metaQ: v.metaQAcuerdos || 0,
+          realMonto: vt.realMontoAcuerdos || 0, metaMonto: v.metaMontoAcuerdos || 0,
+          realMs: vt.realMs || 0, metaMs: v.metaMs || 0,
         });
       } else if (v.grupo === "B") {
         const r = ENGINE.calcularGrupoB({
@@ -375,6 +378,8 @@ const APP = (() => {
           avanceRaw: r.avanceRaw,
           variable1: r.variable1, variable2: r.variable2, variable3: r.variable3,
           comision: r.comisionTotal, tramo: r.tramoLabel,
+          realCaptacion: vt.realCaptacion || 0, metaCaptacion: v.metaCaptacion || 0,
+          realMs: vt.realMs || 0, metaMs: v.metaMs || 0,
         });
       } else if (v.grupo === "C") {
         const r = ENGINE.calcularGrupoC({

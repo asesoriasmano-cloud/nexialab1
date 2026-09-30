@@ -160,9 +160,9 @@ const ENGINE = (() => {
     return [
       "", "*Esquema:* 3 KPIs ponderados (tope 140%)", "",
       "━━━ *Avance por KPI* ━━━",
-      `📌 Q Acuerdos: *${r.pctQ}%* ${barra(r.pctQ, 10, 100)} (peso 25%)`,
-      `💰 Monto Acuerdos: *${r.pctMonto}%* ${barra(r.pctMonto, 10, 100)} (peso 40%)`,
-      `🏦 Mec. Superior: *${r.pctMs}%* ${barra(r.pctMs, 10, 100)} (peso 35%)`,
+      `📌 Q Acuerdos: *${r.realQ || 0}* de meta *${r.metaQ || 0}* → *${r.pctQ}%* ${barra(r.pctQ, 10, 100)} (peso 25%)`,
+      `💰 Monto: *${clp(r.realMonto || 0)}* de meta *${clp(r.metaMonto || 0)}* → *${r.pctMonto}%* ${barra(r.pctMonto, 10, 100)} (peso 40%)`,
+      `🏦 Mec. Sup: *${clp(r.realMs || 0)}* de meta *${clp(r.metaMs || 0)}* → *${r.pctMs}%* ${barra(r.pctMs, 10, 100)} (peso 35%)`,
       "",
       `📈 Avance Global: *${av}%* ${barra(av, 10, 140)}`,
       `📊 Cumpl. Efectivo: *${g}%* (piso 70%) → Tramo: ${r.tramo}`,
@@ -175,8 +175,8 @@ const ENGINE = (() => {
     return [
       "", "*Esquema:* 2 KPIs + Reajustes (tope 300%)", "",
       "━━━ *Avance por KPI* ━━━",
-      `💰 Captacion: *${r.pctCaptacion}%* ${barra(r.pctCaptacion, 10, 100)} (peso 70%)`,
-      `🏦 Mec. Superior: *${r.pctMs}%* ${barra(r.pctMs, 10, 100)} (peso 30%)`,
+      `💰 Captacion: *${clp(r.realCaptacion || 0)}* de meta *${clp(r.metaCaptacion || 0)}* → *${r.pctCaptacion}%* ${barra(r.pctCaptacion, 10, 100)} (peso 70%)`,
+      `🏦 Mec. Sup: *${clp(r.realMs || 0)}* de meta *${clp(r.metaMs || 0)}* → *${r.pctMs}%* ${barra(r.pctMs, 10, 100)} (peso 30%)`,
       "",
       `📈 Avance Global: *${av}%* ${barra(av, 10, 100)}`,
       `📊 Cumpl. Efectivo: *${g}%* (piso 70%) → Tramo: ${r.tramo}`,
