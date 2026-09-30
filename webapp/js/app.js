@@ -345,8 +345,10 @@ const APP = (() => {
     // Agregar por ejecutiva
     const fechaCorte = calcularFechaCorte(d20, d21);
     const ventas = {};
+    const diagnostico = [];
     rutsSet.forEach(rut => {
       const dataRut = rutAlias[rut] || rut;
+      const nombre = maestro.find(v => v.rut === rut)?.nombre || rut;
       const e20 = d20.filter(r => r.rut === dataRut);
       const e21 = d21.filter(r => r.rut === dataRut);
       const ems = msData.filter(r => r.rut === dataRut);
@@ -357,6 +359,12 @@ const APP = (() => {
       const montoVol = e20.reduce((s, r) => s + r.monto, 0) + e21.reduce((s, r) => s + r.monto, 0);
       const msSuperior = emsSup.reduce((s, r) => s + r.monto, 0);
       const donaciones = eDon.reduce((s, r) => s + r.monto, 0);
+
+      diagnostico.push({
+        nombre, rutMaestro: rut, rutDatos: dataRut, alias: rut !== dataRut,
+        d20: e20.length, d21: e21.length, ms: ems.length, msSup: emsSup.length,
+        montoVol, msSuperior, donaciones,
+      });
 
       const split = CONFIG.SIMULACION_GOLD_PREFERENTE_SPLIT;
       ventas[rut] = {
@@ -371,6 +379,7 @@ const APP = (() => {
         montoGold: msSuperior * split,
       };
     });
+    window._lastDiagnostico = diagnostico;
 
     // Calcular comisiones
     resultados = [];
@@ -558,6 +567,34 @@ const APP = (() => {
       </tr>`;
     });
     html += "</tbody></table>";
+
+    // Diagnostico visible
+    const diag = window._lastDiagnostico || [];
+    if (diag.length) {
+      html += `<details style="margin-top:16px;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">
+        <summary style="cursor:pointer;font-weight:600;font-size:0.9rem">🔍 Diagnóstico de datos (click para expandir)</summary>
+        <div style="font-size:0.8rem;margin-top:8px;overflow-x:auto">
+        <table><thead><tr>
+          <th>Ejecutiva</th><th>RUT Maestro</th><th>RUT Datos</th>
+          <th>D20</th><th>D21</th><th>MS</th><th>MS Sup</th>
+          <th>Monto Vol.</th><th>MS $</th><th>Donac.</th>
+        </tr></thead><tbody>`;
+      diag.forEach(d => {
+        const warn = (d.d20 === 0 && d.d21 === 0 && d.ms === 0) ? ' style="background:#fef3c7"' : "";
+        html += `<tr${warn}>
+          <td>${d.nombre}</td>
+          <td class="mono small">${d.rutMaestro}</td>
+          <td class="mono small">${d.alias ? "⚠ " + d.rutDatos : d.rutDatos}</td>
+          <td class="num">${d.d20}</td><td class="num">${d.d21}</td>
+          <td class="num">${d.ms}</td><td class="num">${d.msSup}</td>
+          <td class="num">${ENGINE.clp(d.montoVol)}</td>
+          <td class="num">${ENGINE.clp(d.msSuperior)}</td>
+          <td class="num">${ENGINE.clp(d.donaciones)}</td>
+        </tr>`;
+      });
+      html += "</tbody></table></div></details>";
+    }
+
     document.getElementById("dashboard-table").innerHTML = html;
   }
 
