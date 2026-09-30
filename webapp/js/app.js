@@ -4,6 +4,7 @@
 const APP = (() => {
   let maestro = [];
   let dataCargada = { data20: null, data21: null, ms: null };
+  let dataFileNames = { data20: "", data21: "", ms: "" };
   let resultados = [];
   const ADMIN_KEY = "fhc_admin_2026";
 
@@ -11,6 +12,7 @@ const APP = (() => {
   function init() {
     setupTabs();
     cargarMaestroDesdeStorage();
+    cargarDataDesdeStorage();
     setupFileUploads();
     renderMaestro();
     const now = new Date();
@@ -41,6 +43,34 @@ const APP = (() => {
   function guardarMaestro() {
     try {
       localStorage.setItem("maestro_vendedores", JSON.stringify(maestro));
+    } catch (e) { /* empty */ }
+  }
+
+  function guardarData() {
+    try {
+      ["data20", "data21", "ms"].forEach(key => {
+        if (dataCargada[key]) {
+          localStorage.setItem("dc_" + key, JSON.stringify(dataCargada[key]));
+          localStorage.setItem("dc_fn_" + key, dataFileNames[key] || "");
+        } else {
+          localStorage.removeItem("dc_" + key);
+          localStorage.removeItem("dc_fn_" + key);
+        }
+      });
+    } catch (e) { console.warn("No se pudo guardar data:", e); }
+  }
+
+  function cargarDataDesdeStorage() {
+    try {
+      ["data20", "data21", "ms"].forEach(key => {
+        const saved = localStorage.getItem("dc_" + key);
+        if (saved) {
+          dataCargada[key] = JSON.parse(saved);
+          dataFileNames[key] = localStorage.getItem("dc_fn_" + key) || "guardado";
+          updateFileStatus(key, dataCargada[key].length, dataFileNames[key]);
+        }
+      });
+      checkReadyToProcess();
     } catch (e) { /* empty */ }
   }
 
@@ -207,7 +237,9 @@ const APP = (() => {
       }
 
       dataCargada[key] = rows;
+      dataFileNames[key] = file.name;
       updateFileStatus(key, rows.length, file.name);
+      guardarData();
       checkReadyToProcess();
     };
     reader.readAsArrayBuffer(file);
