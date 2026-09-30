@@ -292,34 +292,64 @@ const APP = (() => {
       })
       .filter(r => r.rut);
 
-    // Debug: column names in each source
+    // Debug: column names
     if (dataCargada.data20 && dataCargada.data20[0]) console.log("D20 cols:", Object.keys(dataCargada.data20[0]).join(", "));
     if (dataCargada.data21 && dataCargada.data21[0]) console.log("D21 cols:", Object.keys(dataCargada.data21[0]).join(", "));
     if (dataCargada.ms && dataCargada.ms[0]) console.log("MS cols:", Object.keys(dataCargada.ms[0]).join(", "));
     console.log(`Procesando: d20=${d20.length}, d21=${d21.length}, MS mes ${mesMS}/${anioMS}=${msData.length} registros`);
 
-    // Debug: RUTs en cada fuente vs maestro
-    const d20Ruts = new Set(d20.map(r => r.rut));
-    const d21Ruts = new Set(d21.map(r => r.rut));
-    const msRuts = new Set(msData.map(r => r.rut));
+    // Collect all unique RUTs in data sources for fuzzy matching
+    const allDataRuts = new Set([...d20.map(r => r.rut), ...d21.map(r => r.rut), ...msData.map(r => r.rut)]);
+    console.log("RUTs en datos:", [...allDataRuts].join(", "));
+    console.log("RUTs en maestro:", maestro.map(v => `${v.nombre}=${v.rut}`).join(", "));
+
+    // Build RUT alias map: maestro rut → data rut (handles check-digit mismatch)
+    const rutAlias = {};
+    const rutBody = rut => rut.replace(/K$/i, "").replace(/\d$/, "").length >= 6 ? rut.slice(0, -1) : rut;
     maestro.forEach(v => {
-      const inD20 = d20Ruts.has(v.rut);
-      const inD21 = d21Ruts.has(v.rut);
-      const inMS = msRuts.has(v.rut);
-      if (!inD20 && !inD21 && !inMS) {
-        console.warn(`⚠ ${v.nombre} (${v.rut}) sin datos en ninguna planilla`);
+      if (allDataRuts.has(v.rut)) {
+        rutAlias[v.rut] = v.rut;
       } else {
-        console.log(`✓ ${v.nombre} (${v.rut}): d20=${inD20} d21=${inD21} ms=${inMS}`);
+        // Try matching by body (without check digit)
+        const body = rutBody(v.rut);
+        for (const dr of allDataRuts) {
+          if (rutBody(dr) === body || dr === body || v.rut === rutBody(dr)) {
+            console.warn(`🔄 ${v.nombre}: RUT maestro "${v.rut}" → match parcial "${dr}"`);
+            rutAlias[v.rut] = dr;
+            break;
+          }
+        }
+        if (!rutAlias[v.rut]) {
+          // Try startsWith in both directions
+          for (const dr of allDataRuts) {
+            if (dr.startsWith(v.rut) || v.rut.startsWith(dr)) {
+              console.warn(`🔄 ${v.nombre}: RUT maestro "${v.rut}" → match parcial "${dr}"`);
+              rutAlias[v.rut] = dr;
+              break;
+            }
+          }
+        }
+        if (!rutAlias[v.rut]) {
+          console.warn(`⚠ ${v.nombre} (${v.rut}) sin match en ninguna planilla`);
+        }
       }
     });
+
+    // Show diagnostic warnings
+    const sinDatos = maestro.filter(v => !rutAlias[v.rut] && v.grupo !== "S");
+    if (sinDatos.length > 0) {
+      const nombres = sinDatos.map(v => `${v.nombre} (${v.rut})`).join(", ");
+      showToast(`⚠ Sin datos en planillas: ${nombres}`, "warning", 8000);
+    }
 
     // Agregar por ejecutiva
     const fechaCorte = calcularFechaCorte(d20, d21);
     const ventas = {};
     rutsSet.forEach(rut => {
-      const e20 = d20.filter(r => r.rut === rut);
-      const e21 = d21.filter(r => r.rut === rut);
-      const ems = msData.filter(r => r.rut === rut);
+      const dataRut = rutAlias[rut] || rut;
+      const e20 = d20.filter(r => r.rut === dataRut);
+      const e21 = d21.filter(r => r.rut === dataRut);
+      const ems = msData.filter(r => r.rut === dataRut);
       const emsSup = ems.filter(r => r.mecanismo === "SUPERIOR");
       const eDon = ems.filter(r => r.planName.toLowerCase().includes("donaci"));
 
@@ -568,11 +598,11 @@ const APP = (() => {
   }
 
   // ── Toast ──
-  function showToast(msg, type = "success") {
+  function showToast(msg, type = "success", duration = 3000) {
     const toast = document.getElementById("toast");
     toast.textContent = msg;
     toast.className = `toast show ${type}`;
-    setTimeout(() => toast.className = "toast", 3000);
+    setTimeout(() => toast.className = "toast", duration);
   }
 
   // ── Export ──
