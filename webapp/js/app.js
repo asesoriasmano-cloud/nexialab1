@@ -454,14 +454,24 @@ const APP = (() => {
           montoPreferente: r.montoPreferente, montoGold: r.montoGold,
           comGeneral: r.comGeneral, comPreferente: r.comPreferente, comGold: r.comGold,
           comision: r.comisionTotal, tramo: r.tramoLabel,
+          realMs: vt.realMs || 0,
         });
       }
       resultados.push(base);
     });
 
-    // Supervisora
+    // Supervisora — con proyeccion lineal
     if (supervisoras.length) {
       const acum = acumularEquipo(resultados);
+      const diasTotalMes = diasLaboralesMes(anioMS, mesMS);
+      const fcParts = fechaCorte.split("/");
+      const diaCorte = fcParts.length === 3 ? parseInt(fcParts[0]) : new Date().getDate();
+      const diasTransc = diasLaboralesHasta(anioMS, mesMS, diaCorte);
+      const factor = diasTransc > 0 ? diasTotalMes / diasTransc : 1;
+      acum.diasTranscurridos = diasTransc;
+      acum.diasTotales = diasTotalMes;
+      acum.proyCapt = Math.round(acum.total_captacion * factor);
+      acum.proyMs = Math.round(acum.total_ms * factor);
       supervisoras.forEach(sup => {
         sup.esquema = "Supervisora — Resumen acumulado";
         sup.comision = 0;
@@ -501,35 +511,44 @@ const APP = (() => {
     return new Date((serial - 25569) * 86400 * 1000);
   }
 
+  function diasLaboralesMes(year, month) {
+    let count = 0;
+    const last = new Date(year, month, 0).getDate();
+    for (let d = 1; d <= last; d++) {
+      const dow = new Date(year, month - 1, d).getDay();
+      if (dow !== 0 && dow !== 6) count++;
+    }
+    return count;
+  }
+
+  function diasLaboralesHasta(year, month, day) {
+    let count = 0;
+    for (let d = 1; d <= day; d++) {
+      const dow = new Date(year, month - 1, d).getDay();
+      if (dow !== 0 && dow !== 6) count++;
+    }
+    return count;
+  }
+
   function acumularEquipo(res) {
     const acum = {
-      grupo_a: { n: 0, real_q: 0, real_monto: 0, real_ms: 0, comision_total: 0 },
-      grupo_b: { n: 0, real_captacion: 0, real_ms: 0, real_reajustes: 0, real_donaciones: 0, comision_total: 0 },
-      grupo_c: { n: 0, venta_total: 0, monto_general: 0, monto_preferente: 0, monto_gold: 0, comision_total: 0 },
+      total_captacion: 0,
+      total_ms: 0,
+      n_ejecutivas: 0,
       comision_equipo: 0,
     };
     res.forEach(r => {
       acum.comision_equipo += r.comision || 0;
+      acum.n_ejecutivas++;
       if (r.grupo === "A") {
-        acum.grupo_a.n++;
-        acum.grupo_a.real_q += r.pctQ || 0;
-        acum.grupo_a.real_monto += r.pctMonto || 0;
-        acum.grupo_a.real_ms += r.pctMs || 0;
-        acum.grupo_a.comision_total += r.comision || 0;
+        acum.total_captacion += r.realMonto || 0;
+        acum.total_ms += r.realMs || 0;
       } else if (r.grupo === "B") {
-        acum.grupo_b.n++;
-        acum.grupo_b.real_captacion += r.pctCaptacion || 0;
-        acum.grupo_b.real_ms += r.pctMs || 0;
-        acum.grupo_b.real_reajustes += r.variable2 || 0;
-        acum.grupo_b.real_donaciones += r.variable3 || 0;
-        acum.grupo_b.comision_total += r.comision || 0;
+        acum.total_captacion += r.realCaptacion || 0;
+        acum.total_ms += r.realMs || 0;
       } else if (r.grupo === "C") {
-        acum.grupo_c.n++;
-        acum.grupo_c.venta_total += r.ventaTotal || 0;
-        acum.grupo_c.monto_general += r.montoGeneral || 0;
-        acum.grupo_c.monto_preferente += r.montoPreferente || 0;
-        acum.grupo_c.monto_gold += r.montoGold || 0;
-        acum.grupo_c.comision_total += r.comision || 0;
+        acum.total_captacion += r.ventaTotal || 0;
+        acum.total_ms += r.realMs || 0;
       }
     });
     return acum;

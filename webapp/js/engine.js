@@ -200,32 +200,18 @@ const ENGINE = (() => {
 
   function bloqueSuper(r) {
     const a = r.acumulado || {};
-    const ga = a.grupo_a || {};
-    const gb = a.grupo_b || {};
-    const gc = a.grupo_c || {};
-    const divA = Math.max(ga.n || 1, 1);
-    const divB = Math.max(gb.n || 1, 1);
+    const dt = a.diasTranscurridos || 0;
+    const dtot = a.diasTotales || 1;
     return [
-      "", "*Resumen Acumulado del Equipo*", "",
-      `━━━ *Grupo A (${ga.n || 0} ejecutivas)* ━━━`,
-      `  Q Acuerdos prom.: *${((ga.real_q || 0) / divA).toFixed(1)}%*`,
-      `  Monto Acuerdos prom.: *${((ga.real_monto || 0) / divA).toFixed(1)}%*`,
-      `  Mec. Superior prom.: *${((ga.real_ms || 0) / divA).toFixed(1)}%*`,
-      `  Comision grupo: *${clp(ga.comision_total || 0)}*`,
+      "", `*Resumen Acumulado del Equipo* (${a.n_ejecutivas || 0} ejecutivas)`, "",
+      "━━━ *Totales Acumulados* ━━━",
+      `💰 Total Captaciones: *${clp(a.total_captacion || 0)}*`,
+      `🏦 Total Mec. Superior: *${clp(a.total_ms || 0)}*`,
       "",
-      `━━━ *Grupo B (${gb.n || 0} ejecutivas)* ━━━`,
-      `  Captacion prom.: *${((gb.real_captacion || 0) / divB).toFixed(1)}%*`,
-      `  Mec. Superior prom.: *${((gb.real_ms || 0) / divB).toFixed(1)}%*`,
-      `  Reajustes acum.: *${clp(gb.real_reajustes || 0)}*`,
-      `  Donaciones acum.: *${clp(gb.real_donaciones || 0)}*`,
-      `  Comision grupo: *${clp(gb.comision_total || 0)}*`,
-      "",
-      `━━━ *Grupo C (${gc.n || 0} ejecutivas)* ━━━`,
-      `  Venta Total acum.: *${clp(gc.venta_total || 0)}*`,
-      `  General acum.: *${clp(gc.monto_general || 0)}*`,
-      `  Preferente acum.: *${clp(gc.monto_preferente || 0)}*`,
-      `  Gold acum.: *${clp(gc.monto_gold || 0)}*`,
-      `  Comision grupo: *${clp(gc.comision_total || 0)}*`,
+      `━━━ *Proyeccion Lineal* ━━━`,
+      `📅 Dia laboral *${dt}* de *${dtot}*`,
+      `💰 Captaciones proyectadas: *${clp(a.proyCapt || 0)}*`,
+      `🏦 Mec. Superior proyectado: *${clp(a.proyMs || 0)}*`,
     ];
   }
 

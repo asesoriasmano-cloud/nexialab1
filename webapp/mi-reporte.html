@@ -196,12 +196,18 @@ function renderBloqueC(d) {
 
 function renderBloqueSuper(d) {
   var a = d.acumulado || {};
-  var ga = a.grupo_a || {}; var gb = a.grupo_b || {}; var gc = a.grupo_c || {};
-  var h = '<div style="font-weight:600;margin-bottom:8px">Resumen Acumulado del Equipo</div>';
-  h += '<div style="font-size:0.85rem">';
-  h += '<div class="grupo-line"><strong>Grupo A (' + (ga.n || 0) + ')</strong> &mdash; Comision: ' + clp(ga.comision_total || 0) + '</div>';
-  h += '<div class="grupo-line"><strong>Grupo B (' + (gb.n || 0) + ')</strong> &mdash; Comision: ' + clp(gb.comision_total || 0) + '</div>';
-  h += '<div class="grupo-line"><strong>Grupo C (' + (gc.n || 0) + ')</strong> &mdash; Venta: ' + clp(gc.venta_total || 0) + ' &mdash; Comision: ' + clp(gc.comision_total || 0) + '</div>';
+  var dt = a.diasTranscurridos || 0;
+  var dtot = a.diasTotales || 1;
+  var h = '<div style="font-weight:600;margin-bottom:8px">Resumen Acumulado del Equipo (' + (a.n_ejecutivas || 0) + ' ejecutivas)</div>';
+  h += '<div style="font-size:0.9rem;margin-bottom:12px">';
+  h += '<div style="padding:6px 0;border-bottom:1px solid var(--border)">Total Captaciones: <strong>' + clp(a.total_captacion || 0) + '</strong></div>';
+  h += '<div style="padding:6px 0">Total Mec. Superior: <strong>' + clp(a.total_ms || 0) + '</strong></div>';
+  h += '</div>';
+  h += '<div class="summary-box">';
+  h += '<div style="font-weight:600;margin-bottom:6px">Proyeccion Lineal</div>';
+  h += '<div class="small" style="margin-bottom:6px">Dia laboral ' + dt + ' de ' + dtot + '</div>';
+  h += '<div>Captaciones proyectadas: <strong>' + clp(a.proyCapt || 0) + '</strong></div>';
+  h += '<div>Mec. Superior proyectado: <strong>' + clp(a.proyMs || 0) + '</strong></div>';
   h += '</div>';
   return h;
 }
