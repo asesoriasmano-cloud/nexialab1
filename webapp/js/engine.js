@@ -129,9 +129,7 @@ const ENGINE = (() => {
   function construirMensaje(row) {
     const fecha = row.fechaCorte || "N/A";
     const lines = [
-      `📊 *Reporte Diario de Ventas*`,
-      `━━━━━━━━━━━━━━━━━━━━━━`,
-      ``,
+      `📊 *Reporte Diario*`,
       `👤 *${row.nombre}*`,
       `📅 Corte: ${fecha}`,
     ];
@@ -142,87 +140,75 @@ const ENGINE = (() => {
       if (row.grupo === "A") lines.push(...bloqueA(row));
       else if (row.grupo === "B") lines.push(...bloqueB(row));
       else if (row.grupo === "C") lines.push(...bloqueC(row));
-      lines.push("", "━━━ *Comision Proyectada* ━━━", `💵 *${clp(row.comision)}*`);
+      lines.push("", `💵 *Comision: ${clp(row.comision)}* (${row.tramo || "—"})`);
     }
-    lines.push("", "━━━━━━━━━━━━━━━━━━━━━━", `📋 _${row.alerta || ""}_`);
+    const msNota = row.fechaCorteMs ? ` · MS al ${row.fechaCorteMs}` : "";
+    lines.push("", `_Captacion al ${fecha}${msNota}_`);
     return lines.join("\n");
   }
 
-  function barra(pctVal, largo = 10, tope = 100) {
-    const ratio = tope > 0 ? Math.min(pctVal / tope, 1.0) : 0;
-    const llenos = Math.floor(ratio * largo);
-    return "█".repeat(llenos) + "░".repeat(largo - llenos);
-  }
-
-  function bloqueProy(r) {
+  function proyLabel(r) {
     const dt = r.diasTranscurridos || 0;
     const dtot = r.diasTotales || 0;
-    if (!dt || !dtot) return [];
-    return ["", `📅 *Proyeccion Lineal* (dia ${dt} de ${dtot} lab.)`];
+    if (!dt || !dtot) return null;
+    return `dia ${dt} de ${dtot} lab.`;
   }
 
   function bloqueA(r) {
-    const g = r.cumplimientoGlobal || 0;
     const av = r.avanceRaw || 0;
+    const g = r.cumplimientoGlobal || 0;
+    const pl = proyLabel(r);
     const lines = [
-      "", "*Esquema:* 3 KPIs ponderados (tope 140%)", "",
-      "━━━ *Avance por KPI* ━━━",
-      `📌 Q Acuerdos: *${r.realQ || 0}* de meta *${r.metaQ || 0}* → *${r.pctQ}%* ${barra(r.pctQ, 10, 100)} (peso 25%)`,
-      `💰 Monto: *${clp(r.realMonto || 0)}* de meta *${clp(r.metaMonto || 0)}* → *${r.pctMonto}%* ${barra(r.pctMonto, 10, 100)} (peso 40%)`,
-      `🏦 Mec. Sup: *${clp(r.realMs || 0)}* de meta *${clp(r.metaMs || 0)}* → *${r.pctMs}%* ${barra(r.pctMs, 10, 100)} (peso 35%)`,
       "",
-      `📈 Avance Global: *${av}%* ${barra(av, 10, 140)}`,
-      `📊 Cumpl. Efectivo: *${g}%* (piso 70%) → Tramo: ${r.tramo}`,
+      `*Llevas / Meta:*`,
+      `  Q Acuerdos: *${r.realQ || 0}* de *${r.metaQ || 0}* (${r.pctQ}%)`,
+      `  Monto: *${clp(r.realMonto || 0)}* de *${clp(r.metaMonto || 0)}* (${r.pctMonto}%)`,
+      `  Mec. Sup: *${clp(r.realMs || 0)}* de *${clp(r.metaMs || 0)}* (${r.pctMs}%)`,
+      "",
+      `📈 Avance: *${av}%* · Cumpl: *${g}%*`,
     ];
-    const proy = bloqueProy(r);
-    if (proy.length) {
-      lines.push(...proy);
-      lines.push(`  Q Acuerdos: *${r.proyQ || 0}*`);
-      lines.push(`  Monto: *${clp(r.proyMonto || 0)}*`);
+    if (pl) {
+      lines.push("", `🔮 *Proyeccion al cierre* (${pl})`);
+      lines.push(`  Q Acuerdos: *${r.proyQ || 0}* · Monto: *${clp(r.proyMonto || 0)}*`);
       lines.push(`  Mec. Sup: *${clp(r.proyMs || 0)}*`);
     }
     return lines;
   }
 
   function bloqueB(r) {
-    const g = r.cumplimientoGlobal || 0;
     const av = r.avanceRaw || 0;
+    const g = r.cumplimientoGlobal || 0;
+    const pl = proyLabel(r);
     const lines = [
-      "", "*Esquema:* 2 KPIs + Reajustes (tope 300%)", "",
-      "━━━ *Avance por KPI* ━━━",
-      `💰 Captacion: *${clp(r.realCaptacion || 0)}* de meta *${clp(r.metaCaptacion || 0)}* → *${r.pctCaptacion}%* ${barra(r.pctCaptacion, 10, 100)} (peso 70%)`,
-      `🏦 Mec. Sup: *${clp(r.realMs || 0)}* de meta *${clp(r.metaMs || 0)}* → *${r.pctMs}%* ${barra(r.pctMs, 10, 100)} (peso 30%)`,
       "",
-      `📈 Avance Global: *${av}%* ${barra(av, 10, 100)}`,
-      `📊 Cumpl. Efectivo: *${g}%* (piso 70%) → Tramo: ${r.tramo}`,
-      "", "━━━ *Desglose Comision* ━━━",
-      `  V1 (Tabla): ${clp(r.variable1 || 0)}`,
-      `  V2 (Reajustes): ${clp(r.variable2 || 0)}`,
-      `  V3 (Donaciones): ${clp(r.variable3 || 0)}`,
+      `*Llevas / Meta:*`,
+      `  Captacion: *${clp(r.realCaptacion || 0)}* de *${clp(r.metaCaptacion || 0)}* (${r.pctCaptacion}%)`,
+      `  Mec. Sup: *${clp(r.realMs || 0)}* de *${clp(r.metaMs || 0)}* (${r.pctMs}%)`,
+      "",
+      `📈 Avance: *${av}%* · Cumpl: *${g}%*`,
+      "",
+      `*Desglose:*`,
+      `  Tabla: ${clp(r.variable1 || 0)} · Reaj: ${clp(r.variable2 || 0)} · Don: ${clp(r.variable3 || 0)}`,
     ];
-    const proy = bloqueProy(r);
-    if (proy.length) {
-      lines.push(...proy);
-      lines.push(`  Captacion: *${clp(r.proyCaptacion || 0)}*`);
-      lines.push(`  Mec. Sup: *${clp(r.proyMs || 0)}*`);
+    if (pl) {
+      lines.push("", `🔮 *Proyeccion al cierre* (${pl})`);
+      lines.push(`  Captacion: *${clp(r.proyCaptacion || 0)}* · Mec. Sup: *${clp(r.proyMs || 0)}*`);
     }
     return lines;
   }
 
   function bloqueC(r) {
+    const pl = proyLabel(r);
     const lines = [
-      "", "*Esquema:* Comision por produccion (sin metas)", "",
-      "━━━ *Produccion del Mes* ━━━",
+      "",
       `💰 Venta Total: *${clp(r.ventaTotal || 0)}*`,
-      "", `  General: ${clp(r.montoGeneral || 0)} → ${clp(r.comGeneral || 0)}`,
+      `  General: ${clp(r.montoGeneral || 0)} → ${clp(r.comGeneral || 0)}`,
       `  Preferente: ${clp(r.montoPreferente || 0)} → ${clp(r.comPreferente || 0)}`,
       `  Gold: ${clp(r.montoGold || 0)} → ${clp(r.comGold || 0)}`,
     ];
-    const proy = bloqueProy(r);
-    if (proy.length) {
-      lines.push(...proy);
-      lines.push(`  Venta proyectada: *${clp(r.proyVenta || 0)}*`);
-      lines.push(`  Mec. Sup proyectado: *${clp(r.proyMs || 0)}*`);
+    if (pl) {
+      lines.push("", `🔮 *Proyeccion al cierre* (${pl})`);
+      lines.push(`  Venta: *${clp(r.proyVenta || 0)}* · Mec. Sup: *${clp(r.proyMs || 0)}*`);
     }
     return lines;
   }
@@ -232,15 +218,14 @@ const ENGINE = (() => {
     const dt = a.diasTranscurridos || 0;
     const dtot = a.diasTotales || 1;
     return [
-      "", `*Resumen Acumulado del Equipo* (${a.n_ejecutivas || 0} ejecutivas)`, "",
-      "━━━ *Totales Acumulados* ━━━",
-      `💰 Total Captaciones: *${clp(a.total_captacion || 0)}*`,
-      `🏦 Total Mec. Superior: *${clp(a.total_ms || 0)}*`,
       "",
-      `━━━ *Proyeccion Lineal* ━━━`,
-      `📅 Dia laboral *${dt}* de *${dtot}*`,
-      `💰 Captaciones proyectadas: *${clp(a.proyCapt || 0)}*`,
-      `🏦 Mec. Superior proyectado: *${clp(a.proyMs || 0)}*`,
+      `*Equipo* (${a.n_ejecutivas || 0} ejecutivas)`,
+      `💰 Captaciones: *${clp(a.total_captacion || 0)}*`,
+      `🏦 Mec. Superior: *${clp(a.total_ms || 0)}*`,
+      "",
+      `🔮 *Proyeccion al cierre* (dia ${dt} de ${dtot} lab.)`,
+      `💰 Captaciones: *${clp(a.proyCapt || 0)}*`,
+      `🏦 Mec. Superior: *${clp(a.proyMs || 0)}*`,
     ];
   }
 

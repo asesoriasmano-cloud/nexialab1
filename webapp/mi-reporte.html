@@ -13,14 +13,15 @@
     }
     .kpi-row:last-child { border-bottom: none; }
     .kpi-label { font-weight: 600; }
-    .kpi-bar { font-family: monospace; letter-spacing: 1px; }
+    .kpi-val { text-align: right; }
+    .kpi-pct { font-weight: 700; color: var(--accent); }
     .comision-box {
       margin-top: 16px; padding: 16px; background: var(--surface2);
       border-radius: 8px; text-align: center;
     }
     .comision-amount { font-size: 1.6rem; font-weight: 700; color: var(--green); margin: 4px 0; }
     .summary-box { padding: 10px; background: var(--surface2); border-radius: 6px; margin-top: 12px; font-size: 0.85rem; }
-    .grupo-line { margin-bottom: 6px; }
+    .proy-box { padding: 10px; background: #1e293b; border-radius: 6px; margin-top: 10px; font-size: 0.85rem; }
     .back-link { display: inline-block; margin-top: 16px; font-size: 0.82rem; color: var(--accent); text-decoration: none; }
     .back-link:hover { text-decoration: underline; }
   </style>
@@ -76,15 +77,6 @@ function clp(monto) {
 
 function escapeHtml(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function barra(pct, largo, tope) {
-  largo = largo || 10; tope = tope || 100;
-  var ratio = tope > 0 ? Math.min(pct / tope, 1.0) : 0;
-  var llenos = Math.floor(ratio * largo);
-  var full = ""; for (var i = 0; i < llenos; i++) full += "█";
-  var empty = ""; for (var j = 0; j < largo - llenos; j++) empty += "░";
-  return full + empty;
 }
 
 var MESES = ["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -154,57 +146,52 @@ async function buscarReporte() {
   }
 }
 
-function kpiRow(label, real, meta, pct, peso) {
+function kpiRow(label, real, meta, pct) {
   return '<div class="kpi-row"><span class="kpi-label">' + label + '</span>' +
-    '<span>' + real + ' / ' + meta + ' &rarr; <strong>' + (pct || 0) + '%</strong> <span class="small">(' + peso + '%)</span></span></div>';
+    '<span class="kpi-val">' + real + ' de ' + meta + ' <span class="kpi-pct">(' + (pct || 0) + '%)</span></span></div>';
 }
 
-function renderProyeccion(d) {
+function renderProy(d) {
   var dt = d.diasTranscurridos || 0;
   var dtot = d.diasTotales || 0;
   if (!dt || !dtot) return '';
-  return '<div class="summary-box" style="margin-top:10px"><div style="font-weight:600;margin-bottom:4px">Proyeccion Lineal</div>' +
-    '<div class="small">Dia laboral ' + dt + ' de ' + dtot + '</div>';
+  return '<div class="proy-box"><div style="font-weight:600;margin-bottom:4px">Proyeccion al cierre</div>' +
+    '<div class="small" style="margin-bottom:6px">Dia laboral ' + dt + ' de ' + dtot + '</div>';
 }
 
 function renderBloqueA(d) {
-  var h = '<div style="font-weight:600;margin-bottom:8px">Avance por KPI</div>';
-  h += kpiRow("Q Acuerdos", d.realQ || 0, d.metaQ || 0, d.pctQ, 25);
-  h += kpiRow("Monto", clp(d.realMonto || 0), clp(d.metaMonto || 0), d.pctMonto, 40);
-  h += kpiRow("Mec. Superior", clp(d.realMs || 0), clp(d.metaMs || 0), d.pctMs, 35);
+  var h = '<div style="font-weight:600;margin-bottom:8px">Llevas / Meta</div>';
+  h += kpiRow("Q Acuerdos", d.realQ || 0, d.metaQ || 0, d.pctQ);
+  h += kpiRow("Monto", clp(d.realMonto || 0), clp(d.metaMonto || 0), d.pctMonto);
+  h += kpiRow("Mec. Superior", clp(d.realMs || 0), clp(d.metaMs || 0), d.pctMs);
   h += '<div class="summary-box">';
-  h += '<div>Avance Global: <strong>' + (d.avanceRaw || 0) + '%</strong> <span class="kpi-bar">' + barra(d.avanceRaw || 0, 12, 140) + '</span></div>';
-  h += '<div>Cumpl. Efectivo: <strong>' + (d.cumplimientoGlobal || 0) + '%</strong> (piso 70%)</div></div>';
-  var p = renderProyeccion(d);
-  if (p) { h += p; h += '<div>Q Acuerdos: <strong>' + (d.proyQ || 0) + '</strong></div>'; h += '<div>Monto: <strong>' + clp(d.proyMonto || 0) + '</strong></div>'; h += '<div>Mec. Sup: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
+  h += '<div>Avance: <strong>' + (d.avanceRaw || 0) + '%</strong> &middot; Cumpl: <strong>' + (d.cumplimientoGlobal || 0) + '%</strong></div></div>';
+  var p = renderProy(d);
+  if (p) { h += p; h += '<div>Q Acuerdos: <strong>' + (d.proyQ || 0) + '</strong> &middot; Monto: <strong>' + clp(d.proyMonto || 0) + '</strong></div>'; h += '<div>Mec. Sup: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
   return h;
 }
 
 function renderBloqueB(d) {
-  var h = '<div style="font-weight:600;margin-bottom:8px">Avance por KPI</div>';
-  h += kpiRow("Captacion", clp(d.realCaptacion || 0), clp(d.metaCaptacion || 0), d.pctCaptacion, 70);
-  h += kpiRow("Mec. Superior", clp(d.realMs || 0), clp(d.metaMs || 0), d.pctMs, 30);
+  var h = '<div style="font-weight:600;margin-bottom:8px">Llevas / Meta</div>';
+  h += kpiRow("Captacion", clp(d.realCaptacion || 0), clp(d.metaCaptacion || 0), d.pctCaptacion);
+  h += kpiRow("Mec. Superior", clp(d.realMs || 0), clp(d.metaMs || 0), d.pctMs);
   h += '<div class="summary-box">';
-  h += '<div>Avance Global: <strong>' + (d.avanceRaw || 0) + '%</strong> <span class="kpi-bar">' + barra(d.avanceRaw || 0, 12, 100) + '</span></div>';
-  h += '<div>Cumpl. Efectivo: <strong>' + (d.cumplimientoGlobal || 0) + '%</strong> (piso 70%)</div></div>';
+  h += '<div>Avance: <strong>' + (d.avanceRaw || 0) + '%</strong> &middot; Cumpl: <strong>' + (d.cumplimientoGlobal || 0) + '%</strong></div></div>';
   h += '<div style="margin-top:10px;font-size:0.85rem">';
-  h += '<div>V1 (Tabla): ' + clp(d.variable1 || 0) + '</div>';
-  h += '<div>V2 (Reajustes): ' + clp(d.variable2 || 0) + '</div>';
-  h += '<div>V3 (Donaciones): ' + clp(d.variable3 || 0) + '</div></div>';
-  var p = renderProyeccion(d);
-  if (p) { h += p; h += '<div>Captacion: <strong>' + clp(d.proyCaptacion || 0) + '</strong></div>'; h += '<div>Mec. Sup: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
+  h += '<div>Tabla: ' + clp(d.variable1 || 0) + ' &middot; Reaj: ' + clp(d.variable2 || 0) + ' &middot; Don: ' + clp(d.variable3 || 0) + '</div></div>';
+  var p = renderProy(d);
+  if (p) { h += p; h += '<div>Captacion: <strong>' + clp(d.proyCaptacion || 0) + '</strong> &middot; Mec. Sup: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
   return h;
 }
 
 function renderBloqueC(d) {
-  var h = '<div style="font-weight:600;margin-bottom:8px">Produccion del Mes</div>';
-  h += '<div style="font-size:1.1rem;margin-bottom:8px">Venta Total: <strong>' + clp(d.ventaTotal || 0) + '</strong></div>';
+  var h = '<div style="font-size:1.1rem;margin-bottom:8px">Venta Total: <strong>' + clp(d.ventaTotal || 0) + '</strong></div>';
   h += '<div style="font-size:0.85rem">';
   h += '<div>General: ' + clp(d.montoGeneral || 0) + ' &rarr; ' + clp(d.comGeneral || 0) + '</div>';
   h += '<div>Preferente: ' + clp(d.montoPreferente || 0) + ' &rarr; ' + clp(d.comPreferente || 0) + '</div>';
   h += '<div>Gold: ' + clp(d.montoGold || 0) + ' &rarr; ' + clp(d.comGold || 0) + '</div></div>';
-  var p = renderProyeccion(d);
-  if (p) { h += p; h += '<div>Venta proyectada: <strong>' + clp(d.proyVenta || 0) + '</strong></div>'; h += '<div>Mec. Sup proyectado: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
+  var p = renderProy(d);
+  if (p) { h += p; h += '<div>Venta: <strong>' + clp(d.proyVenta || 0) + '</strong> &middot; Mec. Sup: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
   return h;
 }
 
@@ -212,16 +199,16 @@ function renderBloqueSuper(d) {
   var a = d.acumulado || {};
   var dt = a.diasTranscurridos || 0;
   var dtot = a.diasTotales || 1;
-  var h = '<div style="font-weight:600;margin-bottom:8px">Resumen Acumulado del Equipo (' + (a.n_ejecutivas || 0) + ' ejecutivas)</div>';
+  var h = '<div style="font-weight:600;margin-bottom:8px">Equipo (' + (a.n_ejecutivas || 0) + ' ejecutivas)</div>';
   h += '<div style="font-size:0.9rem;margin-bottom:12px">';
-  h += '<div style="padding:6px 0;border-bottom:1px solid var(--border)">Total Captaciones: <strong>' + clp(a.total_captacion || 0) + '</strong></div>';
-  h += '<div style="padding:6px 0">Total Mec. Superior: <strong>' + clp(a.total_ms || 0) + '</strong></div>';
+  h += '<div style="padding:6px 0;border-bottom:1px solid var(--border)">Captaciones: <strong>' + clp(a.total_captacion || 0) + '</strong></div>';
+  h += '<div style="padding:6px 0">Mec. Superior: <strong>' + clp(a.total_ms || 0) + '</strong></div>';
   h += '</div>';
-  h += '<div class="summary-box">';
-  h += '<div style="font-weight:600;margin-bottom:6px">Proyeccion Lineal</div>';
+  h += '<div class="proy-box">';
+  h += '<div style="font-weight:600;margin-bottom:6px">Proyeccion al cierre</div>';
   h += '<div class="small" style="margin-bottom:6px">Dia laboral ' + dt + ' de ' + dtot + '</div>';
-  h += '<div>Captaciones proyectadas: <strong>' + clp(a.proyCapt || 0) + '</strong></div>';
-  h += '<div>Mec. Superior proyectado: <strong>' + clp(a.proyMs || 0) + '</strong></div>';
+  h += '<div>Captaciones: <strong>' + clp(a.proyCapt || 0) + '</strong></div>';
+  h += '<div>Mec. Superior: <strong>' + clp(a.proyMs || 0) + '</strong></div>';
   h += '</div>';
   return h;
 }
