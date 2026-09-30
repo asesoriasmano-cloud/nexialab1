@@ -383,6 +383,13 @@ const APP = (() => {
     });
     window._lastDiagnostico = diagnostico;
 
+    // Calcular dias laborales para proyeccion
+    const diasTotalMes = diasLaboralesMes(anioMS, mesMS);
+    const fcParts = fechaCorte.split("/");
+    const diaCorte = fcParts.length === 3 ? parseInt(fcParts[0]) : new Date().getDate();
+    const diasTransc = diasLaboralesHasta(anioMS, mesMS, diaCorte);
+    const factorProy = diasTransc > 0 ? diasTotalMes / diasTransc : 1;
+
     // Calcular comisiones
     resultados = [];
     const supervisoras = [];
@@ -396,6 +403,8 @@ const APP = (() => {
         grupo: v.grupo,
         fechaCorte: fechaCorte,
         fechaCorteMs: fechaCorteMs,
+        diasTranscurridos: diasTransc,
+        diasTotales: diasTotalMes,
         alerta: `Captacion al ${fechaCorte}.` + (fechaCorteMs ? ` Mec. Superior al ${fechaCorteMs} (puede tener retraso).` : ""),
       };
 
@@ -422,6 +431,9 @@ const APP = (() => {
           realQ: vt.realQAcuerdos || 0, metaQ: v.metaQAcuerdos || 0,
           realMonto: vt.realMontoAcuerdos || 0, metaMonto: v.metaMontoAcuerdos || 0,
           realMs: vt.realMs || 0, metaMs: v.metaMs || 0,
+          proyMonto: Math.round((vt.realMontoAcuerdos || 0) * factorProy),
+          proyMs: Math.round((vt.realMs || 0) * factorProy),
+          proyQ: Math.round((vt.realQAcuerdos || 0) * factorProy),
         });
       } else if (v.grupo === "B") {
         const r = ENGINE.calcularGrupoB({
@@ -441,6 +453,8 @@ const APP = (() => {
           comision: r.comisionTotal, tramo: r.tramoLabel,
           realCaptacion: vt.realCaptacion || 0, metaCaptacion: v.metaCaptacion || 0,
           realMs: vt.realMs || 0, metaMs: v.metaMs || 0,
+          proyCaptacion: Math.round((vt.realCaptacion || 0) * factorProy),
+          proyMs: Math.round((vt.realMs || 0) * factorProy),
         });
       } else if (v.grupo === "C") {
         const r = ENGINE.calcularGrupoC({
@@ -455,6 +469,8 @@ const APP = (() => {
           comGeneral: r.comGeneral, comPreferente: r.comPreferente, comGold: r.comGold,
           comision: r.comisionTotal, tramo: r.tramoLabel,
           realMs: vt.realMs || 0,
+          proyVenta: Math.round((vt.ventaTotal || 0) * factorProy),
+          proyMs: Math.round((vt.realMs || 0) * factorProy),
         });
       }
       resultados.push(base);
@@ -463,15 +479,10 @@ const APP = (() => {
     // Supervisora — con proyeccion lineal
     if (supervisoras.length) {
       const acum = acumularEquipo(resultados);
-      const diasTotalMes = diasLaboralesMes(anioMS, mesMS);
-      const fcParts = fechaCorte.split("/");
-      const diaCorte = fcParts.length === 3 ? parseInt(fcParts[0]) : new Date().getDate();
-      const diasTransc = diasLaboralesHasta(anioMS, mesMS, diaCorte);
-      const factor = diasTransc > 0 ? diasTotalMes / diasTransc : 1;
       acum.diasTranscurridos = diasTransc;
       acum.diasTotales = diasTotalMes;
-      acum.proyCapt = Math.round(acum.total_captacion * factor);
-      acum.proyMs = Math.round(acum.total_ms * factor);
+      acum.proyCapt = Math.round(acum.total_captacion * factorProy);
+      acum.proyMs = Math.round(acum.total_ms * factorProy);
       supervisoras.forEach(sup => {
         sup.esquema = "Supervisora — Resumen acumulado";
         sup.comision = 0;

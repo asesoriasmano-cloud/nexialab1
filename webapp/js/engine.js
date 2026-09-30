@@ -154,10 +154,17 @@ const ENGINE = (() => {
     return "█".repeat(llenos) + "░".repeat(largo - llenos);
   }
 
+  function bloqueProy(r) {
+    const dt = r.diasTranscurridos || 0;
+    const dtot = r.diasTotales || 0;
+    if (!dt || !dtot) return [];
+    return ["", `📅 *Proyeccion Lineal* (dia ${dt} de ${dtot} lab.)`];
+  }
+
   function bloqueA(r) {
     const g = r.cumplimientoGlobal || 0;
     const av = r.avanceRaw || 0;
-    return [
+    const lines = [
       "", "*Esquema:* 3 KPIs ponderados (tope 140%)", "",
       "━━━ *Avance por KPI* ━━━",
       `📌 Q Acuerdos: *${r.realQ || 0}* de meta *${r.metaQ || 0}* → *${r.pctQ}%* ${barra(r.pctQ, 10, 100)} (peso 25%)`,
@@ -167,12 +174,20 @@ const ENGINE = (() => {
       `📈 Avance Global: *${av}%* ${barra(av, 10, 140)}`,
       `📊 Cumpl. Efectivo: *${g}%* (piso 70%) → Tramo: ${r.tramo}`,
     ];
+    const proy = bloqueProy(r);
+    if (proy.length) {
+      lines.push(...proy);
+      lines.push(`  Q Acuerdos: *${r.proyQ || 0}*`);
+      lines.push(`  Monto: *${clp(r.proyMonto || 0)}*`);
+      lines.push(`  Mec. Sup: *${clp(r.proyMs || 0)}*`);
+    }
+    return lines;
   }
 
   function bloqueB(r) {
     const g = r.cumplimientoGlobal || 0;
     const av = r.avanceRaw || 0;
-    return [
+    const lines = [
       "", "*Esquema:* 2 KPIs + Reajustes (tope 300%)", "",
       "━━━ *Avance por KPI* ━━━",
       `💰 Captacion: *${clp(r.realCaptacion || 0)}* de meta *${clp(r.metaCaptacion || 0)}* → *${r.pctCaptacion}%* ${barra(r.pctCaptacion, 10, 100)} (peso 70%)`,
@@ -185,10 +200,17 @@ const ENGINE = (() => {
       `  V2 (Reajustes): ${clp(r.variable2 || 0)}`,
       `  V3 (Donaciones): ${clp(r.variable3 || 0)}`,
     ];
+    const proy = bloqueProy(r);
+    if (proy.length) {
+      lines.push(...proy);
+      lines.push(`  Captacion: *${clp(r.proyCaptacion || 0)}*`);
+      lines.push(`  Mec. Sup: *${clp(r.proyMs || 0)}*`);
+    }
+    return lines;
   }
 
   function bloqueC(r) {
-    return [
+    const lines = [
       "", "*Esquema:* Comision por produccion (sin metas)", "",
       "━━━ *Produccion del Mes* ━━━",
       `💰 Venta Total: *${clp(r.ventaTotal || 0)}*`,
@@ -196,6 +218,13 @@ const ENGINE = (() => {
       `  Preferente: ${clp(r.montoPreferente || 0)} → ${clp(r.comPreferente || 0)}`,
       `  Gold: ${clp(r.montoGold || 0)} → ${clp(r.comGold || 0)}`,
     ];
+    const proy = bloqueProy(r);
+    if (proy.length) {
+      lines.push(...proy);
+      lines.push(`  Venta proyectada: *${clp(r.proyVenta || 0)}*`);
+      lines.push(`  Mec. Sup proyectado: *${clp(r.proyMs || 0)}*`);
+    }
+    return lines;
   }
 
   function bloqueSuper(r) {

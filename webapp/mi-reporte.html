@@ -159,6 +159,14 @@ function kpiRow(label, real, meta, pct, peso) {
     '<span>' + real + ' / ' + meta + ' &rarr; <strong>' + (pct || 0) + '%</strong> <span class="small">(' + peso + '%)</span></span></div>';
 }
 
+function renderProyeccion(d) {
+  var dt = d.diasTranscurridos || 0;
+  var dtot = d.diasTotales || 0;
+  if (!dt || !dtot) return '';
+  return '<div class="summary-box" style="margin-top:10px"><div style="font-weight:600;margin-bottom:4px">Proyeccion Lineal</div>' +
+    '<div class="small">Dia laboral ' + dt + ' de ' + dtot + '</div>';
+}
+
 function renderBloqueA(d) {
   var h = '<div style="font-weight:600;margin-bottom:8px">Avance por KPI</div>';
   h += kpiRow("Q Acuerdos", d.realQ || 0, d.metaQ || 0, d.pctQ, 25);
@@ -167,6 +175,8 @@ function renderBloqueA(d) {
   h += '<div class="summary-box">';
   h += '<div>Avance Global: <strong>' + (d.avanceRaw || 0) + '%</strong> <span class="kpi-bar">' + barra(d.avanceRaw || 0, 12, 140) + '</span></div>';
   h += '<div>Cumpl. Efectivo: <strong>' + (d.cumplimientoGlobal || 0) + '%</strong> (piso 70%)</div></div>';
+  var p = renderProyeccion(d);
+  if (p) { h += p; h += '<div>Q Acuerdos: <strong>' + (d.proyQ || 0) + '</strong></div>'; h += '<div>Monto: <strong>' + clp(d.proyMonto || 0) + '</strong></div>'; h += '<div>Mec. Sup: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
   return h;
 }
 
@@ -181,6 +191,8 @@ function renderBloqueB(d) {
   h += '<div>V1 (Tabla): ' + clp(d.variable1 || 0) + '</div>';
   h += '<div>V2 (Reajustes): ' + clp(d.variable2 || 0) + '</div>';
   h += '<div>V3 (Donaciones): ' + clp(d.variable3 || 0) + '</div></div>';
+  var p = renderProyeccion(d);
+  if (p) { h += p; h += '<div>Captacion: <strong>' + clp(d.proyCaptacion || 0) + '</strong></div>'; h += '<div>Mec. Sup: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
   return h;
 }
 
@@ -191,6 +203,8 @@ function renderBloqueC(d) {
   h += '<div>General: ' + clp(d.montoGeneral || 0) + ' &rarr; ' + clp(d.comGeneral || 0) + '</div>';
   h += '<div>Preferente: ' + clp(d.montoPreferente || 0) + ' &rarr; ' + clp(d.comPreferente || 0) + '</div>';
   h += '<div>Gold: ' + clp(d.montoGold || 0) + ' &rarr; ' + clp(d.comGold || 0) + '</div></div>';
+  var p = renderProyeccion(d);
+  if (p) { h += p; h += '<div>Venta proyectada: <strong>' + clp(d.proyVenta || 0) + '</strong></div>'; h += '<div>Mec. Sup proyectado: <strong>' + clp(d.proyMs || 0) + '</strong></div></div>'; }
   return h;
 }
 
