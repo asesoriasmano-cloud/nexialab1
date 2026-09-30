@@ -226,9 +226,6 @@ const ENGINE = (() => {
       `  Preferente acum.: *${clp(gc.monto_preferente || 0)}*`,
       `  Gold acum.: *${clp(gc.monto_gold || 0)}*`,
       `  Comision grupo: *${clp(gc.comision_total || 0)}*`,
-      "",
-      "━━━ *TOTAL EQUIPO* ━━━",
-      `💵 Comision total proyectada: *${clp(a.comision_equipo || 0)}*`,
     ];
   }
 
