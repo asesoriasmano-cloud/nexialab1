@@ -55,10 +55,13 @@ const ENGINE = (() => {
     let comision = tramo.valor;
     if (prop < 1 && prop > 0) comision = Math.round(comision * prop);
 
+    const avanceRaw = round1(pctQ * 0.25 + pctMonto * 0.40 + pctMs * 0.35);
+
     return {
       pctQ: round1(pctQ), pctMonto: round1(pctMonto), pctMs: round1(pctMs),
       pctQClamped: round1(cq), pctMontoClamped: round1(cm), pctMsClamped: round1(cms),
       cumplimientoGlobal: round1(globalPct),
+      avanceRaw,
       comision,
       tramoLabel: `${tramo.min}%-${tramo.max}%`,
     };
@@ -93,10 +96,13 @@ const ENGINE = (() => {
     const variable2 = Math.round(realReajustes * factor);
     const variable3 = Math.round(realDonaciones * cfg.donaciones_pct);
 
+    const avanceRaw = round1(pctCap * 0.70 + pctMsVal * 0.30);
+
     return {
       pctCaptacion: round1(pctCap), pctMs: round1(pctMsVal),
       pctCaptacionClamped: round1(ccap), pctMsClamped: round1(cms),
       cumplimientoGlobal: globalPct,
+      avanceRaw,
       variable1, variable2, variable3,
       comisionTotal: variable1 + variable2 + variable3,
       tramoLabel: `${tramo.min}%-${tramo.max}%`,
@@ -150,26 +156,30 @@ const ENGINE = (() => {
 
   function bloqueA(r) {
     const g = r.cumplimientoGlobal || 0;
+    const av = r.avanceRaw || 0;
     return [
       "", "*Esquema:* 3 KPIs ponderados (tope 140%)", "",
-      "━━━ *Metricas* ━━━",
-      `📌 Q Acuerdos: *${r.pctQ}%* (peso 25%)`,
-      `💰 Monto Acuerdos: *${r.pctMonto}%* (peso 40%)`,
-      `🏦 Mec. Superior: *${r.pctMs}%* (peso 35%)`,
-      "", `📈 Cumplimiento Global: *${g}%* ${barra(g, 10, 140)}`,
-      `📊 Tramo: ${r.tramo}`,
+      "━━━ *Avance por KPI* ━━━",
+      `📌 Q Acuerdos: *${r.pctQ}%* ${barra(r.pctQ, 10, 100)} (peso 25%)`,
+      `💰 Monto Acuerdos: *${r.pctMonto}%* ${barra(r.pctMonto, 10, 100)} (peso 40%)`,
+      `🏦 Mec. Superior: *${r.pctMs}%* ${barra(r.pctMs, 10, 100)} (peso 35%)`,
+      "",
+      `📈 Avance Global: *${av}%* ${barra(av, 10, 140)}`,
+      `📊 Cumpl. Efectivo: *${g}%* (piso 70%) → Tramo: ${r.tramo}`,
     ];
   }
 
   function bloqueB(r) {
     const g = r.cumplimientoGlobal || 0;
+    const av = r.avanceRaw || 0;
     return [
       "", "*Esquema:* 2 KPIs + Reajustes (tope 300%)", "",
-      "━━━ *Metricas* ━━━",
-      `💰 Captacion: *${r.pctCaptacion}%* (peso 70%)`,
-      `🏦 Mec. Superior: *${r.pctMs}%* (peso 30%)`,
-      "", `📈 Cumplimiento Global: *${g}%* ${barra(g, 10, 300)}`,
-      `📊 Tramo: ${r.tramo}`,
+      "━━━ *Avance por KPI* ━━━",
+      `💰 Captacion: *${r.pctCaptacion}%* ${barra(r.pctCaptacion, 10, 100)} (peso 70%)`,
+      `🏦 Mec. Superior: *${r.pctMs}%* ${barra(r.pctMs, 10, 100)} (peso 30%)`,
+      "",
+      `📈 Avance Global: *${av}%* ${barra(av, 10, 100)}`,
+      `📊 Cumpl. Efectivo: *${g}%* (piso 70%) → Tramo: ${r.tramo}`,
       "", "━━━ *Desglose Comision* ━━━",
       `  V1 (Tabla): ${clp(r.variable1 || 0)}`,
       `  V2 (Reajustes): ${clp(r.variable2 || 0)}`,

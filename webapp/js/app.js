@@ -356,6 +356,7 @@ const APP = (() => {
           esquema: "3 KPIs (tope 140%)",
           pctQ: r.pctQ, pctMonto: r.pctMonto, pctMs: r.pctMs,
           cumplimientoGlobal: r.cumplimientoGlobal,
+          avanceRaw: r.avanceRaw,
           comision: r.comision, tramo: r.tramoLabel,
         });
       } else if (v.grupo === "B") {
@@ -371,6 +372,7 @@ const APP = (() => {
           esquema: "2 KPIs (tope 300%) + Reajustes",
           pctCaptacion: r.pctCaptacion, pctMs: r.pctMs,
           cumplimientoGlobal: r.cumplimientoGlobal,
+          avanceRaw: r.avanceRaw,
           variable1: r.variable1, variable2: r.variable2, variable3: r.variable3,
           comision: r.comisionTotal, tramo: r.tramoLabel,
         });
@@ -482,17 +484,20 @@ const APP = (() => {
 
     let html = `<table><thead><tr>
       <th>Ejecutiva</th><th>Grupo</th><th>Esquema</th>
-      <th>Cumpl.</th><th>Tramo</th><th>Comisión</th>
+      <th>Avance</th><th>Cumpl.</th><th>Tramo</th><th>Comisión</th>
     </tr></thead><tbody>`;
 
     sorted.forEach(r => {
       const label = r.grupo === "S" ? "SUP" : r.grupo;
+      const av = r.avanceRaw != null ? `${r.avanceRaw}%` : "—";
       const cum = r.cumplimientoGlobal != null ? `${r.cumplimientoGlobal}%` : "N/A";
       const comColor = (r.comision || 0) > 0 ? "#22c55e" : "var(--muted)";
+      const avColor = (r.avanceRaw || 0) > 0 ? "var(--text)" : "var(--muted)";
       html += `<tr>
         <td><strong>${r.nombre}</strong></td>
         <td><span class="badge" style="background:${colors[r.grupo]}">${label}</span></td>
         <td class="small">${r.esquema || ""}</td>
+        <td class="num" style="color:${avColor}">${av}</td>
         <td class="num">${cum}</td>
         <td class="mono small">${r.tramo || ""}</td>
         <td class="num" style="color:${comColor};font-weight:700">${ENGINE.clp(r.comision || 0)}</td>
