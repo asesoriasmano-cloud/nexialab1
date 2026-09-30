@@ -5,6 +5,7 @@ const APP = (() => {
   let maestro = [];
   let dataCargada = { data20: null, data21: null, ms: null };
   let resultados = [];
+  const ADMIN_KEY = "fhc_admin_2026";
 
   // ── Inicialización ──
   function init() {
@@ -344,6 +345,7 @@ const APP = (() => {
 
     // Agregar por ejecutiva
     const fechaCorte = calcularFechaCorte(d20, d21);
+    const fechaCorteMs = calcularFechaCorteMsData(msData);
     const ventas = {};
     const diagnostico = [];
     rutsSet.forEach(rut => {
@@ -393,7 +395,8 @@ const APP = (() => {
         telefono: v.telefono,
         grupo: v.grupo,
         fechaCorte: fechaCorte,
-        alerta: `Mecanismo Superior al ${fechaCorte}.`,
+        fechaCorteMs: fechaCorteMs,
+        alerta: `Captacion al ${fechaCorte}.` + (fechaCorteMs ? ` Mec. Superior al ${fechaCorteMs} (puede tener retraso).` : ""),
       };
 
       if (v.grupo === "S") {
@@ -472,6 +475,9 @@ const APP = (() => {
     renderMensajes();
     document.querySelector('[data-tab="tab-resultados"]').click();
     showToast(`${resultados.length} reportes · d20:${d20.length} d21:${d21.length} MS:${msData.length}`);
+
+    const periodo = `${anioMS}-${String(mesMS).padStart(2, "0")}`;
+    subirASupabase(resultados, periodo, fechaCorteMs);
   };
 
   function calcularFechaCorte(d20, d21) {
@@ -527,6 +533,47 @@ const APP = (() => {
       }
     });
     return acum;
+  }
+
+  function calcularFechaCorteMsData(msData) {
+    let maxDate = null;
+    msData.forEach(r => {
+      const d = parseDateField(colVal(r, "date", "Date", "fecha", "FECHA", "Fecha"));
+      if (d && (!maxDate || d > maxDate)) maxDate = d;
+    });
+    if (maxDate) {
+      const dd = String(maxDate.getDate()).padStart(2, "0");
+      const mm = String(maxDate.getMonth() + 1).padStart(2, "0");
+      return `${dd}/${mm}/${maxDate.getFullYear()}`;
+    }
+    return null;
+  }
+
+  async function subirASupabase(resultados, periodo, fechaCorteMs) {
+    if (typeof SUPABASE === "undefined") return;
+    let ok = 0, fail = 0;
+    for (const r of resultados) {
+      try {
+        await SUPABASE.rpcUpsert(ADMIN_KEY, {
+          rut: r.rut,
+          nombre: r.nombre,
+          telefono: r.telefono || "",
+          grupo: r.grupo,
+          esquema: r.esquema || "",
+          fecha_corte: r.fechaCorte || "",
+          fecha_corte_ms: fechaCorteMs || "",
+          periodo: periodo,
+          datos: r,
+          mensaje: ENGINE.construirMensaje(r),
+        });
+        ok++;
+      } catch (e) {
+        console.error("Error subiendo " + r.nombre + ":", e);
+        fail++;
+      }
+    }
+    if (ok > 0) showToast("Subidos " + ok + " reportes a la nube", "success", 3000);
+    if (fail > 0) showToast("Error en " + fail + " reportes al subir", "warning", 5000);
   }
 
   // ── Dashboard ──

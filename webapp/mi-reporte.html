@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Reporte — Fundación Hogar de Cristo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .report-card { margin-top: 16px; }
+    .kpi-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+    }
+    .kpi-row:last-child { border-bottom: none; }
+    .kpi-label { font-weight: 600; }
+    .kpi-bar { font-family: monospace; letter-spacing: 1px; }
+    .comision-box {
+      margin-top: 16px; padding: 16px; background: var(--surface2);
+      border-radius: 8px; text-align: center;
+    }
+    .comision-amount { font-size: 1.6rem; font-weight: 700; color: var(--green); margin: 4px 0; }
+    .summary-box { padding: 10px; background: var(--surface2); border-radius: 6px; margin-top: 12px; font-size: 0.85rem; }
+    .grupo-line { margin-bottom: 6px; }
+    .back-link { display: inline-block; margin-top: 16px; font-size: 0.82rem; color: var(--accent); text-decoration: none; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Mi Reporte Comercial</h1>
+  <p>Consulta tu avance y comision del mes</p>
+</header>
+
+<div class="container" style="max-width:600px">
+
+  <div class="card" style="margin-top:20px">
+    <h2 style="font-size:1rem;margin-bottom:12px">Ingresa tu RUT</h2>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="inp-rut" placeholder="12345678K"
+        style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:1rem"
+        onkeydown="if(event.key==='Enter')buscarReporte()">
+      <button class="btn" onclick="buscarReporte()">Consultar</button>
+    </div>
+    <p class="small" style="margin-top:8px">Sin puntos ni guion. Ej: 12345678K</p>
+  </div>
+
+  <div id="loading" style="display:none;text-align:center;padding:30px">
+    <div style="font-size:1.5rem;animation:pulse 1s infinite">...</div>
+    <p class="small">Buscando tu reporte</p>
+  </div>
+
+  <div id="resultado"></div>
+
+  <a href="index.html" class="back-link">← Volver al panel de administracion</a>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/supabase.js"></script>
+<script>
+function normRut(rut) {
+  return String(rut).trim().toUpperCase().replace(/[^0-9K]/g, "");
+}
+
+function showToast(msg, type) {
+  var toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.className = "toast show " + (type || "success");
+  setTimeout(function() { toast.className = "toast"; }, 3000);
+}
+
+function clp(monto) {
+  return "$" + Math.round(monto).toLocaleString("es-CL");
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function barra(pct, largo, tope) {
+  largo = largo || 10; tope = tope || 100;
+  var ratio = tope > 0 ? Math.min(pct / tope, 1.0) : 0;
+  var llenos = Math.floor(ratio * largo);
+  var full = ""; for (var i = 0; i < llenos; i++) full += "█";
+  var empty = ""; for (var j = 0; j < largo - llenos; j++) empty += "░";
+  return full + empty;
+}
+
+var MESES = ["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+var BADGE_COLORS = { A: "#7c3aed", B: "#0891b2", C: "#d97706", S: "#dc2626" };
+
+async function buscarReporte() {
+  var rut = normRut(document.getElementById("inp-rut").value);
+  if (!rut || rut.length < 7) { showToast("Ingresa un RUT valido", "error"); return; }
+
+  document.getElementById("loading").style.display = "block";
+  document.getElementById("resultado").innerHTML = "";
+
+  try {
+    var data = await SUPABASE.buscarPorRut(rut);
+    document.getElementById("loading").style.display = "none";
+
+    if (!data.length) {
+      document.getElementById("resultado").innerHTML =
+        '<div class="card report-card" style="text-align:center">' +
+        '<p style="font-size:1.5rem;margin-bottom:8px">No encontrado</p>' +
+        '<p>No hay reporte para RUT <strong>' + rut + '</strong></p>' +
+        '<p class="small" style="margin-top:8px">Verifica que el RUT este correcto o contacta a tu supervisora.</p></div>';
+      return;
+    }
+
+    var r = data[0];
+    var d = r.datos || {};
+    var partes = (r.periodo || "").split("-");
+    var periodoLabel = partes[1] ? MESES[parseInt(partes[1])] + " " + partes[0] : r.periodo;
+    var badgeLabel = r.grupo === "S" ? "SUP" : r.grupo;
+    var updatedAt = r.updated_at ? new Date(r.updated_at).toLocaleString("es-CL") : "";
+
+    var html = '<div class="card report-card">';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+    html += '<span class="badge" style="background:' + (BADGE_COLORS[r.grupo] || "#666") + '">' + badgeLabel + '</span>';
+    html += '<div><strong style="font-size:1.1rem">' + escapeHtml(r.nombre) + '</strong>';
+    html += '<div class="small">' + escapeHtml(r.esquema || "") + ' &middot; ' + periodoLabel + '</div></div></div>';
+    html += '<div class="small" style="margin-bottom:12px">Corte captacion: ' + (r.fecha_corte || "N/A");
+    if (r.fecha_corte_ms) html += ' &middot; Mec. Superior al ' + r.fecha_corte_ms + ' <span style="color:#f59e0b">(puede tener retraso)</span>';
+    html += '</div>';
+    html += '<div class="small" style="margin-bottom:12px">Actualizado: ' + updatedAt + '</div>';
+
+    if (r.grupo === "A") html += renderBloqueA(d);
+    else if (r.grupo === "B") html += renderBloqueB(d);
+    else if (r.grupo === "C") html += renderBloqueC(d);
+    else if (r.grupo === "S") html += renderBloqueSuper(d);
+
+    if (r.grupo !== "S" && d.comision != null) {
+      html += '<div class="comision-box">';
+      html += '<div class="small" style="text-transform:uppercase;letter-spacing:0.05em">Comision Proyectada</div>';
+      html += '<div class="comision-amount">' + clp(d.comision) + '</div>';
+      html += '<div class="small">Tramo: ' + (d.tramo || "—") + '</div></div>';
+    }
+    html += '</div>';
+
+    if (r.mensaje) {
+      html += '<details style="margin-top:12px"><summary style="cursor:pointer;font-size:0.85rem;color:var(--accent)">Ver mensaje completo</summary>';
+      html += '<pre class="msg-preview" style="margin-top:8px;max-height:none">' + escapeHtml(r.mensaje) + '</pre></details>';
+    }
+
+    document.getElementById("resultado").innerHTML = html;
+
+  } catch (e) {
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("resultado").innerHTML =
+      '<div class="card report-card" style="text-align:center"><p style="color:var(--red)">Error al consultar: ' + escapeHtml(e.message) + '</p></div>';
+  }
+}
+
+function kpiRow(label, real, meta, pct, peso) {
+  return '<div class="kpi-row"><span class="kpi-label">' + label + '</span>' +
+    '<span>' + real + ' / ' + meta + ' &rarr; <strong>' + (pct || 0) + '%</strong> <span class="small">(' + peso + '%)</span></span></div>';
+}
+
+function renderBloqueA(d) {
+  var h = '<div style="font-weight:600;margin-bottom:8px">Avance por KPI</div>';
+  h += kpiRow("Q Acuerdos", d.realQ || 0, d.metaQ || 0, d.pctQ, 25);
+  h += kpiRow("Monto", clp(d.realMonto || 0), clp(d.metaMonto || 0), d.pctMonto, 40);
+  h += kpiRow("Mec. Superior", clp(d.realMs || 0), clp(d.metaMs || 0), d.pctMs, 35);
+  h += '<div class="summary-box">';
+  h += '<div>Avance Global: <strong>' + (d.avanceRaw || 0) + '%</strong> <span class="kpi-bar">' + barra(d.avanceRaw || 0, 12, 140) + '</span></div>';
+  h += '<div>Cumpl. Efectivo: <strong>' + (d.cumplimientoGlobal || 0) + '%</strong> (piso 70%)</div></div>';
+  return h;
+}
+
+function renderBloqueB(d) {
+  var h = '<div style="font-weight:600;margin-bottom:8px">Avance por KPI</div>';
+  h += kpiRow("Captacion", clp(d.realCaptacion || 0), clp(d.metaCaptacion || 0), d.pctCaptacion, 70);
+  h += kpiRow("Mec. Superior", clp(d.realMs || 0), clp(d.metaMs || 0), d.pctMs, 30);
+  h += '<div class="summary-box">';
+  h += '<div>Avance Global: <strong>' + (d.avanceRaw || 0) + '%</strong> <span class="kpi-bar">' + barra(d.avanceRaw || 0, 12, 100) + '</span></div>';
+  h += '<div>Cumpl. Efectivo: <strong>' + (d.cumplimientoGlobal || 0) + '%</strong> (piso 70%)</div></div>';
+  h += '<div style="margin-top:10px;font-size:0.85rem">';
+  h += '<div>V1 (Tabla): ' + clp(d.variable1 || 0) + '</div>';
+  h += '<div>V2 (Reajustes): ' + clp(d.variable2 || 0) + '</div>';
+  h += '<div>V3 (Donaciones): ' + clp(d.variable3 || 0) + '</div></div>';
+  return h;
+}
+
+function renderBloqueC(d) {
+  var h = '<div style="font-weight:600;margin-bottom:8px">Produccion del Mes</div>';
+  h += '<div style="font-size:1.1rem;margin-bottom:8px">Venta Total: <strong>' + clp(d.ventaTotal || 0) + '</strong></div>';
+  h += '<div style="font-size:0.85rem">';
+  h += '<div>General: ' + clp(d.montoGeneral || 0) + ' &rarr; ' + clp(d.comGeneral || 0) + '</div>';
+  h += '<div>Preferente: ' + clp(d.montoPreferente || 0) + ' &rarr; ' + clp(d.comPreferente || 0) + '</div>';
+  h += '<div>Gold: ' + clp(d.montoGold || 0) + ' &rarr; ' + clp(d.comGold || 0) + '</div></div>';
+  return h;
+}
+
+function renderBloqueSuper(d) {
+  var a = d.acumulado || {};
+  var ga = a.grupo_a || {}; var gb = a.grupo_b || {}; var gc = a.grupo_c || {};
+  var h = '<div style="font-weight:600;margin-bottom:8px">Resumen Acumulado del Equipo</div>';
+  h += '<div style="font-size:0.85rem">';
+  h += '<div class="grupo-line"><strong>Grupo A (' + (ga.n || 0) + ')</strong> &mdash; Comision: ' + clp(ga.comision_total || 0) + '</div>';
+  h += '<div class="grupo-line"><strong>Grupo B (' + (gb.n || 0) + ')</strong> &mdash; Comision: ' + clp(gb.comision_total || 0) + '</div>';
+  h += '<div class="grupo-line"><strong>Grupo C (' + (gc.n || 0) + ')</strong> &mdash; Venta: ' + clp(gc.venta_total || 0) + ' &mdash; Comision: ' + clp(gc.comision_total || 0) + '</div>';
+  h += '</div>';
+  return h;
+}
+
+document.getElementById("inp-rut").focus();
+</script>
+</body>
+</html>
