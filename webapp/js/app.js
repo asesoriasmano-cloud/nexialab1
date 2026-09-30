@@ -44,7 +44,7 @@ const APP = (() => {
   }
 
   function normRut(rut) {
-    return String(rut).trim().toUpperCase().replace(/\./g, "").replace(/\s/g, "");
+    return String(rut).trim().toUpperCase().replace(/[^0-9K]/g, "");
   }
 
   function colVal(row, ...names) {
@@ -284,7 +284,7 @@ const APP = (() => {
         let mec = String(colVal(r, "Mecanismo", "mecanismo")).trim().toUpperCase();
         if (mec.startsWith("=") || !mec) mec = "SUPERIOR";
         return {
-          rut: normRut(colVal(r, "Rut_ejecutivo", "rut_ejecutivo")),
+          rut: normRut(colVal(r, "Rut_ejecutivo", "rut_ejecutivo", "RUT EJECUTIVO", "RUT EJEUTIVO", "rut", "Rut", "RUT")),
           monto: parseFloat(colVal(r, "monto", "MONTO", "amount")) || 0,
           mecanismo: mec,
           planName: String(colVal(r, "plan_name", "Plan_name")),
@@ -292,7 +292,26 @@ const APP = (() => {
       })
       .filter(r => r.rut);
 
+    // Debug: column names in each source
+    if (dataCargada.data20 && dataCargada.data20[0]) console.log("D20 cols:", Object.keys(dataCargada.data20[0]).join(", "));
+    if (dataCargada.data21 && dataCargada.data21[0]) console.log("D21 cols:", Object.keys(dataCargada.data21[0]).join(", "));
+    if (dataCargada.ms && dataCargada.ms[0]) console.log("MS cols:", Object.keys(dataCargada.ms[0]).join(", "));
     console.log(`Procesando: d20=${d20.length}, d21=${d21.length}, MS mes ${mesMS}/${anioMS}=${msData.length} registros`);
+
+    // Debug: RUTs en cada fuente vs maestro
+    const d20Ruts = new Set(d20.map(r => r.rut));
+    const d21Ruts = new Set(d21.map(r => r.rut));
+    const msRuts = new Set(msData.map(r => r.rut));
+    maestro.forEach(v => {
+      const inD20 = d20Ruts.has(v.rut);
+      const inD21 = d21Ruts.has(v.rut);
+      const inMS = msRuts.has(v.rut);
+      if (!inD20 && !inD21 && !inMS) {
+        console.warn(`⚠ ${v.nombre} (${v.rut}) sin datos en ninguna planilla`);
+      } else {
+        console.log(`✓ ${v.nombre} (${v.rut}): d20=${inD20} d21=${inD21} ms=${inMS}`);
+      }
+    });
 
     // Agregar por ejecutiva
     const fechaCorte = calcularFechaCorte(d20, d21);
