@@ -65,7 +65,7 @@ Toda tendencia o herramienta analizada debe superar las siguientes preguntas cla
 * **Impacto para clientes Nexia Lab:** Alinea con el rasgo "Pragmático y honesto" y con el Don't "promesas mágicas sobre IA". Oportunidad: mostrar casos reales y métricas de negocio de clientes en lugar de publicaciones genéricas sobre IA.
 * **Evaluación económica:** Costo cero. Requiere tiempo humano para revisar borradores generados con apoyo de IA.
 * **Estado:** `Adoptado` (criterio editorial).
-* **Acción inmediata:** Redactar un caso real de cliente (con su autorización) para LinkedIn e Instagram.
+* **Acción inmediata:** Casos reales (Cookies by Carla, Rossi Propiedades) con autorización confirmada. Borradores en `docs/content/drafts/2026-10-26-casos-cookies-rossi.md`; pendiente completar cifras antes de publicar.
 
 ---
 
