@@ -9,7 +9,7 @@
 Proyecto: desarrollo de página web con integración de pedidos por WhatsApp e Instagram.
 
 ### LinkedIn
-> En temporadas altas, Cookies by Carla recibía pedidos por Instagram, WhatsApp y la web al mismo tiempo. Cada uno había que copiarlo a mano, y en Día del Niño y el 18 de septiembre el promedio de 100 pedidos pasaba a más de 220.
+> En temporadas altas, Cookies by Carla recibía pedidos por Instagram, WhatsApp y la web al mismo tiempo. Cada uno había que copiarlo a mano, y en Día del Niño y el 18 de septiembre pasó de un promedio de 100 pedidos por temporada a más de 220.
 >
 > Hoy la web centraliza los pedidos: los clientes llegan desde Instagram o WhatsApp y el pedido queda registrado en un solo lugar.
 >
@@ -42,5 +42,5 @@ Proyecto: sitio web corporativo con oferta alimentada por un CRM propio, homolog
 
 ## Notas antes de publicar
 
-- **Cifras:** Cookies by Carla usa 100 pedidos promedio y más de 220 en temporada alta. Confirmar a qué período corresponde el promedio (día, semana o temporada) antes de publicar.
+- **Cifras:** Cookies by Carla: promedio de 100 pedidos por temporada, más de 220 en temporada alta. Confirmado por la dueña.
 - **Promesas:** el CRM de Rossi se ofrece a otros corredores; no publicar precios ni plazos sin validarlos.
