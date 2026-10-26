@@ -1,7 +1,7 @@
 # Borradores de casos reales — Entrada 005
 
 **Estado:** BORRADOR. No publicar hasta completar las cifras entre corchetes o decidir publicar sin ellas.
-**Autorización:** ambos casos autorizados por sus dueños (proyectos desarrollados a cambio del uso de los casos en redes y publicidad).
+**Autorización:** ambos casos autorizados por sus dueños para usar sus marcas.
 **Fuente de voz:** `docs/content/trends-log.md` y brand-voice.md v1.0 (pilares: pragmático y honesto, didáctico sin paternalismo; evitar buzzwords y promesas de IA).
 
 ## Cookies by Carla
@@ -42,6 +42,5 @@ Proyecto: sitio web corporativo con oferta alimentada por un CRM propio, homolog
 
 ## Notas antes de publicar
 
-- **Transparencia:** los dos casos son de familiares y el proyecto se pagó con el uso del caso. Si el post no lo dice, un lector puede leerlo como un cliente independiente. Valorar una línea como "proyecto a cambio de uso del caso" o "cliente y familia", según el tono que se quiera.
 - **Cifras:** los corchetes necesitan un dato real (horas, pedidos o tiempos de respuesta). Sin cifras, el post describe el problema pero no demuestra resultado.
 - **Promesas:** el CRM de Rossi se ofrece a otros corredores; no publicar precios ni plazos sin validarlos.
