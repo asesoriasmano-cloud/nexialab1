@@ -264,6 +264,12 @@ const APP = (() => {
   }
 
   // ── Procesamiento ──
+  function columnaPorNombre(row, pistas) {
+    const norm = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const key = Object.keys(row).find(k => pistas.some(p => norm(k).includes(p)));
+    return key !== undefined ? row[key] : "";
+  }
+
   function fechaDia(val) {
     if (val === "" || val == null) return null;
     if (typeof val === "number") {
@@ -313,7 +319,7 @@ const APP = (() => {
       })
       .map(r => ({
         rut: normRut(colVal(r, "RUT EJEUTIVO", "RUT EJECUTIVO", "rut_ejecutivo")),
-        socio: normRut(colVal(r, "rut cliente")),
+        socio: normRut(columnaPorNombre(r, ["rutcliente", "cliente"])),
         monto: parseFloat(colVal(r, "MONTO", "monto")) || 0,
         fecha: colVal(r, "FECHA", "fecha"),
       }))
@@ -323,11 +329,19 @@ const APP = (() => {
     const d21 = (dataCargada.data21 || [])
       .map(r => ({
         rut: normRut(colVal(r, "RUT EJECUTIVO", "RUT EJEUTIVO", "rut_ejecutivo")),
-        socio: normRut(colVal(r, "rut socio")),
+        socio: normRut(columnaPorNombre(r, ["rutsocio", "socio"])),
         monto: parseFloat(colVal(r, "MONTO", "monto")) || 0,
         fecha: colVal(r, "FECHA", "fecha"),
       }))
       .filter(r => r.rut && enMesSeleccionado(r.fecha));
+
+    [["data20", "data_20", ["rutcliente", "cliente"]], ["data21", "data_21", ["rutsocio", "socio"]]].forEach(([key, nombre, pistas]) => {
+      const filas = dataCargada[key] || [];
+      if (filas.length && !filas.some(r => columnaPorNombre(r, pistas) !== "")) {
+        const encabezados = Object.keys(filas[0]).join(", ");
+        showToast(`No encontré la columna de socio en ${nombre}. Encabezados: ${encabezados}`, "warning", 12000);
+      }
+    });
 
     // Procesar MS — filtrar por mes/año y excluir rechazos
     const msRechazos = ["Rechazo Auditoría Marcel", "Rechazo Control de Ingresos"];
