@@ -553,6 +553,7 @@ const APP = (() => {
     showToast(`${resultados.length} reportes · d20:${d20.length} d21:${d21.length} MS:${msData.length}`);
 
     const periodo = `${anioMS}-${String(mesMS).padStart(2, "0")}`;
+    GENERAL.actualizar(resultados, periodo);
     subirASupabase(resultados, periodo, fechaCorteMs);
   };
 
