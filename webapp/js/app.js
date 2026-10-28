@@ -319,7 +319,7 @@ const APP = (() => {
       })
       .map(r => ({
         rut: normRut(colVal(r, "RUT EJEUTIVO", "RUT EJECUTIVO", "rut_ejecutivo")),
-        socio: normRut(columnaPorNombre(r, ["rutcliente", "cliente"])),
+        socio: normRut(columnaPorNombre(r, ["rutcliente"])),
         monto: parseFloat(colVal(r, "MONTO", "monto")) || 0,
         fecha: colVal(r, "FECHA", "fecha"),
       }))
@@ -329,13 +329,13 @@ const APP = (() => {
     const d21 = (dataCargada.data21 || [])
       .map(r => ({
         rut: normRut(colVal(r, "RUT EJECUTIVO", "RUT EJEUTIVO", "rut_ejecutivo")),
-        socio: normRut(columnaPorNombre(r, ["rutsocio", "socio"])),
+        socio: normRut(columnaPorNombre(r, ["rutsocio"])),
         monto: parseFloat(colVal(r, "MONTO", "monto")) || 0,
         fecha: colVal(r, "FECHA", "fecha"),
       }))
       .filter(r => r.rut && enMesSeleccionado(r.fecha));
 
-    [["data20", "data_20", ["rutcliente", "cliente"]], ["data21", "data_21", ["rutsocio", "socio"]]].forEach(([key, nombre, pistas]) => {
+    [["data20", "data_20", ["rutcliente"]], ["data21", "data_21", ["rutsocio"]]].forEach(([key, nombre, pistas]) => {
       const filas = dataCargada[key] || [];
       if (filas.length && !filas.some(r => columnaPorNombre(r, pistas) !== "")) {
         const encabezados = Object.keys(filas[0]).join(", ");
