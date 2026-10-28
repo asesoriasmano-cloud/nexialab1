@@ -262,11 +262,34 @@ const APP = (() => {
   }
 
   // ── Procesamiento ──
-  function parseDateField(val) {
-    if (!val) return null;
-    if (typeof val === "number") return excelDateToJS(val);
-    const d = new Date(val);
-    return isNaN(d) ? null : d;
+  function fechaDia(val) {
+    if (val === "" || val == null) return null;
+    if (typeof val === "number") {
+      const d = new Date((val - 25569) * 86400000);
+      return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate() };
+    }
+    if (val instanceof Date) return { y: val.getFullYear(), m: val.getMonth() + 1, d: val.getDate() };
+    const s = String(val).trim();
+    let p = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (p) return { y: +p[1], m: +p[2], d: +p[3] };
+    p = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (p) return { y: +p[3], m: +p[2], d: +p[1] };
+    const d = new Date(s);
+    return isNaN(d) ? null : { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() };
+  }
+
+  function fmtDia(f) {
+    return `${String(f.d).padStart(2, "0")}/${String(f.m).padStart(2, "0")}/${f.y}`;
+  }
+
+  function maxFecha(rows, getter) {
+    let max = null;
+    const key = f => f.y * 10000 + f.m * 100 + f.d;
+    rows.forEach(r => {
+      const f = fechaDia(getter(r));
+      if (f && (!max || key(f) > key(max))) max = f;
+    });
+    return max;
   }
 
   window.procesar = function() {
@@ -308,8 +331,8 @@ const APP = (() => {
         let m = parseInt(colVal(r, "Mes", "mes"));
         let a = parseInt(colVal(r, "Año", "año", "anio", "Anio"));
         if (!m || !a || isNaN(m) || isNaN(a)) {
-          const d = parseDateField(colVal(r, "date", "Date", "fecha", "FECHA"));
-          if (d) { m = d.getMonth() + 1; a = d.getFullYear(); }
+          const f = fechaDia(colVal(r, "date", "Date", "fecha", "FECHA"));
+          if (f) { m = f.m; a = f.y; }
         }
         return m === mesMS && a === anioMS;
       })
@@ -534,24 +557,8 @@ const APP = (() => {
   };
 
   function calcularFechaCorte(d20, d21) {
-    let maxDate = null;
-    [...d20, ...d21].forEach(r => {
-      if (r.fecha) {
-        const d = typeof r.fecha === "number" ? excelDateToJS(r.fecha) : new Date(r.fecha);
-        if (!isNaN(d) && (!maxDate || d > maxDate)) maxDate = d;
-      }
-    });
-    if (maxDate) {
-      const dd = String(maxDate.getDate()).padStart(2, "0");
-      const mm = String(maxDate.getMonth() + 1).padStart(2, "0");
-      return `${dd}/${mm}/${maxDate.getFullYear()}`;
-    }
-    const now = new Date();
-    return `${String(now.getDate()).padStart(2,"0")}/${String(now.getMonth()+1).padStart(2,"0")}/${now.getFullYear()}`;
-  }
-
-  function excelDateToJS(serial) {
-    return new Date((serial - 25569) * 86400 * 1000);
+    const max = maxFecha([...d20, ...d21], r => r.fecha);
+    return fmtDia(max || fechaDia(new Date()));
   }
 
   function diasLaboralesMes(year, month) {
@@ -598,17 +605,8 @@ const APP = (() => {
   }
 
   function calcularFechaCorteMsData(msData) {
-    let maxDate = null;
-    msData.forEach(r => {
-      const d = parseDateField(colVal(r, "date", "Date", "fecha", "FECHA", "Fecha"));
-      if (d && (!maxDate || d > maxDate)) maxDate = d;
-    });
-    if (maxDate) {
-      const dd = String(maxDate.getDate()).padStart(2, "0");
-      const mm = String(maxDate.getMonth() + 1).padStart(2, "0");
-      return `${dd}/${mm}/${maxDate.getFullYear()}`;
-    }
-    return null;
+    const max = maxFecha(msData, r => colVal(r, "date", "Date", "fecha", "FECHA", "Fecha"));
+    return max ? fmtDia(max) : null;
   }
 
   async function subirASupabase(resultados, periodo, fechaCorteMs) {

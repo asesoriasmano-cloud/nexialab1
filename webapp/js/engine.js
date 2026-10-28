@@ -140,7 +140,7 @@ const ENGINE = (() => {
       if (row.grupo === "A") lines.push(...bloqueA(row));
       else if (row.grupo === "B") lines.push(...bloqueB(row));
       else if (row.grupo === "C") lines.push(...bloqueC(row));
-      lines.push("", `💵 *Comision: ${clp(row.comision)}* (${row.tramo || "—"})`);
+      lines.push("", `💵 *Comision potencial: ${clp(row.comision)}* (${row.tramo || "—"})`, `_Calculada sobre produccion actual, no sobre la proyeccion_`);
     }
     const msNota = row.fechaCorteMs ? ` · MS al ${row.fechaCorteMs}` : "";
     lines.push("", `_Captacion al ${fecha}${msNota}_`);

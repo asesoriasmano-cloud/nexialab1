@@ -126,7 +126,8 @@ async function buscarReporte() {
 
     if (r.grupo !== "S" && d.comision != null) {
       html += '<div class="comision-box">';
-      html += '<div class="small" style="text-transform:uppercase;letter-spacing:0.05em">Comision Proyectada</div>';
+      html += '<div class="small" style="text-transform:uppercase;letter-spacing:0.05em">Comision Potencial</div>' +
+      '<div class="small" style="margin-bottom:4px">Calculada sobre produccion actual, no sobre la proyeccion</div>';
       html += '<div class="comision-amount">' + clp(d.comision) + '</div>';
       html += '<div class="small">Tramo: ' + (d.tramo || "—") + '</div></div>';
     }
