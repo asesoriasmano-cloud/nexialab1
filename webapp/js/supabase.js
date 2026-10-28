@@ -8,15 +8,6 @@ const SUPABASE = (() => {
     "Content-Type": "application/json",
   };
 
-  async function buscarPorRut(rut) {
-    var res = await fetch(
-      URL + "/rest/v1/reportes?rut=eq." + encodeURIComponent(rut) + "&order=periodo.desc,updated_at.desc&limit=1",
-      { headers: hdrs }
-    );
-    if (!res.ok) throw new Error("Error " + res.status);
-    return res.json();
-  }
-
   async function rpcUpsert(adminKey, data) {
     var res = await fetch(URL + "/rest/v1/rpc/upsert_reporte", {
       method: "POST",
@@ -42,5 +33,5 @@ const SUPABASE = (() => {
     return res;
   }
 
-  return { buscarPorRut: buscarPorRut, rpcUpsert: rpcUpsert };
+  return { rpcUpsert: rpcUpsert };
 })();

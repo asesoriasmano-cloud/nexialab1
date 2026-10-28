@@ -298,8 +298,12 @@ const APP = (() => {
     const mesMS = parseInt(document.getElementById("sel-mes").value);
     const anioMS = parseInt(document.getElementById("inp-anio").value);
     const rutsSet = new Set(maestro.map(v => v.rut));
+    const enMesSeleccionado = fecha => {
+      const f = fechaDia(fecha);
+      return !f || (f.y === anioMS && f.m === mesMS);
+    };
 
-    // Procesar data_20
+    // Procesar data_20 (socio en "rut cliente")
     const d20 = (dataCargada.data20 || [])
       .filter(r => {
         const aud = String(colVal(r, "AUDITORIA", "auditoria")).trim();
@@ -307,19 +311,21 @@ const APP = (() => {
       })
       .map(r => ({
         rut: normRut(colVal(r, "RUT EJEUTIVO", "RUT EJECUTIVO", "rut_ejecutivo")),
+        socio: normRut(colVal(r, "rut cliente")),
         monto: parseFloat(colVal(r, "MONTO", "monto")) || 0,
         fecha: colVal(r, "FECHA", "fecha"),
       }))
-      .filter(r => r.rut);
+      .filter(r => r.rut && enMesSeleccionado(r.fecha));
 
-    // Procesar data_21
+    // Procesar data_21 (socio en "rut socio")
     const d21 = (dataCargada.data21 || [])
       .map(r => ({
         rut: normRut(colVal(r, "RUT EJECUTIVO", "RUT EJEUTIVO", "rut_ejecutivo")),
+        socio: normRut(colVal(r, "rut socio")),
         monto: parseFloat(colVal(r, "MONTO", "monto")) || 0,
         fecha: colVal(r, "FECHA", "fecha"),
       }))
-      .filter(r => r.rut);
+      .filter(r => r.rut && enMesSeleccionado(r.fecha));
 
     // Procesar MS — filtrar por mes/año y excluir rechazos
     const msRechazos = ["Rechazo Auditoría Marcel", "Rechazo Control de Ingresos"];
@@ -416,6 +422,7 @@ const APP = (() => {
       const montoVol = e20.reduce((s, r) => s + r.monto, 0) + e21.reduce((s, r) => s + r.monto, 0);
       const msSuperior = emsSup.reduce((s, r) => s + r.monto, 0);
       const donaciones = eDon.reduce((s, r) => s + r.monto, 0);
+      const socios = new Set([...e20, ...e21].map(r => r.socio).filter(Boolean)).size;
 
       diagnostico.push({
         nombre, rutMaestro: rut, rutDatos: dataRut, alias: rut !== dataRut,
@@ -434,6 +441,9 @@ const APP = (() => {
         ventaTotal: montoVol,
         montoPreferente: msSuperior * (1 - split),
         montoGold: msSuperior * split,
+        socios,
+        ticket: socios ? Math.round(montoVol / socios) : 0,
+        pctMsCapt: montoVol ? ENGINE.round1(msSuperior / montoVol * 100) : 0,
       };
     });
     window._lastDiagnostico = diagnostico;
@@ -460,6 +470,9 @@ const APP = (() => {
         fechaCorteMs: fechaCorteMs,
         diasTranscurridos: diasTransc,
         diasTotales: diasTotalMes,
+        socios: vt.socios || 0,
+        ticket: vt.ticket || 0,
+        pctMsCapt: vt.pctMsCapt || 0,
         alerta: `Captacion al ${fechaCorte}.` + (fechaCorteMs ? ` Mec. Superior al ${fechaCorteMs} (puede tener retraso).` : ""),
       };
 

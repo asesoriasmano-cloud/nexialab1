@@ -66,6 +66,9 @@ const GENERAL = (() => {
         proyMs: r.proyMs || 0,
         avance: r.grupo === "C" ? null : (r.avanceRaw || 0),
         comision: r.comision || 0,
+        socios: r.socios || 0,
+        ticket: r.ticket || 0,
+        pctMsCapt: r.pctMsCapt || 0,
       })),
     };
   }
@@ -304,9 +307,28 @@ const GENERAL = (() => {
       </section>`;
     }
 
+    const sociosTot = sumOf(R, "socios");
+    const ticketEq = sociosTot ? capt / sociosTot : 0;
+    const pctMsEq = capt ? ms / capt * 100 : 0;
+    const filasSocios = [...R].sort((a, b) => b.socios - a.socios).map(r => `<tr>
+        <td><strong>${esc(r.nombre)}</strong></td>
+        <td><span class="badge" style="background:${GRUPO_COLOR[r.grupo]}">${r.grupo}</span></td>
+        <td class="num">${r.socios}</td>
+        <td class="num">${ENGINE.clp(r.ticket)}</td>
+        <td class="num">${fmtPct(r.pctMsCapt)}</td>
+      </tr>`).join("");
+    const panelSocios = `<section class="gen-panel wide">
+      <h3>Socios, ticket y Mec. Superior por ejecutiva</h3>
+      <p class="p-sub">Equipo: ${sociosTot} socios (suma por ejecutiva) · ticket promedio ${ENGINE.clp(ticketEq)} · Mec. Superior ${fmtPct(pctMsEq)} de la captacion.</p>
+      <div class="gen-table-wrap"><table>
+        <thead><tr><th>Ejecutiva</th><th class="gen-hide-m">Grupo</th><th class="num">Socios</th><th class="num">Ticket prom.</th><th class="num">% MS / capt.</th></tr></thead>
+        <tbody>${filasSocios}</tbody>
+      </table></div>
+    </section>`;
+
     root.innerHTML = hero + kpis
       + `<div class="gen-grid">${panelAvance}${panelTramos}${panelGrupos}${panelProy}${panelAlertas}</div>`
-      + panelComp;
+      + panelSocios + panelComp;
   }
 
   return { actualizar, iniciar, render };
