@@ -475,6 +475,11 @@ const APP = (() => {
       };
     });
     window._lastDiagnostico = diagnostico;
+    const totalSocios = Object.values(ventas).reduce((s, v) => s + (v.socios || 0), 0);
+    if (totalSocios === 0 && (d20.length || d21.length)) {
+      const enc = Object.keys((dataCargada.data20 || [])[0] || {}).join(", ");
+      showToast(`Sin socios detectados. Encabezados data_20: ${enc}`, "warning", 12000);
+    }
 
     // Calcular dias laborales para proyeccion
     const diasTotalMes = diasLaboralesMes(anioMS, mesMS);

@@ -482,11 +482,11 @@ const GENERAL = (() => {
     const sociosTot = sumOf(R, "socios");
     const ticketEq = sociosTot ? capt / sociosTot : 0;
     const pctMsEq = capt ? ms / capt * 100 : 0;
-    const sinSocios = R.some(r => r.socios == null);
+    const sinSocios = R.some(r => r.socios == null) || sociosTot === 0;
     const panelSocios = `<section class="gen-panel wide">
       <h3>Socios, ticket y Mec. Superior por ejecutiva</h3>
       <p class="p-sub">Mes ${periodoTxt}, datos hasta el ${esc(actual.fechaCorte)}. Equipo: ${sociosTot} socios (suma por ejecutiva) · ticket promedio ${ENGINE.clp(ticketEq)} · Mec. Superior ${fmtPct(pctMsEq)} de la captacion.</p>
-      ${sinSocios ? '<p class="small" style="color:#f59e0b;margin-bottom:10px">Esta carga es anterior a la columna de socios. Pulsa "Procesar" de nuevo para calcularlos.</p>' : ""}
+      ${sinSocios ? '<p class="small" style="color:#f59e0b;margin-bottom:10px">Sin socios en esta carga: pulsa "Procesar" de nuevo con las planillas del mes. Si sigue igual, revisa los encabezados de RUT CLIENTE y RUT SOCIO.</p>' : ""}
       <div class="gen-controls"><select onchange="GENERAL.setOrdenSocios(this.value)" aria-label="Ordenar por">
           <option value="socios"${ordenSocios === "socios" ? " selected" : ""}>Ordenar por socios</option>
           <option value="ticket"${ordenSocios === "ticket" ? " selected" : ""}>Ordenar por ticket</option>
