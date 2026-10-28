@@ -175,3 +175,34 @@
   .gen-row { grid-template-columns: 110px 1fr 50px; }
   .gen-row.grupo { grid-template-columns: 90px 1fr 90px; }
 }
+
+.gen-cierre {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.gen-sub-h { font-size: 0.8rem; font-weight: 700; margin: 16px 0 8px; }
+
+.gen-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.gen-controls select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 0.8rem;
+}
+.gen-curva-stats { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+.gen-svg { width: 100%; height: auto; display: block; }
+.gen-svg .gen-grid { stroke: var(--border); stroke-width: 1; }
+.gen-svg .gen-axis { fill: var(--muted); font-size: 11px; }
+.gen-svg .gen-corte { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 4; }
+.gen-svg .gen-meta { stroke: var(--green); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.gen-svg .gen-ritmo { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.gen-svg .gen-real { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; }
+.gen-real-txt { color: var(--accent); }
+.gen-ritmo-txt { color: var(--muted); }
+.gen-meta-txt { color: var(--green); }

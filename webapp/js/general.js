@@ -1,10 +1,11 @@
 /**
- * Vista general del equipo: KPIs, avance vs ritmo, tramos, proyeccion, alertas
- * y comparativa contra el corte anterior del mismo periodo.
+ * Vista general del equipo: KPIs, avance vs ritmo, tramos, proyeccion, alertas,
+ * curva acumulada, cierres mensuales (solo en este navegador) y comparativas.
  */
 const GENERAL = (() => {
   const KEY_ACTUAL = "gen_actual";
   const KEY_SNAPS = "gen_snapshots";
+  const KEY_CIERRES = "gen_cierres";
   const MAX_SNAPS = 12;
   const ESCALA = 140;
   const CORTES = [40, 70, 100];
@@ -18,6 +19,7 @@ const GENERAL = (() => {
   const MESES = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
   let actual = null;
+  let curva = { rut: "equipo", metric: "capt" };
 
   function esc(s) {
     return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -25,6 +27,16 @@ const GENERAL = (() => {
 
   function fmtPct(v) {
     return Number(v || 0).toLocaleString("es-CL", { maximumFractionDigits: 1 }) + "%";
+  }
+
+  function clpCorto(v) {
+    if (v >= 1000000) return (v / 1000000).toLocaleString("es-CL", { maximumFractionDigits: 1 }) + " M";
+    return Math.round(v / 1000) + " mil";
+  }
+
+  function periodoLabel(p) {
+    const [y, m] = String(p).split("-").map(Number);
+    return m ? MESES[m] + " " + y : String(p);
   }
 
   function fechaKey(f) {
@@ -47,11 +59,25 @@ const GENERAL = (() => {
     return 3;
   }
 
+  function diasDelMes(y, m) {
+    return new Date(y, m, 0).getDate();
+  }
+
+  function diasLabHasta(y, m, d) {
+    let c = 0;
+    for (let i = 1; i <= d; i++) {
+      const dow = new Date(y, m - 1, i).getDay();
+      if (dow !== 0 && dow !== 6) c++;
+    }
+    return c;
+  }
+
   function extraer(resultados) {
     const ejec = resultados.filter(r => r.grupo !== "S");
     const base = ejec[0] || resultados[0] || {};
     return {
       fechaCorte: base.fechaCorte || "",
+      diaCorte: parseInt(String(base.fechaCorte || "").split("/")[0]) || 0,
       dt: base.diasTranscurridos || 0,
       dtot: base.diasTotales || 0,
       rows: ejec.map(r => ({
@@ -69,6 +95,7 @@ const GENERAL = (() => {
         socios: r.socios || 0,
         ticket: r.ticket || 0,
         pctMsCapt: r.pctMsCapt || 0,
+        serie: r.serie || null,
       })),
     };
   }
@@ -89,6 +116,10 @@ const GENERAL = (() => {
     return previos.length ? previos[previos.length - 1] : null;
   }
 
+  function leerCierres() {
+    try { return JSON.parse(localStorage.getItem(KEY_CIERRES)) || []; } catch (e) { return []; }
+  }
+
   function actualizar(resultados, periodo) {
     const data = extraer(resultados);
     if (!data.rows.length) return;
@@ -101,6 +132,131 @@ const GENERAL = (() => {
   function iniciar() {
     try { actual = JSON.parse(localStorage.getItem(KEY_ACTUAL)); } catch (e) { actual = null; }
     render();
+  }
+
+  function cerrarMes() {
+    if (!actual) return;
+    const lista = leerCierres();
+    const existente = lista.find(c => c.periodo === actual.periodo);
+    if (existente && !window.confirm(`Ya existe un cierre de ${periodoLabel(actual.periodo)} (corte ${existente.fechaCorte}). Reemplazarlo?`)) return;
+    const R = actual.rows;
+    const capt = sumOf(R, "capt"), ms = sumOf(R, "ms"), socios = sumOf(R, "socios");
+    const cierre = {
+      periodo: actual.periodo,
+      fechaCorte: actual.fechaCorte,
+      cerradoEn: new Date().toLocaleString("es-CL"),
+      capt, ms, socios,
+      ticket: socios ? capt / socios : 0,
+      pctMs: capt ? ms / capt * 100 : 0,
+      comision: sumOf(R, "comision"),
+      ejecutivas: R.map(r => ({ nombre: r.nombre, grupo: r.grupo, capt: r.capt, ms: r.ms, socios: r.socios, comision: r.comision })),
+    };
+    const nueva = lista.filter(c => c.periodo !== actual.periodo).concat(cierre);
+    try {
+      localStorage.setItem(KEY_CIERRES, JSON.stringify(nueva));
+    } catch (e) {
+      window.alert("No se pudo guardar el cierre en este navegador.");
+      return;
+    }
+    render();
+  }
+
+  function setCurva(k, v) {
+    curva[k] = v;
+    const el = document.getElementById("gen-curva");
+    if (el) el.innerHTML = curvaHtml();
+  }
+
+  function curvaHtml() {
+    const R = actual.rows;
+    const { y, m } = { y: parseInt(actual.periodo.split("-")[0]), m: parseInt(actual.periodo.split("-")[1]) };
+    const N = diasDelMes(y, m);
+    const rutSel = R.some(r => r.rut === curva.rut) ? curva.rut : "equipo";
+    const key = curva.metric === "ms" ? "ms" : "capt";
+    const filas = rutSel === "equipo" ? R : R.filter(r => r.rut === rutSel);
+
+    const real = Array(N).fill(0);
+    filas.forEach(r => { if (r.serie) r.serie[key].forEach((v, i) => { real[i] += v; }); });
+    const meta = sumOf(filas, key === "ms" ? "metaMs" : "metaCapt");
+    const dt = actual.diaCorte || 0;
+    const diasLabMes = diasLabHasta(y, m, N);
+
+    const W = 640, H = 260, PL = 64, PR = 18, PT = 14, PB = 28;
+    const max = Math.max(meta, ...real.slice(0, dt), 1) * 1.1;
+    const x = d => PL + (d - 1) / (N - 1) * (W - PL - PR);
+    const yy = v => PT + (1 - v / max) * (H - PT - PB);
+
+    const pathReal = real.slice(0, dt).map((v, i) => `${i === 0 ? "M" : "L"}${x(i + 1).toFixed(1)},${yy(v).toFixed(1)}`).join(" ");
+    const pathRitmo = meta ? Array.from({ length: N }, (_, i) => {
+      const v = meta * diasLabHasta(y, m, i + 1) / diasLabMes;
+      return `${i === 0 ? "M" : "L"}${x(i + 1).toFixed(1)},${yy(v).toFixed(1)}`;
+    }).join(" ") : "";
+    const ticksDias = [...new Set([1, 5, 10, 15, 20, 25, N])].filter(d => d <= N);
+    const top = max / 1.1;
+    const ticksY = [0, top / 2, top];
+
+    const svg = `<svg viewBox="0 0 ${W} ${H}" class="gen-svg" role="img" aria-label="Curva acumulada">
+      ${ticksY.map(v => `<line x1="${PL}" x2="${W - PR}" y1="${yy(v)}" y2="${yy(v)}" class="gen-grid"/>
+        <text x="${PL - 8}" y="${yy(v) + 4}" text-anchor="end" class="gen-axis">${clpCorto(v)}</text>`).join("")}
+      ${ticksDias.map(d => `<text x="${x(d)}" y="${H - 8}" text-anchor="middle" class="gen-axis">${d}</text>`).join("")}
+      ${dt ? `<line x1="${x(dt)}" x2="${x(dt)}" y1="${PT}" y2="${H - PB}" class="gen-corte"/>` : ""}
+      ${meta ? `<line x1="${PL}" x2="${W - PR}" y1="${yy(meta)}" y2="${yy(meta)}" class="gen-meta"/>` : ""}
+      ${pathRitmo ? `<path d="${pathRitmo}" class="gen-ritmo"/>` : ""}
+      ${pathReal ? `<path d="${pathReal}" class="gen-real"/>` : ""}
+    </svg>`;
+
+    const opts = [`<option value="equipo"${rutSel === "equipo" ? " selected" : ""}>Equipo</option>`]
+      .concat(R.map(r => `<option value="${esc(r.rut)}"${rutSel === r.rut ? " selected" : ""}>${esc(r.nombre)}</option>`)).join("");
+    const etiqueta = curva.metric === "ms" ? "Mec. Superior" : "Captacion";
+    const ultimo = real[dt - 1] || 0;
+
+    return `<div class="gen-controls">
+        <select onchange="GENERAL.setCurva('rut', this.value)" aria-label="Ejecutiva">${opts}</select>
+        <select onchange="GENERAL.setCurva('metric', this.value)" aria-label="Metrica">
+          <option value="capt"${key === "capt" ? " selected" : ""}>Captacion</option>
+          <option value="ms"${key === "ms" ? " selected" : ""}>Mec. Superior</option>
+        </select>
+      </div>
+      <div class="gen-curva-stats small">
+        <span><b class="gen-real-txt">━</b> Real acumulado: <b>${ENGINE.clp(ultimo)}</b> al ${esc(actual.fechaCorte)}</span>
+        ${meta ? `<span><b class="gen-ritmo-txt">┅</b> Ritmo esperado al dia ${dt}: <b>${ENGINE.clp(meta * diasLabHasta(y, m, dt) / diasLabMes)}</b></span>
+        <span><b class="gen-meta-txt">━</b> Meta final ${etiqueta}: <b>${ENGINE.clp(meta)}</b></span>` : `<span>Sin meta para esta seleccion (${etiqueta}).</span>`}
+      </div>
+      ${svg}`;
+  }
+
+  function historialHtml(cierres) {
+    if (!cierres.length) {
+      return '<p class="small">Aun no hay meses cerrados. Cuando termines un mes, usa "Cerrar mes" en la parte superior.</p>';
+    }
+    const orden = [...cierres].sort((a, b) => a.periodo.localeCompare(b.periodo));
+    const filasMes = orden.map(c => `<tr>
+        <td><strong>${periodoLabel(c.periodo)}</strong></td>
+        <td class="num">${esc(c.fechaCorte)}</td>
+        <td class="num">${ENGINE.clp(c.capt)}</td>
+        <td class="num">${ENGINE.clp(c.ms)}</td>
+        <td class="num">${fmtPct(c.pctMs)}</td>
+        <td class="num">${c.socios}</td>
+        <td class="num">${ENGINE.clp(c.ticket)}</td>
+        <td class="num">${ENGINE.clp(c.comision)}</td>
+      </tr>`).join("");
+
+    const nombres = [];
+    orden.forEach(c => c.ejecutivas.forEach(e => { if (!nombres.includes(e.nombre)) nombres.push(e.nombre); }));
+    const filasEj = nombres.map(n => `<tr><td><strong>${esc(n)}</strong></td>${orden.map(c => {
+      const e = c.ejecutivas.find(x => x.nombre === n);
+      return `<td class="num">${e ? ENGINE.clp(e.capt) : "—"}</td>`;
+    }).join("")}</tr>`).join("");
+
+    return `<div class="gen-table-wrap"><table>
+        <thead><tr><th>Mes</th><th class="num">Corte</th><th class="num">Captacion</th><th class="num">Mec. Sup.</th><th class="num">% MS</th><th class="num">Socios</th><th class="num">Ticket</th><th class="num">Comision</th></tr></thead>
+        <tbody>${filasMes}</tbody>
+      </table></div>
+      <h4 class="gen-sub-h">Captacion por ejecutiva y mes</h4>
+      <div class="gen-table-wrap"><table>
+        <thead><tr><th>Ejecutiva</th>${orden.map(c => `<th class="num">${periodoLabel(c.periodo)}</th>`).join("")}</tr></thead>
+        <tbody>${filasEj}</tbody>
+      </table></div>`;
   }
 
   function deltaHtml(d, desde) {
@@ -130,8 +286,10 @@ const GENERAL = (() => {
   function render() {
     const root = document.getElementById("gen-root");
     if (!root) return;
+    const cierres = leerCierres();
     if (!actual || !actual.rows.length) {
-      root.innerHTML = '<p class="empty">Procesa los datos para ver la vista general.</p>';
+      root.innerHTML = '<p class="empty">Procesa los datos para ver la vista general.</p>'
+        + '<section class="gen-panel wide"><h3>Historico de cierres</h3>' + historialHtml(cierres) + '</section>';
       return;
     }
 
@@ -150,17 +308,22 @@ const GENERAL = (() => {
     const enMeta = conMeta.filter(r => r.avance >= CORTES[2]).length;
     const nG = g => R.filter(r => r.grupo === g).length;
 
+    const cerrado = cierres.find(c => c.periodo === actual.periodo);
     const partes = (actual.periodo || "").split("-");
-    const periodoLabel = partes[1] ? MESES[parseInt(partes[1])] + " " + partes[0] : actual.periodo;
+    const periodoTxt = partes[1] ? MESES[parseInt(partes[1])] + " " + partes[0] : actual.periodo;
 
     const hero = `<div class="gen-hero">
       <div>
         <h2>Vista general del equipo</h2>
-        <div class="small">Corte ${esc(actual.fechaCorte)} · ${periodoLabel} · ${R.length} ejecutivas</div>
+        <div class="small">Corte ${esc(actual.fechaCorte)} · ${periodoTxt} · ${R.length} ejecutivas</div>
       </div>
       <div class="gen-month">
         <div class="small">Dia ${actual.dt} de ${actual.dtot} laborales · ${fmtPct(pacing)} del mes</div>
         <div class="gen-month-track"><div class="gen-month-fill" style="width:${Math.min(pacing, 100)}%"></div></div>
+        <div class="gen-cierre">
+          ${cerrado ? `<span class="small">Cerrado el ${esc(cerrado.cerradoEn)}</span>` : ""}
+          <button class="btn btn-sm" onclick="GENERAL.cerrarMes()">${cerrado ? "Actualizar cierre" : "Cerrar mes"}</button>
+        </div>
       </div>
     </div>`;
 
@@ -272,6 +435,31 @@ const GENERAL = (() => {
         </div>`).join("") : '<p class="small">Sin alertas en este corte.</p>'}
     </section>`;
 
+    const sociosTot = sumOf(R, "socios");
+    const ticketEq = sociosTot ? capt / sociosTot : 0;
+    const pctMsEq = capt ? ms / capt * 100 : 0;
+    const filasSocios = [...R].sort((a, b) => b.socios - a.socios).map(r => `<tr>
+        <td><strong>${esc(r.nombre)}</strong></td>
+        <td class="gen-hide-m"><span class="badge" style="background:${GRUPO_COLOR[r.grupo]}">${r.grupo}</span></td>
+        <td class="num">${r.socios}</td>
+        <td class="num">${ENGINE.clp(r.ticket)}</td>
+        <td class="num">${fmtPct(r.pctMsCapt)}</td>
+      </tr>`).join("");
+    const panelSocios = `<section class="gen-panel wide">
+      <h3>Socios, ticket y Mec. Superior por ejecutiva</h3>
+      <p class="p-sub">Equipo: ${sociosTot} socios (suma por ejecutiva) · ticket promedio ${ENGINE.clp(ticketEq)} · Mec. Superior ${fmtPct(pctMsEq)} de la captacion.</p>
+      <div class="gen-table-wrap"><table>
+        <thead><tr><th>Ejecutiva</th><th class="gen-hide-m">Grupo</th><th class="num">Socios</th><th class="num">Ticket prom.</th><th class="num">% MS / capt.</th></tr></thead>
+        <tbody>${filasSocios}</tbody>
+      </table></div>
+    </section>`;
+
+    const panelCurva = `<section class="gen-panel wide">
+      <h3>Acumulado del mes vs ritmo y meta</h3>
+      <p class="p-sub">Linea real acumulada por dia del mes, comparada con el ritmo esperado (dias laborales) y la meta final.</p>
+      <div id="gen-curva">${curvaHtml()}</div>
+    </section>`;
+
     let panelComp;
     if (prev) {
       const filas = R.map(r => {
@@ -307,31 +495,18 @@ const GENERAL = (() => {
       </section>`;
     }
 
-    const sociosTot = sumOf(R, "socios");
-    const ticketEq = sociosTot ? capt / sociosTot : 0;
-    const pctMsEq = capt ? ms / capt * 100 : 0;
-    const filasSocios = [...R].sort((a, b) => b.socios - a.socios).map(r => `<tr>
-        <td><strong>${esc(r.nombre)}</strong></td>
-        <td><span class="badge" style="background:${GRUPO_COLOR[r.grupo]}">${r.grupo}</span></td>
-        <td class="num">${r.socios}</td>
-        <td class="num">${ENGINE.clp(r.ticket)}</td>
-        <td class="num">${fmtPct(r.pctMsCapt)}</td>
-      </tr>`).join("");
-    const panelSocios = `<section class="gen-panel wide">
-      <h3>Socios, ticket y Mec. Superior por ejecutiva</h3>
-      <p class="p-sub">Equipo: ${sociosTot} socios (suma por ejecutiva) · ticket promedio ${ENGINE.clp(ticketEq)} · Mec. Superior ${fmtPct(pctMsEq)} de la captacion.</p>
-      <div class="gen-table-wrap"><table>
-        <thead><tr><th>Ejecutiva</th><th class="gen-hide-m">Grupo</th><th class="num">Socios</th><th class="num">Ticket prom.</th><th class="num">% MS / capt.</th></tr></thead>
-        <tbody>${filasSocios}</tbody>
-      </table></div>
+    const panelHistorial = `<section class="gen-panel wide">
+      <h3>Historico de cierres</h3>
+      <p class="p-sub">Meses cerrados desde este navegador.</p>
+      ${historialHtml(cierres)}
     </section>`;
 
     root.innerHTML = hero + kpis
       + `<div class="gen-grid">${panelAvance}${panelTramos}${panelGrupos}${panelProy}${panelAlertas}</div>`
-      + panelSocios + panelComp;
+      + panelCurva + panelSocios + panelComp + panelHistorial;
   }
 
-  return { actualizar, iniciar, render };
+  return { actualizar, iniciar, render, cerrarMes, setCurva };
 })();
 
 document.addEventListener("DOMContentLoaded", GENERAL.iniciar);

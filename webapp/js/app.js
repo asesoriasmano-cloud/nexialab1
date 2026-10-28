@@ -350,6 +350,7 @@ const APP = (() => {
           monto: parseFloat(colVal(r, "monto", "MONTO", "amount")) || 0,
           mecanismo: mec,
           planName: String(colVal(r, "plan_name", "Plan_name")),
+          fecha: colVal(r, "date", "Date", "fecha", "FECHA", "Fecha"),
         };
       })
       .filter(r => r.rut);
@@ -409,6 +410,16 @@ const APP = (() => {
     const fechaCorteMs = calcularFechaCorteMsData(msData);
     const ventas = {};
     const diagnostico = [];
+    const diasMesN = new Date(anioMS, mesMS, 0).getDate();
+    const serieDiaria = filas => {
+      const arr = Array(diasMesN).fill(0);
+      filas.forEach(r => {
+        const f = fechaDia(r.fecha);
+        if (f && f.y === anioMS && f.m === mesMS) arr[f.d - 1] += r.monto;
+      });
+      for (let i = 1; i < arr.length; i++) arr[i] += arr[i - 1];
+      return arr;
+    };
     rutsSet.forEach(rut => {
       const dataRut = rutAlias[rut] || rut;
       const nombre = maestro.find(v => v.rut === rut)?.nombre || rut;
@@ -444,6 +455,7 @@ const APP = (() => {
         socios,
         ticket: socios ? Math.round(montoVol / socios) : 0,
         pctMsCapt: montoVol ? ENGINE.round1(msSuperior / montoVol * 100) : 0,
+        serie: { capt: serieDiaria([...e20, ...e21]), ms: serieDiaria(emsSup) },
       };
     });
     window._lastDiagnostico = diagnostico;
@@ -473,6 +485,7 @@ const APP = (() => {
         socios: vt.socios || 0,
         ticket: vt.ticket || 0,
         pctMsCapt: vt.pctMsCapt || 0,
+        serie: vt.serie || null,
         alerta: `Captacion al ${fechaCorte}.` + (fechaCorteMs ? ` Mec. Superior al ${fechaCorteMs} (puede tener retraso).` : ""),
       };
 
