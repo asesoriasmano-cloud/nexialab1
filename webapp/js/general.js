@@ -19,6 +19,10 @@ const GENERAL = (() => {
   const MESES = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
   let actual = null;
+  let snapshots = [];
+  let cierres = [];
+  let lectura = false;
+  let alCambiar = null;
   let curva = { rut: "equipo", metric: "capt" };
 
   function esc(s) {
@@ -100,42 +104,65 @@ const GENERAL = (() => {
     };
   }
 
-  function leerSnapshots() {
-    try { return JSON.parse(localStorage.getItem(KEY_SNAPS)) || []; } catch (e) { return []; }
-  }
-
   function guardarSnapshot(snap) {
-    const list = leerSnapshots().filter(s => !(s.periodo === snap.periodo && s.fechaCorte === snap.fechaCorte));
-    list.push(snap);
-    list.sort((a, b) => claveOrden(a) - claveOrden(b));
-    try { localStorage.setItem(KEY_SNAPS, JSON.stringify(list.slice(-MAX_SNAPS))); } catch (e) { /* empty */ }
+    snapshots = snapshots.filter(s => !(s.periodo === snap.periodo && s.fechaCorte === snap.fechaCorte));
+    snapshots.push(snap);
+    snapshots.sort((a, b) => claveOrden(a) - claveOrden(b));
+    snapshots = snapshots.slice(-MAX_SNAPS);
   }
 
   function corteAnterior(cur) {
-    const previos = leerSnapshots().filter(s => s.periodo === cur.periodo && claveOrden(s) < claveOrden(cur));
+    const previos = snapshots.filter(s => s.periodo === cur.periodo && claveOrden(s) < claveOrden(cur));
     return previos.length ? previos[previos.length - 1] : null;
   }
 
   function leerCierres() {
-    try { return JSON.parse(localStorage.getItem(KEY_CIERRES)) || []; } catch (e) { return []; }
+    return cierres;
+  }
+
+  function persistir() {
+    try {
+      localStorage.setItem(KEY_ACTUAL, JSON.stringify(actual));
+      localStorage.setItem(KEY_SNAPS, JSON.stringify(snapshots));
+      localStorage.setItem(KEY_CIERRES, JSON.stringify(cierres));
+    } catch (e) { /* empty */ }
+    if (alCambiar) alCambiar({ actual, snapshots, cierres });
   }
 
   function actualizar(resultados, periodo) {
+    if (lectura) return;
     const data = extraer(resultados);
     if (!data.rows.length) return;
     actual = { ...data, periodo };
-    try { localStorage.setItem(KEY_ACTUAL, JSON.stringify(actual)); } catch (e) { /* empty */ }
     guardarSnapshot(actual);
+    persistir();
     render();
   }
 
   function iniciar() {
-    try { actual = JSON.parse(localStorage.getItem(KEY_ACTUAL)); } catch (e) { actual = null; }
+    const leer = (k, def) => {
+      try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch (e) { return def; }
+    };
+    actual = leer(KEY_ACTUAL, null);
+    snapshots = leer(KEY_SNAPS, []);
+    cierres = leer(KEY_CIERRES, []);
     render();
   }
 
+  function cargarVista(estado) {
+    lectura = true;
+    actual = estado.actual || null;
+    snapshots = estado.snapshots || [];
+    cierres = estado.cierres || [];
+    render();
+  }
+
+  function publicarCon(fn) {
+    alCambiar = fn;
+  }
+
   function cerrarMes() {
-    if (!actual) return;
+    if (!actual || lectura) return;
     const lista = leerCierres();
     const existente = lista.find(c => c.periodo === actual.periodo);
     if (existente && !window.confirm(`Ya existe un cierre de ${periodoLabel(actual.periodo)} (corte ${existente.fechaCorte}). Reemplazarlo?`)) return;
@@ -151,13 +178,8 @@ const GENERAL = (() => {
       comision: sumOf(R, "comision"),
       ejecutivas: R.map(r => ({ nombre: r.nombre, grupo: r.grupo, capt: r.capt, ms: r.ms, socios: r.socios, comision: r.comision })),
     };
-    const nueva = lista.filter(c => c.periodo !== actual.periodo).concat(cierre);
-    try {
-      localStorage.setItem(KEY_CIERRES, JSON.stringify(nueva));
-    } catch (e) {
-      window.alert("No se pudo guardar el cierre en este navegador.");
-      return;
-    }
+    cierres = lista.filter(c => c.periodo !== actual.periodo).concat(cierre);
+    persistir();
     render();
   }
 
@@ -322,7 +344,7 @@ const GENERAL = (() => {
         <div class="gen-month-track"><div class="gen-month-fill" style="width:${Math.min(pacing, 100)}%"></div></div>
         <div class="gen-cierre">
           ${cerrado ? `<span class="small">Cerrado el ${esc(cerrado.cerradoEn)}</span>` : ""}
-          <button class="btn btn-sm" onclick="GENERAL.cerrarMes()">${cerrado ? "Actualizar cierre" : "Cerrar mes"}</button>
+          ${lectura ? "" : `<button class="btn btn-sm" onclick="GENERAL.cerrarMes()">${cerrado ? "Actualizar cierre" : "Cerrar mes"}</button>`}
         </div>
       </div>
     </div>`;
@@ -506,7 +528,9 @@ const GENERAL = (() => {
       + panelCurva + panelSocios + panelComp + panelHistorial;
   }
 
-  return { actualizar, iniciar, render, cerrarMes, setCurva };
+  return { actualizar, iniciar, render, cerrarMes, setCurva, cargarVista, publicarCon };
 })();
 
-document.addEventListener("DOMContentLoaded", GENERAL.iniciar);
+document.addEventListener("DOMContentLoaded", () => {
+  if (!document.body.dataset.vista) GENERAL.iniciar();
+});

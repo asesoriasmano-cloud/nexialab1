@@ -33,5 +33,22 @@ const SUPABASE = (() => {
     return res;
   }
 
-  return { rpcUpsert: rpcUpsert };
+  async function publicarVista(adminKey, estado) {
+    var res = await fetch(URL + "/rest/v1/rpc/publicar_vista", {
+      method: "POST",
+      headers: hdrs,
+      body: JSON.stringify({ admin_key: adminKey, p_estado: estado }),
+    });
+    if (!res.ok) throw new Error("Supabase " + res.status);
+    return res;
+  }
+
+  async function leerVista() {
+    var res = await fetch(URL + "/rest/v1/vista_general?id=eq.general&select=estado", { headers: hdrs });
+    if (!res.ok) throw new Error("Error " + res.status);
+    var rows = await res.json();
+    return rows.length ? rows[0].estado : null;
+  }
+
+  return { rpcUpsert: rpcUpsert, publicarVista: publicarVista, leerVista: leerVista };
 })();

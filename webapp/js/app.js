@@ -11,6 +11,8 @@ const APP = (() => {
   // ── Inicialización ──
   function init() {
     setupTabs();
+    GENERAL.publicarCon(estado => SUPABASE.publicarVista(ADMIN_KEY, estado)
+      .catch(() => showToast("No se pudo publicar la vista para la supervisora", "warning", 5000)));
     cargarMaestroDesdeStorage();
     cargarDataDesdeStorage();
     setupFileUploads();

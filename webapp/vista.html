@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vista General — Fundación Hogar de Cristo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/general.css">
+</head>
+<body data-vista="1">
+
+<header>
+  <h1>Vista General del Equipo — Fundación Hogar de Cristo</h1>
+  <p>Solo lectura</p>
+</header>
+
+<div class="container">
+  <div id="tab-general" class="tab-panel active" style="padding-top:16px">
+    <div id="gen-root"><p class="empty">Cargando...</p></div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/general.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  var root = document.getElementById("gen-root");
+  try {
+    var estado = await SUPABASE.leerVista();
+    if (!estado || !estado.actual) {
+      root.innerHTML = '<p class="empty">Aun no hay informacion publicada.</p>';
+      return;
+    }
+    GENERAL.cargarVista(estado);
+  } catch (e) {
+    root.innerHTML = '<p class="empty">No se pudo cargar la vista. Intenta de nuevo mas tarde.</p>';
+  }
+});
+</script>
+</body>
+</html>
