@@ -24,6 +24,7 @@ const GENERAL = (() => {
   let lectura = false;
   let alCambiar = null;
   let curva = { rut: "equipo", metric: "capt" };
+  let ordenSocios = "socios";
 
   function esc(s) {
     return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -305,6 +306,27 @@ const GENERAL = (() => {
     </div>`;
   }
 
+  function tablaSociosHtml() {
+    const orden = [...actual.rows].sort((a, b) => ((b[ordenSocios] ?? -1) - (a[ordenSocios] ?? -1)) || a.nombre.localeCompare(b.nombre));
+    const filas = orden.map(r => `<tr>
+        <td><strong>${esc(r.nombre)}</strong></td>
+        <td class="gen-hide-m"><span class="badge" style="background:${GRUPO_COLOR[r.grupo]}">${r.grupo}</span></td>
+        <td class="num">${r.socios ?? "—"}</td>
+        <td class="num">${r.ticket == null ? "—" : ENGINE.clp(r.ticket)}</td>
+        <td class="num">${r.pctMsCapt == null ? "—" : fmtPct(r.pctMsCapt)}</td>
+      </tr>`).join("");
+    return `<div class="gen-table-wrap"><table>
+        <thead><tr><th>Ejecutiva</th><th class="gen-hide-m">Grupo</th><th class="num">Socios</th><th class="num">Ticket prom.</th><th class="num">% MS / capt.</th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table></div>`;
+  }
+
+  function setOrdenSocios(v) {
+    ordenSocios = v;
+    const el = document.getElementById("gen-socios");
+    if (el) el.innerHTML = tablaSociosHtml();
+  }
+
   function render() {
     const root = document.getElementById("gen-root");
     if (!root) return;
@@ -461,21 +483,16 @@ const GENERAL = (() => {
     const ticketEq = sociosTot ? capt / sociosTot : 0;
     const pctMsEq = capt ? ms / capt * 100 : 0;
     const sinSocios = R.some(r => r.socios == null);
-    const filasSocios = [...R].sort((a, b) => (b.socios || 0) - (a.socios || 0)).map(r => `<tr>
-        <td><strong>${esc(r.nombre)}</strong></td>
-        <td class="gen-hide-m"><span class="badge" style="background:${GRUPO_COLOR[r.grupo]}">${r.grupo}</span></td>
-        <td class="num">${r.socios ?? "—"}</td>
-        <td class="num">${r.ticket == null ? "—" : ENGINE.clp(r.ticket)}</td>
-        <td class="num">${r.pctMsCapt == null ? "—" : fmtPct(r.pctMsCapt)}</td>
-      </tr>`).join("");
     const panelSocios = `<section class="gen-panel wide">
       <h3>Socios, ticket y Mec. Superior por ejecutiva</h3>
       <p class="p-sub">Mes ${periodoTxt}, datos hasta el ${esc(actual.fechaCorte)}. Equipo: ${sociosTot} socios (suma por ejecutiva) · ticket promedio ${ENGINE.clp(ticketEq)} · Mec. Superior ${fmtPct(pctMsEq)} de la captacion.</p>
       ${sinSocios ? '<p class="small" style="color:#f59e0b;margin-bottom:10px">Esta carga es anterior a la columna de socios. Pulsa "Procesar" de nuevo para calcularlos.</p>' : ""}
-      <div class="gen-table-wrap"><table>
-        <thead><tr><th>Ejecutiva</th><th class="gen-hide-m">Grupo</th><th class="num">Socios</th><th class="num">Ticket prom.</th><th class="num">% MS / capt.</th></tr></thead>
-        <tbody>${filasSocios}</tbody>
-      </table></div>
+      <div class="gen-controls"><select onchange="GENERAL.setOrdenSocios(this.value)" aria-label="Ordenar por">
+          <option value="socios"${ordenSocios === "socios" ? " selected" : ""}>Ordenar por socios</option>
+          <option value="ticket"${ordenSocios === "ticket" ? " selected" : ""}>Ordenar por ticket</option>
+          <option value="pctMsCapt"${ordenSocios === "pctMsCapt" ? " selected" : ""}>Ordenar por % MS / capt.</option>
+        </select></div>
+      <div id="gen-socios">${tablaSociosHtml()}</div>
     </section>`;
 
     const panelCurva = `<section class="gen-panel wide">
@@ -530,7 +547,7 @@ const GENERAL = (() => {
       + panelCurva + panelSocios + panelComp + panelHistorial;
   }
 
-  return { actualizar, iniciar, render, cerrarMes, setCurva, cargarVista, publicarCon };
+  return { actualizar, iniciar, render, cerrarMes, setCurva, setOrdenSocios, cargarVista, publicarCon };
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
