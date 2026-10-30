@@ -7,6 +7,7 @@ const APP = (() => {
   let dataFileNames = { data20: "", data21: "", ms: "" };
   let resultados = [];
   const ADMIN_KEY = "fhc_admin_2026";
+  const MESES_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
   // ── Inicialización ──
   function init() {
@@ -356,20 +357,41 @@ const APP = (() => {
           const f = fechaDia(colVal(r, "date", "Date", "fecha", "FECHA"));
           if (f) { m = f.m; a = f.y; }
         }
+        if (!m && !a) return true;
         return m === mesMS && a === anioMS;
       })
       .map(r => {
         let mec = String(colVal(r, "Mecanismo", "mecanismo")).trim().toUpperCase();
         if (mec.startsWith("=") || !mec) mec = "SUPERIOR";
+        const dia = parseInt(colVal(r, "DIA", "Dia", "dia"));
+        const fechaDiaMs = dia ? `${anioMS}-${String(mesMS).padStart(2, "0")}-${String(dia).padStart(2, "0")}` : "";
         return {
           rut: normRut(colVal(r, "Rut_ejecutivo", "rut_ejecutivo", "RUT EJECUTIVO", "RUT EJEUTIVO", "rut", "Rut", "RUT")),
-          monto: parseFloat(colVal(r, "monto", "MONTO", "amount")) || 0,
+          monto: parseFloat(colVal(r, "monto", "MONTO", "amount", "CAPTACIÓN")) || 0,
           mecanismo: mec,
           planName: String(colVal(r, "plan_name", "Plan_name")),
-          fecha: colVal(r, "date", "Date", "fecha", "FECHA", "Fecha"),
+          fecha: colVal(r, "date", "Date", "fecha", "FECHA", "Fecha") || fechaDiaMs,
         };
       })
       .filter(r => r.rut);
+
+    const periodoArchivoMs = (() => {
+      for (const r of dataCargada.ms || []) {
+        for (const v of Object.values(r)) {
+          if (typeof v !== "string") continue;
+          const anio = v.match(/Año es (\d{4})/);
+          const mes = v.match(/Nombre Mes es (\w+)/i);
+          if (anio && mes) {
+            const nombre = mes[1].normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+            return { anio: +anio[1], mes: MESES_ES.indexOf(nombre) + 1, nombre: mes[1] };
+          }
+        }
+      }
+      return null;
+    })();
+    if (periodoArchivoMs && (periodoArchivoMs.anio !== anioMS || periodoArchivoMs.mes !== mesMS)) {
+      showToast(`El archivo de Mecanismo Superior es de ${periodoArchivoMs.nombre} ${periodoArchivoMs.anio}, pero seleccionaste otro periodo`, "warning", 8000);
+    }
 
     // Debug: column names
     if (dataCargada.data20 && dataCargada.data20[0]) console.log("D20 cols:", Object.keys(dataCargada.data20[0]).join(", "));
