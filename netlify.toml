@@ -1,0 +1,35 @@
+plugins = []
+redirects = []
+
+[functions]
+
+  [functions."*"]
+
+[build]
+publish = "C:\\Users\\paulo\\.claude\\skills"
+publishOrigin = "default"
+
+  [build.environment]
+
+  [build.processing]
+
+    [build.processing.css]
+
+    [build.processing.html]
+
+    [build.processing.images]
+
+    [build.processing.js]
+
+  [build.services]
+
+[[headers]]
+for = "/*"
+
+  [headers.values]
+  Strict-Transport-Security = "max-age=31536000"
+  X-Content-Type-Options = "nosniff"
+  X-Frame-Options = "SAMEORIGIN"
+  Referrer-Policy = "strict-origin-when-cross-origin"
+  Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+  Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; frame-src https://chatnexialabpro.netlify.app; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://wa.me"

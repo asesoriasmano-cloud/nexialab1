@@ -1558,6 +1558,9 @@ image-slot::part(empty) {
    RESPONSIVE
    ========================================================= */
 @media (max-width: 1100px) {
+  .nav-inner { gap: 20px; }
+  .nav-links { gap: 20px; }
+  .nav-socials { display: none; }
   .hero-inner { grid-template-columns: 1fr; }
   .stat-card { max-width: 520px; }
   .services { grid-template-columns: repeat(6, 1fr); }

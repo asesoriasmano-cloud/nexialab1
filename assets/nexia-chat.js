@@ -46,7 +46,7 @@
   // ---- Marcado ----
   var wrap = document.createElement("div");
   wrap.innerHTML = `
-  <div class="nx-chat-btn" id="nxChatBtn" role="button" aria-label="Hablar con Nexia IA">
+  <div class="nx-chat-btn" id="nxChatBtn" role="button" tabindex="0" aria-label="Hablar con Nexia IA">
     <span class="nx-chat-label">Habla con Nexia IA</span>
     <div class="nx-chat-circle">
       <div class="nx-chat-dot"></div>
@@ -85,6 +85,12 @@
   }
   document.getElementById("nxChatBtn").addEventListener("click", function () {
     open ? closeChat() : openChat();
+  });
+  document.getElementById("nxChatBtn").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      open ? closeChat() : openChat();
+    }
   });
   document.getElementById("nxClose").addEventListener("click", closeChat);
   overlay.addEventListener("click", closeChat);
