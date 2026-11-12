@@ -6,8 +6,6 @@ redirects = []
   [functions."*"]
 
 [build]
-publish = "C:\\Users\\paulo\\.claude\\skills"
-publishOrigin = "default"
 
   [build.environment]
 

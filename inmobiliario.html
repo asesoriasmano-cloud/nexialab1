@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inmobiliario · CRM, sitio web y video para corredores de propiedades · Nexia Lab</title>
+<meta name="description" content="Terrano (CRM), sitio web y Vitrina (video desde fotos) para corredores de propiedades. Cargas la propiedad una vez y tu sitio y tu video parten desde ahí.">
+<link rel="canonical" href="https://www.nexialab.pro/inmobiliario">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nexia Lab">
+<meta property="og:locale" content="es_CL">
+<meta property="og:title" content="Inmobiliario · CRM, sitio web y video para corredores de propiedades · Nexia Lab">
+<meta property="og:description" content="Cargas la propiedad una vez y tu sitio web y tu video para redes parten desde ahí.">
+<meta property="og:url" content="https://www.nexialab.pro/inmobiliario">
+<meta property="og:image" content="https://www.nexialab.pro/assets/og-nexialab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+.im-hero{max-width:var(--max);margin:0 auto;padding:clamp(48px,6vw,90px) var(--pad) clamp(60px,7vw,100px);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(32px,5vw,64px);position:relative;z-index:2}
+.im-hero-text{flex:1 1 480px;min-width:0;max-width:700px}
+.im-hero h1{margin:22px 0 26px}
+.im-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.im-note{margin-top:28px;font-size:14px;color:var(--text-mute)}
+.im-phone{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+.im-phone-frame{width:min(300px,78vw);padding:10px;border-radius:40px;background:var(--surface-2);border:1px solid var(--line-strong)}
+.im-phone video{width:100%;aspect-ratio:9/16;border-radius:30px;background:var(--bg);object-fit:cover;display:block}
+.im-cap{font-size:13px;color:var(--text-mute);max-width:300px;text-align:center}
+.im-band{background:var(--bg-2);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);position:relative;z-index:2}
+.im-band .section{padding-top:clamp(60px,7vw,96px);padding-bottom:clamp(60px,7vw,96px)}
+.im-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:40px}
+.im-card{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r-xl);padding:30px;display:flex;flex-direction:column;gap:12px}
+.im-card h3{margin:0;font-size:20px;font-weight:600}
+.im-card.big h3{font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-.01em}
+.im-card p{margin:0;color:var(--text-2)}
+.im-card .k{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--lime)}
+.im-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:36px;margin-top:44px}
+.im-step{border-top:1px solid var(--line-strong);padding-top:22px}
+.im-step h3{font-family:var(--f-display);font-weight:400;font-size:28px;line-height:1.15;margin:10px 0}
+.im-step p{margin:0;color:var(--text-2)}
+.im-shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:28px;margin-top:44px}
+.im-shot-box{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r-lg);padding:10px}
+.im-shot-box img{display:block;width:100%;height:auto;border-radius:8px}
+.im-shot p{margin:14px 0 0;color:var(--text-2);font-size:16px}
+.im-shot p strong{color:var(--text);font-weight:600}
+.im-case{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:clamp(32px,5vw,56px);align-items:center}
+.im-case ul{list-style:none;margin:0 0 28px;padding:0;display:flex;flex-direction:column;gap:12px}
+.im-case li{display:flex;gap:12px}
+.im-case li::before{content:"→";color:var(--lime)}
+.im-case-imgs{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r-xl);padding:12px;display:flex;flex-direction:column;gap:12px}
+.im-case-imgs img{display:block;width:100%;height:auto;border-radius:12px}
+.im-faq{max-width:900px;margin:0 auto}
+.im-faq details{border-bottom:1px solid var(--line-soft);padding:22px 0}
+.im-faq details:first-of-type{border-top:1px solid var(--line-soft)}
+.im-faq summary{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:19px;font-weight:500;cursor:pointer;list-style:none}
+.im-faq summary::-webkit-details-marker{display:none}
+.im-faq .more{color:var(--lime);font-size:26px;line-height:1;transition:transform .2s}
+.im-faq details[open] .more{transform:rotate(45deg)}
+.im-faq p{margin:14px 0 0;color:var(--text-2);max-width:760px}
+.im-ctaband{background:var(--surface-3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;z-index:2}
+.im-ctaband .inner{max-width:var(--max);margin:0 auto;padding:clamp(60px,7vw,96px) var(--pad);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:clamp(32px,5vw,56px);align-items:center}
+.im-ctaband ol{list-style:none;margin:0 0 24px;padding:0;display:flex;flex-direction:column;gap:14px}
+.im-ctaband li{display:flex;gap:16px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:14px}
+.im-ctaband li span{font-family:var(--f-mono);color:var(--lime)}
+.im-btns{display:flex;flex-wrap:wrap;gap:12px}
+.im-tiny{font-size:13px;color:var(--text-mute);margin-top:24px}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html">
+      <span class="logo-mark"><span></span><span></span><span></span></span>
+      <span><b>Nexia</b><i>Lab</i></span>
+    </a>
+    <div class="nav-links">
+      <a href="inmobiliario.html" class="active">Inmobiliario</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="casos.html">Casos</a>
+      <a href="index.html#proceso">Cómo trabajamos</a>
+      <a href="blog/index.html">Blog</a>
+    </div>
+    <div class="nav-socials">
+      <a class="nav-icon" href="https://instagram.com/nexialab_pro" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+      </a>
+      <a class="nav-icon" href="https://wa.me/56965088060" target="_blank" rel="noopener" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1s-.5-.1-.6.1c-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.4-.2.3-.9.9-.9 2.2 0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.7 4.3 3.8.6.3 1.1.4 1.4.5.6.2 1.1.2 1.6.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.3-.2-.6-.3zM12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.7 0-3.3-.5-4.7-1.3l-.3-.2-3.1 1 1-3-.2-.3C3.5 14.7 3 13.4 3 12c0-5 4-9 9-9s9 4 9 9-4 9-9 9z"/></svg>
+      </a>
+    </div>
+    <a class="pill" href="#contacto">Conversemos <span class="arr">→</span></a>
+  </div>
+</nav>
+<!-- HERO -->
+<section class="im-hero">
+  <div class="im-hero-text">
+    <div class="eyebrow">Para corredores de propiedades</div>
+    <h1 class="h-display h2">Carga la propiedad una vez. <em>Tu sitio y tu video parten desde ahí.</em></h1>
+    <p class="lead">Terrano ordena tu cartera, tus clientes y tus visitas. Tu sitio web muestra lo que cargas en el CRM. Vitrina convierte las fotos en un video vertical para redes.</p>
+    <div class="im-ctas">
+      <a class="pill" href="#contacto">Quiero un diseño para mi corredora <span class="arr">→</span></a>
+      <a class="pill ghost" href="https://terrano.nexialab.pro" target="_blank" rel="noopener">Ver Terrano</a>
+      <a class="pill ghost" href="#caso">Ver el caso Rossi</a>
+    </div>
+    <div class="im-note">Hecho en La Serena, para corredores de propiedades de todo Chile.</div>
+  </div>
+  <div class="im-phone">
+    <div class="im-phone-frame">
+      <video src="assets/inmobiliario/vitrina-ejemplo.mp4" poster="assets/inmobiliario/vitrina-poster.jpg" controls muted loop playsinline preload="metadata" aria-label="Ejemplo de video de una propiedad generado con Vitrina"></video>
+    </div>
+    <div class="im-cap">Ejemplo generado con Vitrina: un departamento en La Serena, a partir de sus fotos.</div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<div class="im-band">
+  <section class="section">
+    <div class="eyebrow">El problema</div>
+    <h2 class="h-display h3" style="margin-top:16px;max-width:760px;font-size:clamp(32px,4.4vw,54px);line-height:1.08">Hoy una propiedad se carga tres veces, en tres lugares distintos.</h2>
+    <div class="im-cards">
+      <div class="im-card"><div class="k">01</div><h3>Cartera dispersa</h3><p>Excel, WhatsApp y portales: la misma propiedad vive en varios lugares y ninguno es el oficial.</p></div>
+      <div class="im-card"><div class="k">02</div><h3>Sitio que se atrasa</h3><p>Si la web se edita a mano, siempre queda un paso detrás de lo que realmente tienes disponible.</p></div>
+      <div class="im-card"><div class="k">03</div><h3>Video como trabajo aparte</h3><p>Cada propiedad pide otra sesión de edición para tener algo que publicar en redes.</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- COMO FUNCIONA -->
+<section class="section" id="como">
+  <div class="eyebrow">Cómo funciona</div>
+  <h2 class="h-display h3" style="margin-top:16px;max-width:760px;font-size:clamp(32px,4.4vw,54px);line-height:1.08">Un solo punto de partida. <em>Todo lo demás sale de ahí.</em></h2>
+  <div class="im-steps">
+    <div class="im-step"><div class="eyebrow" style="font-size:13px">Paso 1</div><h3>Cargas la propiedad en Terrano</h3><p>Fotos, precio, comuna y estado. Una sola vez, en un solo lugar.</p></div>
+    <div class="im-step"><div class="eyebrow" style="font-size:13px">Paso 2</div><h3>Tu sitio la publica</h3><p>Cada propiedad tiene su propia página, lista para que la encuentren en buscadores.</p></div>
+    <div class="im-step"><div class="eyebrow" style="font-size:13px">Paso 3</div><h3>Vitrina arma el video</h3><p>A partir de las fotos, en formato vertical para Instagram y Reels.</p></div>
+  </div>
+</section>
+
+<!-- ECOSISTEMA -->
+<div class="im-band">
+  <section class="section">
+    <div class="eyebrow">El ecosistema</div>
+    <h2 class="h-display h3" style="margin-top:16px;max-width:760px;font-size:clamp(32px,4.4vw,54px);line-height:1.08">Tres piezas que trabajan juntas.</h2>
+    <div class="im-cards">
+      <div class="im-card big"><div class="k">Terrano · CRM</div><h3>Tu cartera, tus clientes y tus visitas en un solo panel</h3><p>Fichas con galería de fotos, clientes con seguimiento, calendario de visitas, negocios por etapa y reportes del mes.</p><a href="https://terrano.nexialab.pro" target="_blank" rel="noopener" style="color:var(--lime);font-weight:600">Ver Terrano →</a></div>
+      <div class="im-card big"><div class="k">Sitio web</div><h3>Un sitio atractivo, con tu marca, que muestra tu cartera</h3><p>Catálogo con filtros y una página por propiedad. Lo que cargas en Terrano es lo que se ve: no se escribe nada dos veces.</p></div>
+      <div class="im-card big"><div class="k">Vitrina · Video</div><h3>Del set de fotos a un video listo para redes</h3><p>Subes las fotos, agregas título, precio y comuna, y obtienes un video vertical con portada y cierre.</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- CAPTURAS -->
+<section class="section" id="terrano">
+  <div class="eyebrow">Así se ve Terrano</div>
+  <h2 class="h-display h3" style="margin-top:16px;max-width:760px;font-size:clamp(32px,4.4vw,54px);line-height:1.08">Un panel claro para tu día de trabajo.</h2>
+  <p class="lead" style="margin-top:20px">Cartera, agenda, negocios por etapa y reportes del mes, en pantallas simples que se entienden desde el primer minuto.</p>
+  <div class="im-shots">
+    <div class="im-shot"><div class="im-shot-box"><img src="assets/inmobiliario/terrano-propiedades.png" width="777" height="485" loading="lazy" alt="Listado de propiedades de Terrano con buscador, filtros por operación, tipo y estado, y tarjetas con foto y precio"></div><p><strong>Cartera.</strong> Buscador y filtros por operación, tipo y estado.</p></div>
+    <div class="im-shot"><div class="im-shot-box"><img src="assets/inmobiliario/terrano-calendario.png" width="777" height="485" loading="lazy" alt="Calendario mensual de Terrano con las visitas agendadas y el detalle del día"></div><p><strong>Agenda.</strong> Calendario mensual y detalle de las visitas de cada día.</p></div>
+    <div class="im-shot"><div class="im-shot-box"><img src="assets/inmobiliario/terrano-negocios.png" width="777" height="485" loading="lazy" alt="Tablero de negocios de Terrano organizado por etapas: evaluación, visita, condiciones y firma"></div><p><strong>Negocios.</strong> Cada operación avanza por etapas, con las tareas vencidas a la vista.</p></div>
+    <div class="im-shot"><div class="im-shot-box"><img src="assets/inmobiliario/terrano-reportes.png" width="777" height="485" loading="lazy" alt="Reportes de Terrano con embudo de negocios por etapa, cierres del mes y estado de la cartera"></div><p><strong>Reportes.</strong> Embudo por etapa, cierres y estado de tu cartera en el mes.</p></div>
+  </div>
+  <div class="im-ctas"><a class="pill" href="https://terrano.nexialab.pro" target="_blank" rel="noopener">Ver Terrano <span class="arr">→</span></a></div>
+  <div class="im-tiny">Capturas con datos de demostración.</div>
+</section>
+
+<!-- CASO -->
+<div class="im-band">
+  <section class="section" id="caso">
+    <div class="im-case">
+      <div>
+        <div class="eyebrow">Caso · Rossi Propiedades</div>
+        <h2 class="h-display h3" style="margin:16px 0 24px;font-size:clamp(32px,4.4vw,54px);line-height:1.08">Un sitio y un CRM funcionando juntos.</h2>
+        <p class="lead" style="margin-bottom:28px">Rossi Propiedades atiende en La Serena, Coquimbo y el Valle de Elqui. Su sitio muestra la cartera que se carga en Terrano, sin escribir ninguna propiedad a mano.</p>
+        <ul>
+          <li>Una página propia para cada propiedad</li>
+          <li>Catálogo con filtros por operación, tipo, zona y dormitorios</li>
+          <li>Cartera cargada desde el CRM, una sola vez</li>
+        </ul>
+        <a href="https://propiedadesrossi.cl" target="_blank" rel="noopener" style="color:var(--lime);font-weight:600">Ver propiedadesrossi.cl →</a>
+      </div>
+      <div class="im-case-imgs">
+        <img src="assets/inmobiliario/rossi-portada.jpg" width="800" height="505" loading="lazy" alt="Portada del sitio de Rossi Propiedades con buscador de inmuebles en La Serena, Coquimbo y Valle de Elqui">
+        <img src="assets/inmobiliario/rossi-catalogo.jpg" width="800" height="505" loading="lazy" alt="Catálogo del sitio de Rossi Propiedades con filtros y tarjetas de propiedades con foto">
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CTA -->
+<div class="im-ctaband" id="contacto">
+  <div class="inner">
+    <div>
+      <div class="eyebrow">Cómo partimos</div>
+      <h2 class="h-display h2" style="margin:16px 0 20px;font-size:clamp(34px,4.8vw,60px);line-height:1.05">Te preparo un primer diseño con tu marca.</h2>
+      <p class="lead">Lo ves sin compromiso. Si te gusta, lo publicamos.</p>
+    </div>
+    <div>
+      <ol>
+        <li><span>1</span>Me cuentas de tu corredora</li>
+        <li><span>2</span>Te muestro un diseño con tu marca</li>
+        <li><span>3</span>Si te gusta, lo ponemos online</li>
+      </ol>
+      <div class="im-btns">
+        <a class="pill" href="https://wa.me/56965088060?text=Hola%20Paulo,%20vi%20la%20p%C3%A1gina%20inmobiliaria%20y%20quiero%20ver%20un%20dise%C3%B1o%20para%20mi%20corredora" target="_blank" rel="noopener">Escríbeme por WhatsApp <span class="arr">→</span></a>
+        <a class="pill ghost" href="mailto:info@nexialab.pro?subject=Dise%C3%B1o%20para%20mi%20corredora">Escribir por correo</a>
+        <a class="pill ghost" href="https://terrano.nexialab.pro" target="_blank" rel="noopener">Ver Terrano</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<section class="section" id="preguntas">
+  <div class="im-faq">
+    <div class="eyebrow">Preguntas</div>
+    <h2 class="h-display h3" style="margin:16px 0 40px;font-size:clamp(32px,4.4vw,54px);line-height:1.08">Lo que suelen preguntar.</h2>
+    <details><summary><span>¿Qué fotos se usan?</span><span class="more">+</span></summary><p>Las fotos propias de cada corredor, o de otros corredores con permiso registrado por propiedad. No se usan fotos de terceros sin permiso.</p></details>
+    <details><summary><span>¿Quién carga las propiedades?</span><span class="more">+</span></summary><p>La persona que tú definas: el corredor o un asistente. Terrano está pensado para que no haga falta saber de tecnología.</p></details>
+    <details><summary><span>¿Me garantizan aparecer primero en Google?</span><span class="more">+</span></summary><p>No. Dejamos el sitio preparado técnicamente para los buscadores, pero el posicionamiento toma semanas y depende de muchos factores, así que no lo prometemos.</p></details>
+    <details><summary><span>¿Puedo ver cómo quedaría antes de decidir?</span><span class="more">+</span></summary><p>Sí. Te preparo un primer diseño con tu marca para que lo veas sin compromiso.</p></details>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <a class="logo" href="index.html" style="font-size:32px;">
+        <span class="logo-mark"><span></span><span></span><span></span></span>
+        <span><b>Nexia</b><i>Lab</i></span>
+      </a>
+      <p class="footer-tag">Marketing, automatización y estrategia para PYMEs <i>de verdad.</i></p>
+      <div class="mono muted">La Serena, Región de Coquimbo · Operamos en todo Chile</div>
+    </div>
+    <div class="footer-col">
+      <h5>Servicios</h5>
+      <ul>
+        <li><a href="inmobiliario.html">Inmobiliario · CRM, sitio y video</a></li>
+        <li><a href="servicios.html#diagnostico">Auditoría digital</a></li>
+        <li><a href="servicios.html#seguimiento">Sistema de Seguimiento</a></li>
+        <li><a href="servicios.html#operativo">Marketing Operativo</a></li>
+        <li><a href="servicios.html#landing">Landing pages</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Empresa</h5>
+      <ul>
+        <li><a href="casos.html">Casos</a></li>
+        <li><a href="index.html#proceso">Cómo trabajamos</a></li>
+        <li><a href="blog/index.html">Blog</a></li>
+        <li><a href="index.html#contacto">Contacto</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Contacto</h5>
+      <ul>
+        <li><a href="mailto:info@nexialab.pro">info@nexialab.pro</a></li>
+        <li><a href="https://wa.me/56965088060">WhatsApp +56 9 6508 8060</a></li>
+        <li><a href="https://instagram.com/nexialab_pro" target="_blank">Instagram @nexialab_pro</a></li>
+        <li><a href="https://www.nexialab.pro">nexialab.pro</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Nexia Lab · Todos los derechos reservados</span>
+    <span>Hecho en Chile</span>
+  </div>
+</footer>
+
+<script src="assets/nexia-chat.js"></script>
+</body>
+</html>
