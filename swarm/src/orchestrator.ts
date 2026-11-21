@@ -55,6 +55,7 @@ export class Orchestrator {
       dryRun,
       budgetUsd: config.budgetUsdPerTask,
       iterations: { research: 0, build: 0, growth: 0 },
+      escalation: 0,
       feedback: null,
       qaHistory: [],
       market: null,
@@ -72,14 +73,14 @@ export class Orchestrator {
     try {
       return await this.runInner(taskId);
     } finally {
-      this.autoShare(taskId);
+      await this.autoShare(taskId);
     }
   }
 
-  private autoShare(taskId: string): void {
+  private async autoShare(taskId: string): Promise<void> {
     if (!config.autoShare || this.store.getTask(taskId).dryRun) return;
     try {
-      this.logger.info("orchestrator", taskId, shareTask(taskId, { push: true }).message);
+      this.logger.info("orchestrator", taskId, (await shareTask(taskId, { push: true, withProduct: config.shareWithProduct })).message);
     } catch (e) {
       this.logger.warn("orchestrator", taskId, `No se pudieron compartir los resultados: ${e instanceof Error ? e.message : String(e)}`);
     }
@@ -242,7 +243,22 @@ export class Orchestrator {
 
     const rejections = iteration + 1;
     const iterations = { ...task.iterations, [iterKey]: rejections };
+    const feedback = { from: "qa" as const, target, summary: result.summary, defects: result.defects };
     if (rejections >= config.maxIterations) {
+      // Antes de molestar a una persona: subir de modelo automáticamente (haiku → sonnet → opus) y dar otra ronda.
+      const esc = task.escalation ?? 0;
+      const current = config.llm.model("builder", esc);
+      const next = config.llm.model("builder", esc + 1);
+      if (esc < config.maxEscalations && next !== current) {
+        this.store.updateTask(task.id, { qaHistory, iterations: { ...iterations, [iterKey]: 0 }, escalation: esc + 1, feedback });
+        this.setStage(task.id, target === "product" ? "build" : "growth", "pending");
+        this.logger.warn(
+          "orchestrator",
+          task.id,
+          `QA vetó ${rejections} veces con ${current}. Subiendo automáticamente a ${next} (subida ${esc + 1}/${config.maxEscalations}) y reintentando con los defectos de QA.`,
+        );
+        return "continue";
+      }
       this.store.updateTask(task.id, {
         qaHistory,
         iterations,
@@ -253,11 +269,7 @@ export class Orchestrator {
       await this.withRun(task.id, "ops", (ctx) => runOps(ctx, { insights: false }));
       return "stop";
     }
-    this.store.updateTask(task.id, {
-      qaHistory,
-      iterations,
-      feedback: { from: "qa", target, summary: result.summary, defects: result.defects },
-    });
+    this.store.updateTask(task.id, { qaHistory, iterations, feedback });
     this.setStage(task.id, target === "product" ? "build" : "growth", "pending");
     this.logger.info("orchestrator", task.id, `Veto de QA: vuelve a ${target === "product" ? "Builder" : "Growth"} (iteración ${rejections + 1}/${config.maxIterations}).`);
     return "continue";
@@ -272,7 +284,7 @@ export class Orchestrator {
       agent,
       stage: task.stage,
       status: "in_progress",
-      model: task.dryRun ? "dry-run" : config.llm.model(agent),
+      model: task.dryRun ? "dry-run" : config.llm.model(agent, task.escalation ?? 0),
       inputTokens: 0,
       outputTokens: 0,
       cacheReadTokens: 0,

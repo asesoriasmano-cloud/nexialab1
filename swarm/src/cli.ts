@@ -181,7 +181,8 @@ program
     const { store, orchestrator } = setup();
     const task = store.getTask(taskId);
     if (task.status !== "failed") throw new Error(`La tarea ${taskId} no está en estado failed (está en ${task.status}).`);
-    const patch: Partial<Task> = { status: "pending", lastError: null };
+    // Si ya falló con el modelo actual, el reintento arranca un escalón más arriba (haiku → sonnet → opus).
+    const patch: Partial<Task> = { status: "pending", lastError: null, escalation: Math.min(2, (task.escalation ?? 0) + 1) };
     if (task.stage === "qa") Object.assign(patch, { stage: "build", iterations: { ...task.iterations, build: 0 } });
     if (task.stage === "growth_qa") Object.assign(patch, { stage: "growth", iterations: { ...task.iterations, growth: 0 } });
     store.updateTask(taskId, patch);
@@ -257,10 +258,11 @@ program
   .command("share <taskId>")
   .description("Sube a la rama actual los resultados de una tarea (brief, kit, reportes) para revisarlos con un git pull. Nunca sube .env ni la clave.")
   .option("--no-push", "solo copiar a swarm/shared/<tarea>/ sin commitear ni subir")
-  .action((taskId: string, opts: { push: boolean }) => {
+  .option("--with-product", "incluir también el kit y el copy de marketing (solo si el repositorio es PRIVADO; si no, se bloquea)")
+  .action(async (taskId: string, opts: { push: boolean; withProduct?: boolean }) => {
     const { store } = setup();
     store.getTask(taskId); // valida que la tarea exista
-    console.log(shareTask(taskId, { push: opts.push }).message);
+    console.log((await shareTask(taskId, { push: opts.push, withProduct: opts.withProduct })).message);
   });
 
 program

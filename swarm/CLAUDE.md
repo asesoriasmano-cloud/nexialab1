@@ -20,7 +20,7 @@ CLI (`npm run swarm -- …`):
 | `approve T0001 [--amount N] [--note …]` | Aprueba el gate pendiente y reanuda. |
 | `reject T0001 --note "…"` | Rechaza. En el concepto, la nota vuelve al Scout como feedback. |
 | `retry T0001` | Reinicia el contador de iteraciones de una tarea fallida por el límite de QA. |
-| `share T0001 [--no-push]` | Copia los resultados de texto de la tarea a `swarm/shared/T0001/` y los sube a la rama actual (nunca `.env`, estado ni logs), para revisarlos con un `git pull`. |
+| `share T0001 [--no-push] [--with-product]` | Copia los resultados de la tarea a `swarm/shared/T0001/` y los sube a la rama actual. Por defecto NO incluye el kit ni el copy (lo que se vende); `--with-product` solo funciona si el repo es privado. Nunca `.env`, estado ni logs. |
 | `status [T0001]` · `approvals` · `config` | Estado, gates pendientes y configuración efectiva. |
 | `report T0001 [--insights]` | Reporte de Ops (`--insights` usa el LLM). |
 | `metrics T0001 --visits N --sales N --revenue N` | Registra datos reales de mercado para que Ops recomiende iteraciones. |
@@ -54,7 +54,8 @@ El HITL#2 (gasto) puede saltar en cualquier etapa.
 8. **Rutas del modelo:** todo archivo que escribe un agente pasa por `Workspace`, que bloquea rutas fuera de `output/<tarea>/`.
 9. Los agentes no cambian la etapa de la tarea; eso lo decide solo el orquestador.
 10. **El Scout no tiene nicho de origen.** No lo ancles a los negocios ni a la experiencia de los dueños del repo: explora en tres pasos (oportunidades diversas con modelo barato → validación gratis con Google/YouTube Suggest en `src/core/signals.ts` → brief de la mejor con evidencia) y el mercado y el idioma los decide el brief. Builder, Growth y QA leen `brief.market` y `brief.language`; no fijes mercado ni idioma en sus prompts.
-12. **Poca interacción humana es un requisito, no un extra.** Todo lo que se pueda validar con código o con otro agente debe validarse antes de llegar a una persona (ver `src/core/briefcheck.ts`: el Scout se autocorrige). Los gates muestran un resumen corto con recomendación, no documentos para leer. Si descubres un error que una persona tuvo que señalar, agrega la regla al validador y un test.
+13. **Nunca publiques el producto.** `share` excluye `product/`, `marketing/` y `dist/` salvo `--with-product`, que se bloquea si no se confirma que el repo de GitHub es privado. Este repo es público.
+12. **Poca interacción humana es un requisito, no un extra.** Si QA veta el máximo de iteraciones, el orquestador sube solo de modelo (`MAX_ESCALATIONS`) antes de pedir ayuda humana. Todo lo que se pueda validar con código o con otro agente debe validarse antes de llegar a una persona (ver `src/core/briefcheck.ts`: el Scout se autocorrige). Los gates muestran un resumen corto con recomendación, no documentos para leer. Si descubres un error que una persona tuvo que señalar, agrega la regla al validador y un test.
 11. **La investigación debe seguir siendo casi gratis:** no subas el modelo de exploración ni reemplaces las señales gratuitas por APIs de pago sin pasar por el gate #2.
 
 ## Convenciones

@@ -85,7 +85,8 @@ function extractJson(text: string): unknown {
  *  - modo simulado para --dry-run.
  */
 export async function complete<T>(ctx: AgentContext, req: LlmRequest<T>): Promise<LlmResult<T>> {
-  const model = req.model ?? config.llm.model(req.agent);
+  const escalation = ctx.task.escalation ?? 0;
+  const model = req.model ?? config.llm.model(req.agent, escalation);
 
   if (ctx.dryRun) {
     return { data: req.mock(), inputTokens: 0, outputTokens: 0, costUsd: 0 };
@@ -127,7 +128,7 @@ export async function complete<T>(ctx: AgentContext, req: LlmRequest<T>): Promis
         messages,
         thinking: { type: "adaptive" },
         output_config: {
-          effort: config.llm.effort(req.agent),
+          effort: config.llm.effort(req.agent, escalation),
           ...(req.schema ? { format: zodOutputFormat(req.schema) } : {}),
         },
         ...(req.webSearchMaxUses

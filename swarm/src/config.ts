@@ -55,6 +55,8 @@ const PROFILE_MODEL: Record<Profile, string> = {
   quality: "claude-opus-5-5",
 };
 if (!(PROFILE in PROFILE_MODEL)) throw new Error(`SWARM_PROFILE debe ser eco, balanced o quality (recibido: "${PROFILE}")`);
+const MODEL_LADDER = ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"];
+const ESCALATABLE = new Set<AgentName>(["builder", "qa", "growth"]);
 const DEFAULT_MODEL = str("SWARM_MODEL", PROFILE_MODEL[PROFILE]);
 /** El brief del Scout (fase 2) usa Sonnet salvo en eco; la exploración (fase 1) usa Haiku. */
 const DEFAULT_MODEL_BY_AGENT: Partial<Record<AgentName, string>> = {
@@ -88,18 +90,32 @@ export const config = {
 
   profile: PROFILE,
 
+  /**
+   * Cuántas veces puede subir de modelo sola una tarea cuando QA veta el máximo de iteraciones, antes de escalar a una
+   * persona. Cada subida da otra ronda completa de MAX_ITERATIONS. El presupuesto sigue mandando (gate #2).
+   */
+  maxEscalations: num("MAX_ESCALATIONS", 2),
+
   /** Reintentos automáticos del Scout cuando la validación del brief encuentra problemas (antes de molestar a una persona). */
   autoFixAttempts: num("SCOUT_AUTO_FIX_ATTEMPTS", 2),
   /** Sube los resultados (brief, kit, reportes) a la rama actual en cada pausa y al terminar, para revisarlos sin copiar y pegar. */
   autoShare: bool("SWARM_AUTO_SHARE", false),
+  /** Incluye el kit y el copy al compartir. Solo se honra si el repositorio es privado (ver share.ts). */
+  shareWithProduct: bool("SWARM_SHARE_PRODUCT", false),
 
   llm: {
     fallbacks: str("LLM_FALLBACKS", "default"), // "default" | "off"
-    model(agent: AgentName): string {
-      return str(`MODEL_${agent.toUpperCase()}`, process.env.SWARM_MODEL?.trim() || DEFAULT_MODEL_BY_AGENT[agent] || DEFAULT_MODEL);
+    /** `escalation` > 0 sube el modelo de builder/qa/growth por la escalera haiku → sonnet → opus (veto repetido de QA). */
+    model(agent: AgentName, escalation = 0): string {
+      const base = str(`MODEL_${agent.toUpperCase()}`, process.env.SWARM_MODEL?.trim() || DEFAULT_MODEL_BY_AGENT[agent] || DEFAULT_MODEL);
+      if (!escalation || !ESCALATABLE.has(agent)) return base;
+      const i = MODEL_LADDER.indexOf(base);
+      return i < 0 ? base : MODEL_LADDER[Math.min(MODEL_LADDER.length - 1, i + escalation)]!;
     },
-    effort(agent: AgentName): Effort {
-      return str(`EFFORT_${agent.toUpperCase()}`, DEFAULT_EFFORT[agent]) as Effort;
+    effort(agent: AgentName, escalation = 0): Effort {
+      const e = str(`EFFORT_${agent.toUpperCase()}`, DEFAULT_EFFORT[agent]) as Effort;
+      // Con un modelo escalado el esfuerzo bajo ya no tiene sentido: mínimo "medium".
+      return escalation > 0 && ESCALATABLE.has(agent) && e === "low" ? "medium" : e;
     },
   },
 

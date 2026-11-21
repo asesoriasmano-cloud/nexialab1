@@ -34,7 +34,7 @@ Eso es todo. El enjambre investiga, se valida y corrige **solo**, y en una termi
 2. **Gasto:** solo si va a superar el presupuesto o a usar una API de pago.
 3. **Despliegue:** antes de publicar.
 
-Todo lo demás (investigar, construir, auditar con veto, escribir el copy, empaquetar) lo hacen los agentes sin pedirte nada. Con `SWARM_AUTO_SHARE=true` además los resultados quedan en el repositorio, listos para revisar sin copiar y pegar.
+Todo lo demás (investigar, construir, auditar con veto, escribir el copy, empaquetar) lo hacen los agentes sin pedirte nada. Si QA veta varias veces el kit, el enjambre **sube solo de modelo** (Haiku → Sonnet → Opus) y vuelve a intentar con los defectos que QA señaló, antes de pedirte ayuda. Con `SWARM_AUTO_SHARE=true` los resultados de la investigación y los reportes de QA se suben a la rama para revisarlos sin copiar y pegar; **el kit y el copy nunca se suben** (son lo que vendes), y el repositorio de este proyecto es público.
 
 ## Primer ciclo completo, paso a paso
 

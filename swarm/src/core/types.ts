@@ -35,6 +35,8 @@ export interface Task {
   /** Presupuesto total aprobado (base + ampliaciones aprobadas en gate #2). */
   budgetUsd: number;
   iterations: { research: number; build: number; growth: number };
+  /** Subidas automáticas de modelo tras vetos repetidos de QA (0 = modelo del perfil). */
+  escalation: number;
   /** Feedback pendiente para el siguiente agente (veto de QA o rechazo humano). */
   feedback: Feedback | null;
   qaHistory: Array<{ target: "product" | "growth"; iteration: number; verdict: "approve" | "reject"; score: number; at: string }>;
