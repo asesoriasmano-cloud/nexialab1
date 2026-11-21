@@ -83,7 +83,7 @@ Si el feedback humano elige un candidato anterior, inclúyelo en la lista nueva 
 Oportunidades preseleccionadas${signals.length ? ", con señales REALES de demanda (sugerencias de Google y YouTube: lo que la gente escribe de verdad)" : ""}:
 ${JSON.stringify(evidence, null, 2)}
 
-Recomendación de la fase 1: #${opportunities.selectedId}. ${opportunities.selectionRationale}
+Recomendación provisional de la fase 1 (puedes cambiarla): #${opportunities.selectedId}. ${opportunities.selectionRationale}
 ${signals.length ? `\nCómo leer las señales: "suggestionCount" alto indica que el tema se busca; "commercialCount" alto indica que buscan recursos descargables (plantilla, excel, template…), justo lo que vende un kit. Sin sugerencias suele haber poca demanda o una query mal planteada. Usa las sugerencias como evidencia citable en demandSignals y keywords, y cambia la elección de la fase 1 si la evidencia lo justifica.` : ""}${feedbackBlock}
 
 Elige UNA oportunidad, indica su id en "opportunityId" y entrega el brief completo. El campo "niche" describe el segmento elegido; "market" y "language" son los del público objetivo (idiomas permitidos: ${config.scout.languages.join(", ")}).`,
@@ -164,7 +164,7 @@ ${ranked
 
 ${signals.length ? "_Señal real: búsquedas sugeridas por Google/YouTube para las queries de cada oportunidad (sug.) y cuántas piden un recurso descargable como plantilla, excel o template (com.). Detalle en signals.json._" : ""}
 
-**Por qué se eligió la #${o.selectedId}:** ${o.selectionRationale}
+**Por qué se eligió la #${o.selectedId}:** ${b.selectionRationale || o.selectionRationale}
 
 > ¿Prefieres otra? Recházala indicando cuál: \`npm run swarm -- reject <ID> --note "usa la oportunidad #3"\`
 

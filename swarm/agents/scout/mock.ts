@@ -51,6 +51,7 @@ export function mockBrief(attempt: number): Brief {
   const v2 = attempt > 0;
   return {
     opportunityId: v2 ? 3 : 1,
+    selectionRationale: "Simulado: mejor combinación de señal real, disposición a pagar y facilidad de construcción.",
     productName: v2 ? "Kit Visa Canadá (simulado)" : "Kit Alquiler Directo (simulado)",
     oneLiner: v2
       ? "Todos los documentos y pasos para postular a una visa de trabajo en Canadá, en orden y en español."

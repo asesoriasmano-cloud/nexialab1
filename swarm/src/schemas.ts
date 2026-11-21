@@ -45,6 +45,8 @@ export type Opportunities = z.infer<typeof OpportunitiesSchema>;
 export const BriefSchema = z.object({
   /** id de la oportunidad elegida en opportunities.json. */
   opportunityId: z.number(),
+  /** Por qué esta oportunidad gana frente a las otras (fase 2, con las señales reales). */
+  selectionRationale: z.string(),
   productName: z.string(),
   oneLiner: z.string(),
   niche: z.string(),
