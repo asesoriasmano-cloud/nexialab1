@@ -20,6 +20,8 @@ export interface LlmRequest<T> {
   expectedOutputTokens: number;
   /** Activa la herramienta de búsqueda web del servidor (solo Scout, requiere gate #2). */
   webSearchMaxUses?: number;
+  /** Sobrescribe el modelo del agente para esta llamada (p. ej. la exploración barata del Scout). */
+  model?: string;
   /** Respuesta simulada para --dry-run (sin llamadas ni gasto). */
   mock: () => T;
 }
@@ -56,7 +58,7 @@ function extractJson(text: string): unknown {
  *  - modo simulado para --dry-run.
  */
 export async function complete<T>(ctx: AgentContext, req: LlmRequest<T>): Promise<LlmResult<T>> {
-  const model = config.llm.model(req.agent);
+  const model = req.model ?? config.llm.model(req.agent);
 
   if (ctx.dryRun) {
     return { data: req.mock(), inputTokens: 0, outputTokens: 0, costUsd: 0 };
@@ -101,7 +103,14 @@ export async function complete<T>(ctx: AgentContext, req: LlmRequest<T>): Promis
           ...(req.schema ? { format: zodOutputFormat(req.schema) } : {}),
         },
         ...(req.webSearchMaxUses
-          ? { tools: [{ type: "web_search_20260209" as const, name: "web_search" as const, max_uses: req.webSearchMaxUses }] }
+          ? {
+              tools: [
+                // La variante con filtrado dinámico no está disponible en Haiku: usa la básica.
+                model.startsWith("claude-haiku")
+                  ? { type: "web_search_20250305" as const, name: "web_search" as const, max_uses: req.webSearchMaxUses }
+                  : { type: "web_search_20260209" as const, name: "web_search" as const, max_uses: req.webSearchMaxUses },
+              ],
+            }
           : {}),
         ...(useFallbacks ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
       })

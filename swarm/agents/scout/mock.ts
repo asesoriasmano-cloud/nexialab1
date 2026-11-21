@@ -14,6 +14,7 @@ export function mockOpportunities(attempt: number): Opportunities {
     name,
     market,
     language,
+    country: { "España": "es", "Estados Unidos": "us", "Brasil": "br", "México": "mx", "Reino Unido": "gb", "Argentina": "ar", "Colombia": "co" }[market] ?? "",
     segment,
     problem: `Problema simulado de ${segment}`,
     productIdea: `Kit simulado: ${name}`,
@@ -24,6 +25,7 @@ export function mockOpportunities(attempt: number): Opportunities {
     willingnessToPay: score > 65 ? "alta" : "media",
     buildability: "alta",
     distributionPath: "Comunidades y grupos del segmento + SEO de cola larga",
+    queries: [name.toLowerCase().split(" ").slice(0, 3).join(" ")],
     score,
   });
   return {
@@ -48,6 +50,7 @@ export function mockOpportunities(attempt: number): Opportunities {
 export function mockBrief(attempt: number): Brief {
   const v2 = attempt > 0;
   return {
+    opportunityId: v2 ? 3 : 1,
     productName: v2 ? "Kit Visa Canadá (simulado)" : "Kit Alquiler Directo (simulado)",
     oneLiner: v2
       ? "Todos los documentos y pasos para postular a una visa de trabajo en Canadá, en orden y en español."

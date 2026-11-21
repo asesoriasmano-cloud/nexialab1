@@ -52,7 +52,8 @@ El HITL#2 (gasto) puede saltar en cualquier etapa.
 7. **Honestidad del producto:** nada de testimonios, cifras ni promesas de resultados inventadas (lo exigen los prompts y QA lo veta con chequeos determinísticos).
 8. **Rutas del modelo:** todo archivo que escribe un agente pasa por `Workspace`, que bloquea rutas fuera de `output/<tarea>/`.
 9. Los agentes no cambian la etapa de la tarea; eso lo decide solo el orquestador.
-10. **El Scout no tiene nicho de origen.** No lo ancles a los negocios ni a la experiencia de los dueños del repo: explora en dos fases (oportunidades diversas → brief de la mejor) y el mercado y el idioma los decide el brief. Builder, Growth y QA leen `brief.market` y `brief.language`; no fijes mercado ni idioma en sus prompts.
+10. **El Scout no tiene nicho de origen.** No lo ancles a los negocios ni a la experiencia de los dueños del repo: explora en tres pasos (oportunidades diversas con modelo barato → validación gratis con Google/YouTube Suggest en `src/core/signals.ts` → brief de la mejor con evidencia) y el mercado y el idioma los decide el brief. Builder, Growth y QA leen `brief.market` y `brief.language`; no fijes mercado ni idioma en sus prompts.
+11. **La investigación debe seguir siendo casi gratis:** no subas el modelo de exploración ni reemplaces las señales gratuitas por APIs de pago sin pasar por el gate #2.
 
 ## Convenciones
 - TypeScript ESM ejecutado con `tsx` (sin paso de build). Imports con extensión `.ts`.

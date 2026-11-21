@@ -19,6 +19,8 @@ export const OpportunitiesSchema = z.object({
       name: z.string(),
       market: z.string(),
       language: LanguageSchema,
+      /** Código ISO de 2 letras del país principal (mx, es, us, br…) o "" si es multipaís. */
+      country: z.string(),
       segment: z.string(),
       problem: z.string(),
       productIdea: z.string(),
@@ -29,6 +31,8 @@ export const OpportunitiesSchema = z.object({
       willingnessToPay: Level,
       buildability: Level,
       distributionPath: z.string(),
+      /** 2–3 búsquedas cortas tal como las escribiría el público, en su idioma (para validar demanda gratis). */
+      queries: z.array(z.string()),
       score: z.number(),
     }),
   ),
@@ -39,6 +43,8 @@ export type Opportunities = z.infer<typeof OpportunitiesSchema>;
 
 // ---------- Market Scout (fase 2: concepto elegido) → brief.json ----------
 export const BriefSchema = z.object({
+  /** id de la oportunidad elegida en opportunities.json. */
+  opportunityId: z.number(),
   productName: z.string(),
   oneLiner: z.string(),
   niche: z.string(),

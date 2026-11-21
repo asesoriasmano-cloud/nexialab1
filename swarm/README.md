@@ -102,8 +102,23 @@ npm run swarm -- report T0001 --insights
 ¿Prefieres responder en el momento? Usa `run -i` para que el enjambre pregunte s/n por terminal en cada gate.
 
 ## Costos
-- Por defecto todos los agentes usan **Claude Opus 5.5** (US$4 por millón de tokens de entrada y US$20 por millón de salida). Puedes cambiar el modelo y el *effort* por agente en `.env`.
-- Estimación aproximada para un kit de 5 a 8 archivos: entre **US$1.5 y US$3**. Aún no se ha medido con una ejecución real; el costo exacto queda registrado por agente en `npm run swarm -- status T0001` y en el reporte de Ops.
+**La investigación es casi gratis.** Es la etapa donde más ideas se descartan, así que se paga lo mínimo:
+
+| Paso | Cómo | Costo estimado |
+|---|---|---|
+| Lluvia de 10 oportunidades | Claude Haiku 5.5 | ~US$0.005 |
+| Validación de las 6 mejores | Google y YouTube Suggest (búsquedas reales, sin API key) | **US$0** |
+| Elección con evidencia y brief | Claude Sonnet 5.5 (Haiku en `SWARM_PROFILE=eco`) | ~US$0.11 (eco: ~US$0.006) |
+| **Total por concepto** | | **~US$0.12** (eco: **~US$0.01**) |
+
+Antes, la misma investigación con Opus costaba ~US$0.44 (~US$0.60 con búsqueda web de pago). Rechazar conceptos ahora es barato: puedes pedir varios hasta encontrar uno que te convenza.
+
+Después de que apruebas el concepto, la construcción y la auditoría usan el modelo del perfil:
+- `SWARM_PROFILE=quality` (por defecto): Claude Opus 5.5. Estimado entre US$1.5 y US$3 por kit.
+- `balanced`: Claude Sonnet 5.5, aproximadamente la mitad.
+- `eco`: Claude Haiku 5.5, unos centavos, con menor calidad de redacción.
+
+Son estimaciones, aún no medidas con una ejecución real; el costo exacto queda registrado por agente en `npm run swarm -- status T0001` y en el reporte de Ops.
 - Antes de cada llamada se estima su costo. Si no cabe en el presupuesto, el enjambre **se pausa antes de gastar**.
 - Si el modelo rechaza una solicitud por seguridad, la API reintenta con otro modelo (`LLM_FALLBACKS=default`). Ese gasto también queda registrado.
 

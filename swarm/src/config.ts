@@ -39,7 +39,27 @@ function bool(name: string, def: boolean): boolean {
   return ["1", "true", "yes", "si", "sí"].includes(raw.trim().toLowerCase());
 }
 
-const DEFAULT_MODEL = str("SWARM_MODEL", "claude-opus-5-5");
+/**
+ * Perfil de costo (SWARM_PROFILE):
+ *   eco      → todo con Claude Haiku 5.5 (lo más barato; ideal para probar ideas)
+ *   balanced → todo con Claude Sonnet 5.5
+ *   quality  → Claude Opus 5.5 para construir y auditar (por defecto)
+ * En cualquier perfil, la investigación inicial usa modelos baratos (ver scout.exploreModel / MODEL_SCOUT):
+ * es la etapa donde más ideas se descartan, así que no tiene sentido pagar el modelo más caro ahí.
+ */
+export type Profile = "eco" | "balanced" | "quality";
+const PROFILE = str("SWARM_PROFILE", "quality") as Profile;
+const PROFILE_MODEL: Record<Profile, string> = {
+  eco: "claude-haiku-5-5",
+  balanced: "claude-sonnet-5-5",
+  quality: "claude-opus-5-5",
+};
+if (!(PROFILE in PROFILE_MODEL)) throw new Error(`SWARM_PROFILE debe ser eco, balanced o quality (recibido: "${PROFILE}")`);
+const DEFAULT_MODEL = str("SWARM_MODEL", PROFILE_MODEL[PROFILE]);
+/** El brief del Scout (fase 2) usa Sonnet salvo en eco; la exploración (fase 1) usa Haiku. */
+const DEFAULT_MODEL_BY_AGENT: Partial<Record<AgentName, string>> = {
+  scout: PROFILE === "eco" ? "claude-haiku-5-5" : "claude-sonnet-5-5",
+};
 
 const DEFAULT_EFFORT: Record<AgentName, Effort> = {
   scout: "high",
@@ -66,10 +86,12 @@ export const config = {
   /** Máximo de reintentos de investigación cuando rechazas el concepto. */
   maxResearchAttempts: num("MAX_RESEARCH_ATTEMPTS", 3),
 
+  profile: PROFILE,
+
   llm: {
     fallbacks: str("LLM_FALLBACKS", "default"), // "default" | "off"
     model(agent: AgentName): string {
-      return str(`MODEL_${agent.toUpperCase()}`, DEFAULT_MODEL);
+      return str(`MODEL_${agent.toUpperCase()}`, process.env.SWARM_MODEL?.trim() || DEFAULT_MODEL_BY_AGENT[agent] || DEFAULT_MODEL);
     },
     effort(agent: AgentName): Effort {
       return str(`EFFORT_${agent.toUpperCase()}`, DEFAULT_EFFORT[agent]) as Effort;
@@ -80,6 +102,12 @@ export const config = {
     /** Búsqueda web real (API de pago: ~US$10 / 1000 búsquedas). Requiere aprobación HITL #2. */
     webSearch: bool("SCOUT_WEB_SEARCH", false),
     webSearchMaxUses: num("SCOUT_WEB_SEARCH_MAX_USES", 8),
+    /** Validación gratuita con Google/YouTube Suggest (US$0). Reemplaza en gran parte a la búsqueda web de pago. */
+    freeSignals: bool("SCOUT_FREE_SIGNALS", true),
+    /** Cuántas oportunidades (las de mayor score) se validan con señales gratuitas. */
+    validateTop: num("SCOUT_VALIDATE_TOP", 6),
+    /** Modelo de la fase 1 (lluvia de oportunidades). Barato por defecto. */
+    exploreModel: str("MODEL_SCOUT_EXPLORE", "claude-haiku-5-5"),
     /** Cuántas oportunidades distintas explora antes de elegir una (pensamiento divergente → convergente). */
     candidates: num("SCOUT_CANDIDATES", 10),
     /** Mercados permitidos. Por defecto: abierto, sin anclarse a ningún país, sector ni negocio existente. */
