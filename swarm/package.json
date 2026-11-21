@@ -1,0 +1,31 @@
+{
+  "name": "nexia-swarm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Enjambre de agentes autónomos para crear, validar y lanzar productos digitales monetizables.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "bin": {
+    "swarm": "./src/cli.ts"
+  },
+  "scripts": {
+    "swarm": "tsx src/cli.ts",
+    "demo": "tsx src/cli.ts run --dry-run --niche \"Prospección B2B en LinkedIn para pymes de servicios en Chile\"",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0",
+    "commander": "^15.1.0",
+    "fflate": "^0.8.3",
+    "marked": "^18.2.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
