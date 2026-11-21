@@ -232,7 +232,8 @@ export class Orchestrator {
     const iterKey = target === "product" ? "build" : "growth";
     const iteration = task.iterations[iterKey];
     this.store.updateTask(task.id, { status: "in_progress" });
-    const result: QaResult = await this.withRun(task.id, "qa", (ctx) => runQa(ctx, { target, brief, iteration }));
+    const reportIndex = task.qaHistory.filter((q) => q.target === target).length + 1;
+    const result: QaResult = await this.withRun(task.id, "qa", (ctx) => runQa(ctx, { target, brief, iteration, reportIndex }));
     const qaHistory = [...task.qaHistory, { target, iteration: result.iteration, verdict: result.verdict, score: result.score, at: new Date().toISOString() }];
 
     if (result.verdict === "approve") {

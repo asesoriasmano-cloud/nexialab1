@@ -7,6 +7,7 @@ export function mockManifest(brief: Brief): Manifest {
     productName: brief.productName,
     slug: "kit-simulado",
     guideTitle: `${brief.productName}: guía de implementación`,
+    sharedFacts: "Simulado: fuente de verdad compartida (nombres de filas, ejemplos resueltos y reglas).",
     files: brief.mvp.deliverables.map((d) => {
       const base = d.name.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-");
       const path =

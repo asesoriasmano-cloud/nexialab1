@@ -93,6 +93,12 @@ export const ManifestSchema = z.object({
   productName: z.string(),
   slug: z.string(),
   guideTitle: z.string(),
+  /**
+   * FUENTE DE VERDAD que todos los archivos del kit respetan al pie de la letra (nombres exactos de filas y columnas
+   * de las hojas, ejemplos resueltos con todas sus cifras, reglas y términos). Cada archivo se escribe por separado;
+   * sin esto, los archivos que deben encajar entre sí (capítulo ↔ hoja ↔ contrato) se contradicen.
+   */
+  sharedFacts: z.string(),
   files: z.array(
     z.object({
       path: z.string(),

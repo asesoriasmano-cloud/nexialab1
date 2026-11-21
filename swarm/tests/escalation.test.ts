@@ -28,3 +28,10 @@ test("tras agotar vetos, el enjambre sube de modelo solo (2 veces) antes de esca
   assert.equal(store.runsFor(task.id).filter((r) => r.agent === "builder").length, 3, "una ronda por cada nivel");
   assert.match(result.lastError ?? "", /QA vetó el producto/);
 });
+
+test("los reportes de QA no se pisan tras una subida de modelo (índice único)", async () => {
+  const { Workspace } = await import("../src/core/workspace.ts");
+  const task = store.listTasks().find((t) => t.escalation === 2)!;
+  const reports = new Workspace(task.id).list("reports").filter((p) => /qa-product-\d+\.json$/.test(p));
+  assert.equal(reports.length, 3, "una ronda por nivel = 3 reportes distintos");
+});

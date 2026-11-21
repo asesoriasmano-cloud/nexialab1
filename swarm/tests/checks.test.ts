@@ -40,6 +40,7 @@ test("sanitizeManifest neutraliza rutas peligrosas del modelo", () => {
       productName: "X",
       slug: "Mi Kit!!",
       guideTitle: "X",
+      sharedFacts: "hechos",
       files: [
         { path: "../../etc/passwd", kind: "template", title: "a", purpose: "p", targetWords: 500 },
         { path: "/abs/Guía Básica.md", kind: "guide_chapter", title: "b", purpose: "p", targetWords: 500 },
@@ -65,4 +66,11 @@ test("costUsd calcula tokens, caché y búsquedas web", () => {
   // Opus 5.5: $4/M entrada, $20/M salida, búsqueda $0.01
   assert.equal(costUsd("claude-opus-5-5", { inputTokens: 1_000_000, outputTokens: 0 }), 4);
   assert.equal(costUsd("claude-opus-5-5", { inputTokens: 0, outputTokens: 100_000, webSearches: 2 }), 2.02);
+});
+
+test("kitFolders usa el idioma del comprador (un comprador de EE.UU. no debe ver 'plantillas/')", async () => {
+  const { kitFolders } = await import("../agents/builder/index.ts");
+  assert.deepEqual(kitFolders("en"), { guide: "guide", templates: "templates", sheets: "worksheets" });
+  assert.equal(kitFolders("es").templates, "plantillas");
+  assert.equal(kitFolders("pt").sheets, "planilhas");
 });

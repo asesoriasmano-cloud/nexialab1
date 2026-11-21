@@ -27,8 +27,11 @@ export async function runBuilder(ctx: AgentContext, input: { brief: Brief; feedb
   const defects = input.feedback?.target === "product" ? input.feedback.defects : [];
 
   // ---------- 1. Manifiesto ----------
-  const needsPlan =
-    !workspace.exists("product/manifest.json") || defects.some((d) => normalizeFile(d.file) === "manifest.json");
+  // Un manifiesto sin fuente de verdad (versiones anteriores) se vuelve a planificar: generar cada archivo a ciegas
+  // de los demás produce contradicciones entre capítulos, hojas y contrato.
+  const existing = workspace.exists("product/manifest.json") ? workspace.readJson<Manifest>("product/manifest.json") : null;
+  const needsPlan = !existing || !existing.sharedFacts || defects.some((d) => normalizeFile(d.file) === "manifest.json");
+  const folders = kitFolders(input.brief.language);
   let manifest: Manifest;
   if (needsPlan) {
     const planDefects = defects.filter((d) => normalizeFile(d.file) === "manifest.json");
@@ -37,9 +40,15 @@ export async function runBuilder(ctx: AgentContext, input: { brief: Brief; feedb
       system,
       context: briefContext,
       prompt: `Diseña el manifiesto del kit: entre 4 y ${config.kit.maxFiles} archivos que cubran todos los entregables del MVP y permitan cumplir cada criterio de aceptación.
-- path: ruta relativa en minúsculas, sin espacios, con extensión .md (o .csv para kind "csv"). Los capítulos van en "guia/NN-nombre.md" en orden de lectura.
+- path: ruta relativa en minúsculas, sin espacios, con extensión .md (o .csv para kind "csv"). Carpetas y nombres de archivo en el idioma del kit (${LANGUAGE_NAMES[input.brief.language]}), nunca en otro idioma: capítulos en "${folders.guide}/NN-nombre.md" en orden de lectura, plantillas/checklists/prompts en "${folders.templates}/" y hojas CSV en "${folders.sheets}/".
 - targetWords: guide_chapter 1200–2500, template/prompts 600–1500, checklist 300–800, csv 150–400.
-- slug: kebab-case corto para el nombre del producto.${formatDefects(planDefects)}`,
+- slug: kebab-case corto para el nombre del producto.
+- sharedFacts: la FUENTE DE VERDAD que todos los archivos respetarán al pie de la letra (Markdown, en el idioma del kit). Debe fijar, ya decididos y verificados:
+  1) los nombres EXACTOS y el orden de cada fila y columna de cada hoja CSV (con el nombre del archivo);
+  2) cada ejemplo resuelto con sus cifras de entrada y TODOS sus resultados intermedios y finales, ya calculados y comprobados, incluidas las filas de ejemplo que se repiten en un CSV y en un capítulo;
+  3) las reglas y convenciones únicas (redondeo, notación de porcentajes, plazos, impuestos, términos del contrato, qué hojas llevan o no fórmulas);
+  4) los nombres de archivos y carpetas que el texto citará y el vocabulario fijo.
+  Si dos archivos hablan de lo mismo, deben tomarlo de aquí.${formatDefects(planDefects)}`,
       schema: ManifestSchema,
       maxTokens: 16000,
       expectedOutputTokens: 3000,
@@ -47,9 +56,9 @@ export async function runBuilder(ctx: AgentContext, input: { brief: Brief; feedb
     });
     manifest = sanitizeManifest(data, config.kit.maxFiles);
     workspace.writeJson("product/manifest.json", manifest);
-    logger.info("builder", task.id, `Manifiesto con ${manifest.files.length} archivos.`);
+    logger.info("builder", task.id, `Manifiesto con ${manifest.files.length} archivos y fuente de verdad compartida.`);
   } else {
-    manifest = workspace.readJson<Manifest>("product/manifest.json");
+    manifest = existing!;
   }
 
   // ---------- 2. Archivos ----------
@@ -68,15 +77,23 @@ export async function runBuilder(ctx: AgentContext, input: { brief: Brief; feedb
     }
   }
 
-  const manifestContext = `${briefContext}\n\n# Manifiesto del kit\n\n${JSON.stringify(manifest, null, 2)}`;
+  const manifestContext = `${briefContext}\n\n# Manifiesto del kit\n\n${JSON.stringify({ ...manifest, sharedFacts: undefined }, null, 2)}\n\n# FUENTE DE VERDAD (sharedFacts): todos los archivos la respetan al pie de la letra\n\n${manifest.sharedFacts}`;
   for (const f of manifest.files) {
     if (!regenerate.has(f.path)) continue;
     const fileDefects = [...defects.filter((d) => normalizeFile(d.file) === f.path), ...globalDefects];
     const previous = fileDefects.length && workspace.exists(`product/${f.path}`) ? workspace.read(`product/${f.path}`) : null;
 
+    // Al corregir, el Builder ve los demás archivos: así puede resolver inconsistencias entre archivos en vez de
+    // arreglar uno a ciegas y romper otro (lo que mantenía a QA vetando ronda tras ronda).
+    const others = previous
+      ? manifest.files
+          .filter((o) => o.path !== f.path && workspace.exists(`product/${o.path}`))
+          .map((o) => `### ${o.path}\n${workspace.read(`product/${o.path}`)}`)
+          .join("\n\n")
+      : "";
     const prompt = previous
-      ? `Revisa el archivo "${f.path}" (${f.kind}: ${f.title}).\n\n## Versión actual\n${previous}\n${formatDefects(fileDefects)}\n\nEntrega el archivo completo corregido.`
-      : `Escribe el archivo "${f.path}" (${f.kind}: ${f.title}).\nPropósito: ${f.purpose}\nExtensión objetivo: ~${f.targetWords} palabras.\nCumple los criterios de aceptación del brief que apliquen a este archivo.`;
+      ? `Revisa el archivo "${f.path}" (${f.kind}: ${f.title}).\n\n## Versión actual\n${previous}\n${formatDefects(fileDefects)}\n\n## Los demás archivos del kit (estado actual)\n${others}\n\nEntrega el archivo completo corregido. Si un defecto describe una inconsistencia con otro archivo, haz que ESTE archivo coincida con la fuente de verdad (y con el otro archivo si ya la respeta). No cambies lo que ya estaba bien.`
+      : `Escribe el archivo "${f.path}" (${f.kind}: ${f.title}).\nPropósito: ${f.purpose}\nExtensión objetivo: ~${f.targetWords} palabras.\nCumple los criterios de aceptación del brief que apliquen a este archivo.\nRespeta al pie de la letra la FUENTE DE VERDAD: nombres exactos de filas y columnas, cifras de los ejemplos, reglas y términos.`;
 
     const { data: raw } = await complete(ctx, {
       agent: "builder",
@@ -119,6 +136,15 @@ export async function runBuilder(ctx: AgentContext, input: { brief: Brief; feedb
 }
 
 // ---------- utilidades ----------
+
+/** Nombres de carpeta del kit en el idioma del comprador (un comprador de EE.UU. no debe ver "plantillas/"). */
+export function kitFolders(language: "es" | "en" | "pt"): { guide: string; templates: string; sheets: string } {
+  return {
+    es: { guide: "guia", templates: "plantillas", sheets: "hojas" },
+    en: { guide: "guide", templates: "templates", sheets: "worksheets" },
+    pt: { guide: "guia", templates: "modelos", sheets: "planilhas" },
+  }[language];
+}
 
 export function countWords(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;

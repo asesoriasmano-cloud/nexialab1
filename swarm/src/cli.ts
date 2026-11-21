@@ -177,12 +177,13 @@ program
 program
   .command("retry <taskId>")
   .description("Reinicia el contador de iteraciones de una tarea fallida por el límite de QA y la reanuda.")
-  .action(async (taskId: string) => {
+  .option("--level <n>", "nivel de modelo del reintento: 0 = el del perfil, 1 = un escalón más, 2 = dos escalones (por defecto se mantiene el actual)", parseInt)
+  .action(async (taskId: string, opts: { level?: number }) => {
     const { store, orchestrator } = setup();
     const task = store.getTask(taskId);
     if (task.status !== "failed") throw new Error(`La tarea ${taskId} no está en estado failed (está en ${task.status}).`);
-    // Si ya falló con el modelo actual, el reintento arranca un escalón más arriba (haiku → sonnet → opus).
-    const patch: Partial<Task> = { status: "pending", lastError: null, escalation: Math.min(2, (task.escalation ?? 0) + 1) };
+    const level = Math.max(0, Math.min(2, opts.level ?? task.escalation ?? 0));
+    const patch: Partial<Task> = { status: "pending", lastError: null, escalation: level };
     if (task.stage === "qa") Object.assign(patch, { stage: "build", iterations: { ...task.iterations, build: 0 } });
     if (task.stage === "growth_qa") Object.assign(patch, { stage: "growth", iterations: { ...task.iterations, growth: 0 } });
     store.updateTask(taskId, patch);

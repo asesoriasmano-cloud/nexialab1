@@ -21,7 +21,7 @@ export interface QaResult {
  */
 export async function runQa(
   ctx: AgentContext,
-  input: { target: "product" | "growth"; brief: Brief; iteration: number },
+  input: { target: "product" | "growth"; brief: Brief; iteration: number; reportIndex?: number },
 ): Promise<QaResult> {
   const { workspace, logger, task } = ctx;
   const checkDefects = input.target === "product" ? checkProduct(workspace) : checkGrowth(workspace, input.brief);
@@ -45,7 +45,8 @@ export async function runQa(
   const verdict = review.verdict === "reject" || hardFail ? "reject" : "approve";
   const score = defects.some((d) => d.severity === "blocker") ? Math.min(review.score, 40) : review.score;
 
-  const reportPath = `reports/qa-${input.target}-${input.iteration + 1}.json`;
+  // Índice único del reporte: tras una subida de modelo las iteraciones se reinician y no deben pisar reportes anteriores.
+  const reportPath = `reports/qa-${input.target}-${input.reportIndex ?? input.iteration + 1}.json`;
   const result: QaResult = {
     target: input.target,
     iteration: input.iteration + 1,
@@ -72,7 +73,8 @@ function productMaterial(ctx: AgentContext): string {
   if (!ws.exists("product/manifest.json")) return "(sin manifiesto)";
   const manifest = ws.readJson<Manifest>("product/manifest.json");
   // Se envía el contenido completo (sin truncar): el kit cabe holgadamente en la ventana de contexto.
-  return manifest.files
+  const facts = manifest.sharedFacts ? `## FUENTE DE VERDAD del kit (sharedFacts): contra esto se mide la coherencia entre archivos\n\n${manifest.sharedFacts}\n\n---\n\n` : "";
+  return facts + manifest.files
     .map((f) => `## Archivo: ${f.path} (${f.kind}, objetivo ~${f.targetWords} palabras)\n\n${ws.exists(`product/${f.path}`) ? ws.read(`product/${f.path}`) : "(NO EXISTE)"}`)
     .join("\n\n---\n\n");
 }
