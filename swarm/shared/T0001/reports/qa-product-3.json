@@ -1,0 +1,53 @@
+{
+  "target": "product",
+  "iteration": 3,
+  "verdict": "reject",
+  "score": 79,
+  "summary": "This is a solid, well-structured kit. All three chapters, the contract template and the three CSVs exist and follow the brief. I recalculated the arithmetic in every worked example (Chapter 1 driveway, Chapter 2 patio and facade, the mileage comparison table, and the Chapter 3 collection timeline with 2025 weekdays) and found no errors. The `days_late` values in the tracker are also correct. The contract has bracketed fields and the legal notice, units are US-only, and the kit makes no income promises. One cross-reference error fails the consistency criterion: the Chapter 3 worked example cites JOB-0410 in the Quote Log as 600 sq ft, but the CSV says 1000 sq ft and describes a different scope. A buyer following along would notice it straight away. A few row names in Chapter 2 and Chapter 1 also do not match the Entry column of the worksheet, even though Chapter 1 promises exact names. Fix the major defect and the kit is ready to sell.",
+  "valueProposition": "For USD 19, a solo operator gets a hand-checkable costing method (sq ft, gallons, labor hours, overhead, margin and rounding), a one-page quote structure with real examples, a contract template, and a simple payment-chasing system with message scripts. Free templates and price videos offer none of that cost model or collection process. It clearly beats the free alternative and costs far less than a software subscription.",
+  "defects": [
+    {
+      "severity": "minor",
+      "file": null,
+      "issue": "No hay PDF (Playwright no instalado)",
+      "fix": "Instalar Playwright o imprimir guide.html a PDF antes de publicar",
+      "source": "check"
+    },
+    {
+      "severity": "major",
+      "file": "hojas/quote-log.csv",
+      "issue": "The JOB-0410 row (Maria Lopez) has sq_ft=1000 and job_type 'Driveway, front sidewalks and oil-stain pre-treatment'. Chapter 3 presents the same job as a 'Driveway wash' of 600 sq ft at $360.00 ($0.60 per sq ft) and explicitly tells the reader it is the job in the Quote Log. The cross-reference breaks, along with the check 'Price per sq ft: $360.00 ÷ 600'.",
+      "fix": "In quote-log.csv, change JOB-0410 to sq_ft=600 and job_type='Driveway wash', keeping 360.00 and status signed. Alternatively, update Chapter 3 to 1000 sq ft and $0.36 per sq ft everywhere it appears (job description, terms and the 'Checking the math' section).",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "guia/02-writing-quotes-that-get-signed.md",
+      "issue": "The worksheet table and the exercise use row names that differ from the Entry column in job-cost-calculator.csv. Examples: 'Solution cost (USD)' instead of 'Chemical cost (USD)', 'Fuel cost (USD)' instead of 'Fuel and travel (USD)', 'Direct cost (USD)' instead of 'Direct costs subtotal (USD)', 'Total cost (USD)' instead of 'Total job cost (USD)', and 'Minimum price before rounding' instead of 'Quoted price before rounding (USD)'. The text asks the reader to find each row 'by its number and name'.",
+      "fix": "Replace every row name in the Chapter 2 tables, step headings and exercise with the exact text of the CSV Entry column, units included (for example 'Labor hourly rate (USD)' and 'Margin on quoted price (%)').",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "guia/01-job-costing-sq-ft-gallons.md",
+      "issue": "The chapter says its names are 'the exact text of the worksheet's Entry column'. However, rows 25 and 26 read 'Cost per sq ft (USD)' and 'Price per sq ft (USD)', while the CSV says '(USD per sq ft)'. Row 4 in Chapter 2 also omits 'per gallon'.",
+      "fix": "Change the names of rows 25 and 26 in both Chapter 1 tables (worksheet rows and results summary) to 'Cost per sq ft (USD per sq ft)' and 'Price per sq ft (USD per sq ft)'. Use 'Cost per mixed gallon (USD per gallon)' in Chapter 2.",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "guia/03-service-agreements-and-getting-paid.md",
+      "issue": "The Chapter 3 example ($360 for a 600 sq ft driveway, $0.60 per sq ft) is about three times the price per sq ft from the Chapter 1 method ($0.18 per sq ft for a driveway) and is not explained. A reader may wonder which number to trust.",
+      "fix": "Add one sentence saying the $360 includes extra work (for example oil-stain pre-treatment and sidewalks) and was priced with the Chapter 1 worksheet. Alternatively, adjust the amount to a value consistent with the Chapter 1 method and recalculate the deposit, balance and messages.",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "guia/03-service-agreements-and-getting-paid.md",
+      "issue": "The template calculates the balance from the 'total due including tax', but Chapter 3 and its example ignore sales tax entirely. Chapter 2 also says tax 'is shown separately at invoice'.",
+      "fix": "Add a note to the deposit section: if sales tax applies, calculate the deposit and balance on the total including tax, matching Section 3 of the template. State that the example assumes no sales tax.",
+      "source": "llm"
+    }
+  ],
+  "reportPath": "reports/qa-product-3.json"
+}

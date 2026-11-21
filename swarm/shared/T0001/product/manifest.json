@@ -1,0 +1,56 @@
+{
+  "productName": "Pressure Washing Quote, Contract and Collection Kit",
+  "slug": "pressure-washing-quote-kit",
+  "guideTitle": "Pressure Washing Quote, Contract and Collection Guide",
+  "files": [
+    {
+      "path": "guia/01-job-costing-sq-ft-gallons.md",
+      "kind": "guide_chapter",
+      "title": "Chapter 1: Job costing by sq ft and gallons",
+      "purpose": "Enseñar a medir superficie en sq ft, convertir el uso de solución en galones, sumar horas de mano de obra y materiales, y fijar precio con margen en USD, con un ejemplo resuelto de entrada de auto paso a paso.",
+      "targetWords": 1800
+    },
+    {
+      "path": "guia/02-writing-quotes-that-get-signed.md",
+      "kind": "guide_chapter",
+      "title": "Chapter 2: Writing quotes that get signed",
+      "purpose": "Explicar la estructura de una cotización de una página (alcance, exclusiones, vigencia, acceso al agua y a la propiedad) con un segundo ejemplo resuelto para terraza y fachada comercial usando los números del Capítulo 1.",
+      "targetWords": 1700
+    },
+    {
+      "path": "guia/03-service-agreements-and-getting-paid.md",
+      "kind": "guide_chapter",
+      "title": "Chapter 3: Service agreements and getting paid",
+      "purpose": "Cubrir depósito, calendario de pagos, fechas de vencimiento, mensajes de seguimiento por pago atrasado y uso del registro de facturas, con una línea de tiempo resuelta de cobro en USD.",
+      "targetWords": 1700
+    },
+    {
+      "path": "plantillas/service-agreement-template.md",
+      "kind": "template",
+      "title": "Service Agreement Template",
+      "purpose": "Contrato de servicio en Markdown con campos entre corchetes para cliente, dirección, alcance en sq ft, precio en USD, depósito, plazos de pago, reprogramación por clima y cancelación, con advertencia de que no es asesoría legal.",
+      "targetWords": 900
+    },
+    {
+      "path": "hojas/job-cost-calculator.csv",
+      "kind": "csv",
+      "title": "Job Cost Calculator worksheet",
+      "purpose": "Hoja en blanco con una fila por entrada de costo (sq ft, tasa de cobertura, galones, horas, tarifa, químicos, combustible, porcentaje de gastos generales) y una columna de resultado vacía, sin fórmulas.",
+      "targetWords": 250
+    },
+    {
+      "path": "hojas/quote-log.csv",
+      "kind": "csv",
+      "title": "Quote Log",
+      "purpose": "Registro de cotizaciones con fecha, cliente, dirección, tipo de trabajo, sq ft, monto en USD, estado (enviada, firmada, perdida) y fecha de seguimiento, con filas de ejemplo.",
+      "targetWords": 250
+    },
+    {
+      "path": "hojas/invoice-payment-tracker.csv",
+      "kind": "csv",
+      "title": "Invoice and Payment Tracker",
+      "purpose": "Registro de facturas con número, ID de trabajo, monto en USD, vencimiento, monto pagado, saldo, días de atraso y fecha del último recordatorio, con filas de ejemplo.",
+      "targetWords": 250
+    }
+  ]
+}

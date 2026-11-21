@@ -1,0 +1,53 @@
+{
+  "target": "product",
+  "iteration": 2,
+  "verdict": "reject",
+  "score": 76,
+  "summary": "Solid, specific kit. It has three English Markdown chapters, a well-built contract template with a legal disclaimer, and three clean CSVs. The arithmetic in all three worked examples checks out, the 2025 weekdays are correct, the tracker's days_late values are right, all units are US, and there are no guaranteed-result promises. Two problems block a sale: Chapter 3's worked example contradicts the Quote Log row it tells the buyer to open (JOB-0410), and the guide's file references use Spanish folder names in an English product. The guide also claims the worksheet row names match exactly when they do not.",
+  "valueProposition": "For USD 19, a solo US operator gets a reproducible cost model built on sq ft, gallons, hours and overhead with margin rather than markup. It includes a one-page quote structure, a contract template with bracketed fields and a deposit, reminder and invoice-log process. Free templates lack the costing logic, and Jobber-type software costs a monthly fee. A single better-priced job pays for the kit. The value is real once the cross-file inconsistencies are fixed.",
+  "defects": [
+    {
+      "severity": "minor",
+      "file": null,
+      "issue": "No hay PDF (Playwright no instalado)",
+      "fix": "Instalar Playwright o imprimir guide.html a PDF antes de publicar",
+      "source": "check"
+    },
+    {
+      "severity": "major",
+      "file": "hojas/quote-log.csv",
+      "issue": "Chapter 3 says JOB-0410 in the Quote Log is a 'Driveway wash' of 600 sq ft at $360.00 ($0.60 per sq ft). The CSV row for JOB-0410 says 'Driveway, front sidewalks and oil-stain pre-treatment' with sq_ft 1000. A buyer following along will see the contradiction. The $0.60/sq ft figure for a plain driveway is also 3x Chapter 1's $0.18/sq ft driveway result, which undermines the costing method.",
+      "fix": "Make the two files agree. Preferred fix: keep the CSV row (1000 sq ft, driveway plus sidewalks plus oil pre-treatment, $360.00). In guia/03-service-agreements-and-getting-paid.md, change every '600 sq ft' to '1000 sq ft', change 'Driveway wash' to the CSV job_type, change '$0.60 per sq ft ($360.00 ÷ 600 sq ft)' to '$0.36 per sq ft ($360.00 ÷ 1000 sq ft)', and update the 'Checking the math by hand' line and the 'Terms in the signed agreement' line to match. Also change 'driveway wash' in Reminder 1 to 'driveway and sidewalk wash'.",
+      "source": "llm"
+    },
+    {
+      "severity": "major",
+      "file": null,
+      "issue": "The guide text exposes Spanish folder names to an English-speaking buyer: `plantillas/service-agreement-template.md`, `hojas/invoice-payment-tracker.csv` and `hojas/quote-log.csv` in Chapter 3. The deliverable folders guia/, plantillas/ and hojas/ are also in Spanish. The brief requires language 'en' and English names for all deliverables.",
+      "fix": "Rename the folders to guide/, templates/ and worksheets/, and replace every path reference in the three chapters and the template. Chapter 3 has at least 8 occurrences. If the folders cannot be renamed, refer to files by English file name only (e.g., 'service-agreement-template.md', 'invoice-payment-tracker.csv'), as Chapter 1 already does.",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "guia/01-job-costing-sq-ft-gallons.md",
+      "issue": "Chapter 1 states that the worksheet's 'row numbers, names and order match' its tables. The CSV names differ: row 22 is 'Quoted price before rounding (USD)' vs 'Minimum price before rounding (USD)'; row 23 is 'Quoted price (USD)' vs 'Quoted price, rounded (USD)'; row 4 is '(USD per gallon)' vs '(USD)'. Rows 7, 8, 9, 12, 13 and 18 add unit suffixes. Chapter 2 introduces further names ('Solution cost', 'Fuel cost', 'Direct cost', 'Total cost') while telling the buyer to find rows 'by number and name'.",
+      "fix": "Use the exact Entry text from hojas/job-cost-calculator.csv in the 'The worksheet rows' table, the results summary table, all formula blockquotes in Chapter 1, and the reproduction table, common mistakes and exercise in Chapter 2. Alternatively, rename the CSV entries to match Chapter 1. Pick one set of names and use it everywhere.",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "guia/01-job-costing-sq-ft-gallons.md",
+      "issue": "Step 5 says 'In the worksheet, type 10 for 10% and 35 for 35%; the formulas divide by 100.' The worksheet has no formulas, which contradicts the chapter intro and the brief. Chapter 2's mistakes table similarly says 'The worksheet treats it as 0.10%'.",
+      "fix": "Change to 'type 10 for 10% and 35 for 35%; the formulas in this chapter divide by 100.' In Chapter 2, change 'The worksheet treats it as 0.10%' to 'Your hand calculation will treat it as 0.10%, not 10%'.",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "hojas/job-cost-calculator.csv",
+      "issue": "The row 4 note uses an illustrative 40 USD jug making 50 mixed gallons (0.80 USD/gallon), and the row 21 note uses 30%. Both differ from the guide's worked example (1.25 USD/gallon, 35%). This causes no error, but the buyer has two sets of sample numbers to reconcile.",
+      "fix": "Align the CSV note examples with Chapter 1. Use 'a concentrate at 10.00 USD per gallon mixed 1 to 8 gives 1.25 USD per mixed gallon' for row 4, and 'enter 35 for 35%' for row 21.",
+      "source": "llm"
+    }
+  ],
+  "reportPath": "reports/qa-product-2.json"
+}

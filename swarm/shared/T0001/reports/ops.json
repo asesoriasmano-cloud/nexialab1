@@ -1,0 +1,170 @@
+{
+  "metrics": {
+    "taskId": "T0001",
+    "title": "Pressure Washing Quote, Contract and Collection Kit",
+    "stage": "qa",
+    "status": "failed",
+    "dryRun": false,
+    "cost": {
+      "spentUsd": 3.8706,
+      "budgetUsd": 5,
+      "usedPct": 77.4
+    },
+    "tokens": {
+      "input": 193540,
+      "output": 291481,
+      "cacheRead": 335475,
+      "cacheWrite": 299264
+    },
+    "byAgent": {
+      "scout": {
+        "runs": 2,
+        "failed": 0,
+        "costUsd": 0.0236,
+        "inputTokens": 38944,
+        "outputTokens": 39487,
+        "durationMs": 180564
+      },
+      "builder": {
+        "runs": 9,
+        "failed": 0,
+        "costUsd": 2.7585,
+        "inputTokens": 153854,
+        "outputTokens": 209203,
+        "durationMs": 1168489
+      },
+      "qa": {
+        "runs": 10,
+        "failed": 1,
+        "costUsd": 1.0885,
+        "inputTokens": 742,
+        "outputTokens": 42791,
+        "durationMs": 1210707
+      },
+      "ops": {
+        "runs": 2,
+        "failed": 0,
+        "costUsd": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "durationMs": 16
+      }
+    },
+    "iterations": {
+      "research": 2,
+      "build": 3,
+      "growth": 0
+    },
+    "qa": [
+      {
+        "target": "product",
+        "iteration": 1,
+        "verdict": "reject",
+        "score": 40
+      },
+      {
+        "target": "product",
+        "iteration": 2,
+        "verdict": "reject",
+        "score": 40
+      },
+      {
+        "target": "product",
+        "iteration": 3,
+        "verdict": "reject",
+        "score": 72
+      },
+      {
+        "target": "product",
+        "iteration": 1,
+        "verdict": "reject",
+        "score": 62
+      },
+      {
+        "target": "product",
+        "iteration": 2,
+        "verdict": "reject",
+        "score": 66
+      },
+      {
+        "target": "product",
+        "iteration": 3,
+        "verdict": "reject",
+        "score": 40
+      },
+      {
+        "target": "product",
+        "iteration": 1,
+        "verdict": "reject",
+        "score": 62
+      },
+      {
+        "target": "product",
+        "iteration": 2,
+        "verdict": "reject",
+        "score": 76
+      },
+      {
+        "target": "product",
+        "iteration": 3,
+        "verdict": "reject",
+        "score": 79
+      }
+    ],
+    "topDefects": [
+      {
+        "issue": "The chapter says the worksheet has 23 rows and that its numbers, names and order match the table in 'The worksheet rows'",
+        "count": 1
+      },
+      {
+        "issue": "The 'Rounding' section says the 'round up to the next $5' rule is this chapter's own convention and that Chapter 1 does ",
+        "count": 1
+      },
+      {
+        "issue": "The 'How to reproduce the examples' table uses row names that do not exist in the CSV: 'Gallons of mixed solution per jo",
+        "count": 1
+      },
+      {
+        "issue": "The chapter claims to use the Chapter 1 method, but its examples count only production hours: 1.0 h on the patio and 3.0",
+        "count": 1
+      },
+      {
+        "issue": "Chapter 3 says JOB-0410 in the Quote Log is a 'Driveway wash' of 600 sq ft at $360.00 ($0.60 per sq ft). The CSV row for",
+        "count": 1
+      },
+      {
+        "issue": "The guide text exposes Spanish folder names to an English-speaking buyer: `plantillas/service-agreement-template.md`, `h",
+        "count": 1
+      },
+      {
+        "issue": "The JOB-0410 row (Maria Lopez) has sq_ft=1000 and job_type 'Driveway, front sidewalks and oil-stain pre-treatment'. Chap",
+        "count": 1
+      }
+    ],
+    "approvals": [
+      {
+        "gate": "concept",
+        "status": "rejected",
+        "summary": "Concepto \"Pricing and Contracts Kit para lavadores a presion\" · Estados Unidos (en) · US$27 · viabilidad 62/100. Revisa C:\\Users\\paulo\\nexialab1\\swarm\\output\\T0001\\brief.md (incluye las demás oportunidades exploradas)"
+      },
+      {
+        "gate": "concept",
+        "status": "approved",
+        "summary": "Concepto \"Pressure Washing Quote, Contract and Collection Kit\" · United States (en) · US$19 · viabilidad 68/100. Revisa C:\\Users\\paulo\\nexialab1\\swarm\\output\\T0001\\brief.md (incluye las demás oportunidades exploradas)"
+      }
+    ],
+    "market": null
+  },
+  "insights": {
+    "summary": "Tarea T0001 en etapa qa (failed). Costo US$3.8706 de US$5 (77.4%). Iteraciones: build 3, growth 0.",
+    "recommendations": [
+      {
+        "priority": "alta",
+        "area": "proceso",
+        "action": "Subir EFFORT_BUILDER a high o reforzar agents/builder/system.md con los defectos recurrentes.",
+        "rationale": "QA vetó el producto 3 veces."
+      }
+    ]
+  },
+  "generatedAt": "2026-11-21T18:09:33.860Z"
+}

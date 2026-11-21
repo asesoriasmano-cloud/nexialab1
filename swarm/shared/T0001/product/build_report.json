@@ -1,0 +1,54 @@
+{
+  "iteration": 3,
+  "productName": "Pressure Washing Quote, Contract and Collection Kit",
+  "files": [
+    {
+      "path": "guia/01-job-costing-sq-ft-gallons.md",
+      "kind": "guide_chapter",
+      "words": 3908,
+      "regenerated": true
+    },
+    {
+      "path": "guia/02-writing-quotes-that-get-signed.md",
+      "kind": "guide_chapter",
+      "words": 3794,
+      "regenerated": true
+    },
+    {
+      "path": "guia/03-service-agreements-and-getting-paid.md",
+      "kind": "guide_chapter",
+      "words": 2539,
+      "regenerated": true
+    },
+    {
+      "path": "plantillas/service-agreement-template.md",
+      "kind": "template",
+      "words": 1782,
+      "regenerated": true
+    },
+    {
+      "path": "hojas/job-cost-calculator.csv",
+      "kind": "csv",
+      "words": 523,
+      "regenerated": true
+    },
+    {
+      "path": "hojas/quote-log.csv",
+      "kind": "csv",
+      "words": 75,
+      "regenerated": true
+    },
+    {
+      "path": "hojas/invoice-payment-tracker.csv",
+      "kind": "csv",
+      "words": 61,
+      "regenerated": true
+    }
+  ],
+  "guide": {
+    "markdown": "product/guide.md",
+    "html": "product/guide.html",
+    "pdf": null
+  },
+  "builtAt": "2026-11-21T18:08:57.876Z"
+}

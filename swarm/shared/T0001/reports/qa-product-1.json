@@ -1,0 +1,81 @@
+{
+  "target": "product",
+  "iteration": 1,
+  "verdict": "reject",
+  "score": 62,
+  "summary": "The kit covers every brief deliverable. It is written in English, uses USD and sq ft throughout, includes the legal disclaimer, makes no income promises, and its arithmetic checks out, including the 2025 weekdays in Chapter 3. The problem is that the three files that have to work together disagree with each other. Chapter 1 describes a 23-row worksheet with names and an order that do not match the 26-row CSV. Chapter 2 contradicts Chapter 1 on the rounding rule, uses row names that do not exist in the CSV, says pricing is not in the worksheet when it is, and drops setup hours and consumables, which Chapter 1 itself lists as a mistake. A buyer following the chapters with the CSV open will get lost and will rightly complain. Once these files are aligned, the kit would be sellable.",
+  "valueProposition": "For a solo US operator, USD 19 buys a full cost model per sq ft, per gallon and per hour with reproducible worked examples. It also includes a one-page quote structure, a contract with weather, deposit and cancellation clauses, and a collection system with a reminder sequence and tracker. That is clearly more useful than free templates and far cheaper than Jobber or Housecall Pro. The value only holds if the guide and the worksheet match, because the main selling point is building the cost in 15 minutes with the CSV.",
+  "defects": [
+    {
+      "severity": "minor",
+      "file": null,
+      "issue": "No hay PDF (Playwright no instalado)",
+      "fix": "Instalar Playwright o imprimir guide.html a PDF antes de publicar",
+      "source": "check"
+    },
+    {
+      "severity": "major",
+      "file": "guia/01-job-costing-sq-ft-gallons.md",
+      "issue": "The chapter says the worksheet has 23 rows and that its numbers, names and order match the table in 'The worksheet rows' and the results summary. The real CSV has 26 rows in a different order: Cost per mixed gallon is row 4, Chemical cost is row 5, and Round-trip miles and Cost per mile are input rows 12 and 13. Names also differ, for example 'Solution gallons (gallons)' and 'Minimum price before rounding'. The chapter also says chemical cost and fuel are calculated 'from your notes', but the CSV has explicit rows for those inputs. This breaks the criterion that Chapter 1 explains how to calculate each worksheet result.",
+      "fix": "Rewrite the table in 'The worksheet rows' and the 'Results summary for this job' table with the CSV's 26 rows, using its exact numbers and names. Add the values 1.25 (row 4), 16 (row 12) and 0.45 (row 13). Remove the 'Three rows need a note' paragraph about notes for rows 10 and 11. Change '23 rows' to '26 rows' in the introduction, and keep the step headings referring to the CSV row numbers.",
+      "source": "llm"
+    },
+    {
+      "severity": "major",
+      "file": "guia/02-writing-quotes-that-get-signed.md",
+      "issue": "The 'Rounding' section says the 'round up to the next $5' rule is this chapter's own convention and that Chapter 1 does not use it. Chapter 1 presents it as the kit's rule and says Chapter 2 uses the same rule. The rates table also calls it a '(chapter rule)'. This is a direct contradiction a buyer will notice.",
+      "fix": "Replace the 'Rounding' section with one sentence: 'This chapter uses the kit's rounding rule from Chapter 1, Step 5: round up to the next $5.' Remove '(chapter rule)' from the rates table.",
+      "source": "llm"
+    },
+    {
+      "severity": "major",
+      "file": "guia/02-writing-quotes-that-get-signed.md",
+      "issue": "The 'How to reproduce the examples' table uses row names that do not exist in the CSV: 'Gallons of mixed solution per job', 'Labor hours' and 'Labor rate (USD per hour)'. The chapter also says Steps 7 and 8 (price and margin) are 'Not in the worksheet', but the CSV includes them in rows 21 to 24 (Target margin, Minimum price before rounding, Quoted price, Margin on quoted price).",
+      "fix": "Use the exact CSV names and row numbers: row 3 Solution gallons (gallons), row 7 Production hours, row 9 Total labor hours, row 10 Labor hourly rate (USD), and so on. Add rows 21 to 24 with their values (35, 60.92, 65.00, 39.1 for the patio and 35, 149.77, 150.00, 35.1 for the facade). Change the step-to-worksheet mapping table so Steps 7 and 8 point to rows 22 to 24, and update the exercise text to match.",
+      "source": "llm"
+    },
+    {
+      "severity": "major",
+      "file": "guia/02-writing-quotes-that-get-signed.md",
+      "issue": "The chapter claims to use the Chapter 1 method, but its examples count only production hours: 1.0 h on the patio and 3.0 h on the facade. They leave out setup and travel hours (CSV row 8) and consumables (row 15). Chapter 1, in its 'Common mistakes' table, lists forgetting setup hours as an error and says to 'always add at least 0.5 hours'. The kit is teaching an underpriced quote in its own example.",
+      "fix": "Add 0.5 setup and travel hours and $4.00 in consumables to both examples. Recalculate Steps 1 through 8 and the mileage comparison table, and update the price in each sample quote. For the patio: 1.5 h × $25 = $37.50; direct cost $37.50 + $5.00 + $6.00 + $4.00 = $52.50; overhead $5.25; total $57.75; ÷ 0.65 = $88.85, rounded to $90.00. Do the same for the facade.",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "guia/01-job-costing-sq-ft-gallons.md",
+      "issue": "The results summary shows overhead and margin as '10%' and '35%', and the overhead formula multiplies by the percentage directly. The CSV asks for 10 and 35 without the percent sign and divides by 100 in rows 19 and 22. Chapter 2 even warns about typing 0.10.",
+      "fix": "In the summary table, show 10 and 35 (with no % sign). Add a note in Step 5: 'In the worksheet, type 10 for 10% and 35 for 35%; the formulas divide by 100.'",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "hojas/job-cost-calculator.csv",
+      "issue": "Row 23 says 'Many operators round up to the next whole 5 dollars' instead of stating the kit's rule. Row 22 is named 'Minimum price before rounding', while the guide calls it 'Quoted price before rounding'.",
+      "fix": "Change the row 23 note to 'Round row 22 up to the next multiple of $5 (kit rule, Chapter 1 Step 5).' Rename row 22, or the guide, so both use the same name.",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "plantillas/service-agreement-template.md",
+      "issue": "Section 3 defines a 3-day grace period before a payment counts as late, but Chapter 3 sends Reminder 1 on day 1 late and counts days_late from the due date. Section 3 also applies partial payments 'first to late fees', while Chapter 3 recommends setting late fees to 'None'.",
+      "fix": "Add an instruction in 'How to use this template': if you use a grace period, Chapter 3's reminders still count from the due date, or set it to 0. Add the option 'Late fee: None' to the late-payment clause. Make the partial-payment wording conditional: 'to any late fees, if applicable, then to the oldest balance.'",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "hojas/quote-log.csv",
+      "issue": "JOB-0410 is quoted at $0.60 per sq ft (a $360 driveway), while Chapter 1 arrives at $0.18 per sq ft for a similar driveway and the other log rows range from $0.30 to $0.37 per sq ft. A buyer may read this as a market price or as a mistake.",
+      "fix": "Add a sentence in Chapter 3 explaining that the $360 includes extra work (for example oil-stain pre-treatment and sidewalks) and that all figures are illustrative. Alternatively, adjust the job to a price consistent with the Chapter 1 method and recalculate the deposit and balances in Chapter 3.",
+      "source": "llm"
+    },
+    {
+      "severity": "minor",
+      "file": "guia/01-job-costing-sq-ft-gallons.md",
+      "issue": "The opening line 'Most pressure washing jobs are underpriced' is presented as fact with no source.",
+      "fix": "Replace it with 'Many pressure washing jobs are underpriced when the price is picked by feel instead of built from costs.'",
+      "source": "llm"
+    }
+  ],
+  "reportPath": "reports/qa-product-1.json"
+}
