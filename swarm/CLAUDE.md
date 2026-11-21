@@ -14,7 +14,7 @@ npm run typecheck                # tsc --noEmit
 CLI (`npm run swarm -- …`):
 | Comando | Qué hace |
 |---|---|
-| `run --niche "…" [--dry-run] [-i] [-y]` | Crea una tarea y avanza hasta el próximo gate. `-i` pregunta s/n por terminal; `-y` auto-aprueba (solo con dry-run). |
+| `run [--niche "semilla"] [--dry-run] [-i] [-y]` | Crea una tarea y avanza hasta el próximo gate. Sin `--niche` es exploración abierta. `-i` pregunta s/n por terminal; `-y` auto-aprueba (solo con dry-run). |
 | `run --task T0001` | Reanuda una tarea (después de un gate, un error o un presupuesto agotado). |
 | `agent <scout\|builder\|qa\|growth\|ops> --task T0001` | Ejecuta un solo agente sin mover la máquina de estados. |
 | `approve T0001 [--amount N] [--note …]` | Aprueba el gate pendiente y reanuda. |
@@ -52,6 +52,7 @@ El HITL#2 (gasto) puede saltar en cualquier etapa.
 7. **Honestidad del producto:** nada de testimonios, cifras ni promesas de resultados inventadas (lo exigen los prompts y QA lo veta con chequeos determinísticos).
 8. **Rutas del modelo:** todo archivo que escribe un agente pasa por `Workspace`, que bloquea rutas fuera de `output/<tarea>/`.
 9. Los agentes no cambian la etapa de la tarea; eso lo decide solo el orquestador.
+10. **El Scout no tiene nicho de origen.** No lo ancles a los negocios ni a la experiencia de los dueños del repo: explora en dos fases (oportunidades diversas → brief de la mejor) y el mercado y el idioma los decide el brief. Builder, Growth y QA leen `brief.market` y `brief.language`; no fijes mercado ni idioma en sus prompts.
 
 ## Convenciones
 - TypeScript ESM ejecutado con `tsx` (sin paso de build). Imports con extensión `.ts`.

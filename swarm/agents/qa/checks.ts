@@ -8,9 +8,11 @@ import { countWords } from "../builder/index.ts";
  * Cualquier defecto blocker/major produce veto automático.
  */
 
-const PLACEHOLDER_RE = /\b(TODO|TBD|FIXME|lorem ipsum)\b|\[(completar|insertar|rellenar)[^\]]*\]/i;
-const AI_LEAK_RE = /como (un )?(modelo de lenguaje|asistente de ia|inteligencia artificial)|as an ai\b/i;
-const RISKY_CLAIMS_RE = /(ingresos|resultados|ganancias) (garantizad|asegurad)|garantizamos (que )?(ganar|vender|resultados)|hazte rico|dinero f[aá]cil|100% (seguro|garantizado)/i;
+const PLACEHOLDER_RE = /\b(TODO|TBD|FIXME|lorem ipsum)\b|\[(completar|insertar|rellenar|insert|fill in|preencher)[^\]]*\]/i;
+const AI_LEAK_RE = /como (un )?(modelo de lenguaje|asistente de ia|inteligencia artificial)|as an ai\b|as a language model|como (um )?modelo de linguagem/i;
+// Promesas de resultados garantizados (es / en / pt).
+const RISKY_CLAIMS_RE =
+  /(ingresos|resultados|ganancias) (garantizad|asegurad)|garantizamos (que )?(ganar|vender|resultados)|hazte rico|dinero f[aá]cil|100% (seguro|garantizado)|guaranteed (income|results|profits?)|get rich|easy money|(renda|resultados|lucros?) garantid|dinheiro f[aá]cil|fique rico/i;
 
 export function parseCsv(text: string): string[][] {
   const rows: string[][] = [];

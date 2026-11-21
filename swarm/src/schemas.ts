@@ -8,11 +8,42 @@ import { z } from "zod";
 export const DeliverableKind = z.enum(["guide_chapter", "template", "checklist", "prompts", "csv"]);
 export type DeliverableKind = z.infer<typeof DeliverableKind>;
 
-// ---------- Market Scout → brief.json ----------
+export const LanguageSchema = z.enum(["es", "en", "pt"]);
+
+// ---------- Market Scout (fase 1: exploración divergente) → opportunities.json ----------
+const Level = z.enum(["baja", "media", "alta"]);
+export const OpportunitiesSchema = z.object({
+  candidates: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      market: z.string(),
+      language: LanguageSchema,
+      segment: z.string(),
+      problem: z.string(),
+      productIdea: z.string(),
+      whyNow: z.string(),
+      demandEvidence: z.string(),
+      confidence: Level,
+      competition: Level,
+      willingnessToPay: Level,
+      buildability: Level,
+      distributionPath: z.string(),
+      score: z.number(),
+    }),
+  ),
+  selectedId: z.number(),
+  selectionRationale: z.string(),
+});
+export type Opportunities = z.infer<typeof OpportunitiesSchema>;
+
+// ---------- Market Scout (fase 2: concepto elegido) → brief.json ----------
 export const BriefSchema = z.object({
   productName: z.string(),
   oneLiner: z.string(),
   niche: z.string(),
+  market: z.string(),
+  language: LanguageSchema,
   targetAudience: z.object({
     persona: z.string(),
     pains: z.array(z.string()),
@@ -101,7 +132,7 @@ export const GrowthPackSchema = z.object({
   emails: z.array(z.object({ day: z.number(), subject: z.string(), preview: z.string(), body: z.string() })),
   social: z.array(
     z.object({
-      platform: z.enum(["linkedin", "instagram", "x", "facebook", "tiktok"]),
+      platform: z.enum(["linkedin", "instagram", "x", "facebook", "tiktok", "youtube", "pinterest", "reddit", "threads"]),
       hook: z.string(),
       text: z.string(),
     }),

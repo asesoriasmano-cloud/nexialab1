@@ -39,11 +39,13 @@ export class Orchestrator {
     private readonly opts: OrchestratorOptions = {},
   ) {}
 
+  /** `niche` vacío = exploración abierta (el Scout busca oportunidades en cualquier mercado y segmento). */
   createTask(niche: string, dryRun: boolean): Task {
     const now = new Date().toISOString();
+    niche = niche.trim();
     const task = this.store.addTask({
       id: this.store.nextId("T"),
-      title: niche.slice(0, 80),
+      title: niche ? niche.slice(0, 80) : "Exploración abierta",
       niche,
       productType: "digital-kit",
       stage: "research",
@@ -59,7 +61,7 @@ export class Orchestrator {
       createdAt: now,
       updatedAt: now,
     });
-    this.logger.info("orchestrator", task.id, `Tarea creada${dryRun ? " (dry-run)" : ""}: "${niche}". Presupuesto US$${task.budgetUsd}.`);
+    this.logger.info("orchestrator", task.id, `Tarea creada${dryRun ? " (dry-run)" : ""}: ${niche ? `semilla "${niche}"` : "exploración abierta de oportunidades"}. Presupuesto US$${task.budgetUsd}.`);
     return task;
   }
 
@@ -111,7 +113,7 @@ export class Orchestrator {
         const approval = requireApproval(this.store, task, {
           gate: "concept",
           key: `concept:${task.iterations.research}`,
-          summary: `Concepto "${brief.productName}" · US$${brief.pricing.price} · viabilidad ${brief.viabilityScore}/100. Revisa ${ws.path("brief.md")}`,
+          summary: `Concepto "${brief.productName}" · ${brief.market} (${brief.language}) · US$${brief.pricing.price} · viabilidad ${brief.viabilityScore}/100. Revisa ${ws.path("brief.md")} (incluye las demás oportunidades exploradas)`,
         });
         if (approval.status === "approved") {
           this.store.updateTask(task.id, { title: brief.productName });

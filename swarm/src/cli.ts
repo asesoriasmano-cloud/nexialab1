@@ -46,18 +46,17 @@ function printSummary(store: Store, task: Task) {
 // ---------------- run ----------------
 program
   .command("run")
-  .description("Crea una tarea nueva (--niche) o reanuda una existente (--task) y avanza hasta el próximo gate.")
-  .option("-n, --niche <texto>", "nicho o idea a investigar (crea una tarea nueva)")
+  .description("Crea una tarea nueva o reanuda una existente (--task) y avanza hasta el próximo gate. Sin --niche, el Scout explora oportunidades libremente.")
+  .option("-n, --niche <texto>", "semilla opcional: punto de partida para explorar, no un límite")
   .option("-t, --task <id>", "reanudar una tarea existente")
   .option("--dry-run", "simula todos los agentes sin llamadas a la API (costo US$0)")
   .option("-i, --interactive", "preguntar s/n en cada gate en lugar de pausar")
   .option("-y, --yes", "auto-aprobar gates (solo permitido con --dry-run)")
   .action(async (opts: { niche?: string; task?: string; dryRun?: boolean; interactive?: boolean; yes?: boolean }) => {
     const { store, orchestrator } = setup(opts);
-    if (!opts.niche && !opts.task) throw new Error("Indica --niche \"...\" para una tarea nueva o --task <id> para reanudar.");
     if (opts.yes && opts.task && !store.getTask(opts.task).dryRun) throw new Error("--yes solo se permite en tareas --dry-run.");
-    if (opts.yes && opts.niche && !opts.dryRun) throw new Error("--yes solo se permite junto con --dry-run.");
-    const task = opts.task ? store.getTask(opts.task) : orchestrator.createTask(opts.niche!, Boolean(opts.dryRun));
+    if (opts.yes && !opts.task && !opts.dryRun) throw new Error("--yes solo se permite junto con --dry-run.");
+    const task = opts.task ? store.getTask(opts.task) : orchestrator.createTask(opts.niche ?? "", Boolean(opts.dryRun));
     requireCredentials(task.dryRun);
     const result = await orchestrator.run(task.id);
     printSummary(store, result);
@@ -68,7 +67,7 @@ program
   .command("agent <nombre>")
   .description("Ejecuta un solo agente (scout | builder | qa | growth | ops) sin avanzar la máquina de estados.")
   .option("-t, --task <id>", "tarea sobre la que trabajar")
-  .option("-n, --niche <texto>", "solo scout: crea una tarea nueva con este nicho")
+  .option("-n, --niche <texto>", "solo scout: semilla opcional al crear una tarea nueva")
   .option("--target <product|growth>", "solo qa: qué auditar", "product")
   .option("--insights", "solo ops: agrega el análisis del modelo (consume tokens)")
   .option("--dry-run", "simular (solo al crear una tarea nueva con scout)")
@@ -79,9 +78,9 @@ program
     const { store, orchestrator } = setup();
 
     let task: Task;
-    if (agent === "scout" && opts.niche) task = orchestrator.createTask(opts.niche, Boolean(opts.dryRun));
-    else if (opts.task) task = store.getTask(opts.task);
-    else throw new Error("Indica --task <id> (o --niche para scout).");
+    if (opts.task) task = store.getTask(opts.task);
+    else if (agent === "scout") task = orchestrator.createTask(opts.niche ?? "", Boolean(opts.dryRun));
+    else throw new Error("Indica --task <id>.");
     requireCredentials(task.dryRun || agent === "ops");
 
     const ws = new Workspace(task.id);
@@ -202,7 +201,7 @@ program
       return;
     }
     const tasks = store.listTasks();
-    if (tasks.length === 0) return console.log("Sin tareas. Crea una con: npm run swarm -- run --niche \"...\" [--dry-run]");
+    if (tasks.length === 0) return console.log("Sin tareas. Crea una con: npm run swarm -- run [--niche \"semilla\"] [--dry-run]");
     console.log("ID      ETAPA         ESTADO              COSTO      TÍTULO");
     for (const t of tasks) {
       console.log(
@@ -261,7 +260,7 @@ program
           maxIterations: config.maxIterations,
           models: Object.fromEntries(agents.map((a) => [a, `${config.llm.model(a)} (effort ${config.llm.effort(a)})`])),
           fallbacks: config.llm.fallbacks,
-          scoutWebSearch: config.scout.webSearch,
+          scout: { ...config.scout },
           kit: config.kit,
           launch: { ...config.launch, checkoutUrl: config.launch.checkoutUrl || "(sin definir)" },
         },

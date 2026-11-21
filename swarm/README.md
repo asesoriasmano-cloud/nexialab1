@@ -14,7 +14,7 @@ Enjambre de agentes autónomos que **investiga un nicho, construye un kit digita
 
 | Agente | Entrega |
 |---|---|
-| **Market Scout** | `brief.json` + `brief.md`: público, demanda, keywords, competencia, brecha, MVP, precio y criterios de aceptación |
+| **Market Scout** | `opportunities.json` (10 oportunidades en mercados y segmentos distintos, puntuadas) + `brief.json`/`brief.md` de la elegida: mercado, idioma, público, demanda, competencia, MVP, precio y criterios de aceptación |
 | **Product Builder** | `product/`: capítulos de la guía, plantillas, checklists, prompts y CSV, más la guía ensamblada en HTML/PDF |
 | **QA & Critic** | `reports/qa-*.json`: chequeos automáticos + crítica del modelo, con veredicto y defectos accionables (puede vetar) |
 | **Growth & Copy** | `marketing/`: landing de conversión, SEO, ficha para la pasarela, 5 correos y 8 o más piezas para RRSS |
@@ -48,15 +48,19 @@ npm run swarm -- config
 
 ### 3. Investigar (Market Scout)
 ```bash
-npm run swarm -- run --niche "Prospección B2B en LinkedIn para pymes de servicios en Chile"
+npm run swarm -- run                                   # exploración abierta (recomendado)
+npm run swarm -- run --niche "mascotas"                 # con una semilla opcional
 ```
-El enjambre investiga y **se pausa en el HITL #1**. Lee `output/T0001/brief.md` y decide:
+El Scout **no está atado a ningún nicho, país ni negocio existente**. Primero explora 10 oportunidades distintas: mercados (LatAm, España, EE.UU., Brasil…), idiomas (es, en, pt) y segmentos (consumo, oficios, trámites, momentos de vida, B2B vertical). Luego las puntúa y desarrolla la mejor. Si le das una semilla, la usa como punto de partida, pero al menos la mitad de los candidatos queda fuera de ese segmento.
+
+El enjambre **se pausa en el HITL #1**. En `output/T0001/brief.md` verás el concepto elegido y la tabla con todas las oportunidades exploradas. Decide:
 ```bash
 npm run swarm -- approve T0001
 # o bien
-npm run swarm -- reject T0001 --note "Enfócalo en agencias de marketing, precio menor a US$15"
+npm run swarm -- reject T0001 --note "usa la oportunidad #3"
+npm run swarm -- reject T0001 --note "busca algo en inglés para EE.UU., ticket bajo US$15"
 ```
-Si rechazas, el Scout propone un concepto nuevo usando tu nota como feedback.
+Si rechazas, el Scout reexplora usando tu nota como feedback. Para acotar o ampliar dónde busca, ajusta `SCOUT_MARKETS`, `SCOUT_LANGUAGES` y `SCOUT_EXCLUDE` en `.env`. Con `SCOUT_WEB_SEARCH=true` investiga con datos reales de la web (requiere tu aprobación de gasto).
 
 ### 4. Construcción y QA (autónomo)
 Al aprobar, el Builder crea el kit y QA lo audita. Si QA lo veta, el Builder corrige solo los archivos con defectos, hasta 3 ciclos. Después Growth crea la landing y el copy, y QA los audita también. Todo termina empaquetado en `output/T0001/dist/`:

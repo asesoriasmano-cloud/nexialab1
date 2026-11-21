@@ -20,10 +20,10 @@ const PRINT_CSS = `
   .cover p { color: #4b5563; }
 `;
 
-export function renderGuideHtml(title: string, subtitle: string, markdown: string): string {
+export function renderGuideHtml(title: string, subtitle: string, markdown: string, lang = "es"): string {
   const body = marked.parse(markdown, { async: false });
   return `<!doctype html>
-<html lang="es">
+<html lang="${lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

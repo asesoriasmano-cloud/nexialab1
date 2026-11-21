@@ -1,4 +1,4 @@
-import { config } from "../../src/config.ts";
+import { config, LANGUAGE_NAMES } from "../../src/config.ts";
 import { complete } from "../../src/core/llm.ts";
 import { escapeHtml } from "../../src/core/pdf.ts";
 import type { Defect, Feedback } from "../../src/core/types.ts";
@@ -12,7 +12,11 @@ import { loadSystemPrompt, type AgentContext } from "../shared/context.ts";
 export async function runGrowth(ctx: AgentContext, input: { brief: Brief; feedback: Feedback | null }): Promise<GrowthPack> {
   const { workspace, logger, task } = ctx;
   const manifest = workspace.readJson<Manifest>("product/manifest.json");
-  const system = loadSystemPrompt("growth", { brand: config.launch.brandName, market: config.kit.market });
+  const system = loadSystemPrompt("growth", {
+    brand: config.launch.brandName || `el nombre del producto ("${input.brief.productName}")`,
+    market: input.brief.market,
+    language: LANGUAGE_NAMES[input.brief.language],
+  });
   const context = `# Brief aprobado\n\n${JSON.stringify(input.brief, null, 2)}\n\n# Manifiesto real del kit (lo único que puedes prometer)\n\n${JSON.stringify(manifest, null, 2)}`;
 
   const defects = input.feedback?.target === "growth" ? input.feedback.defects : [];
@@ -94,9 +98,9 @@ function writeReadableExports(ctx: AgentContext, pack: GrowthPack): void {
 function mockPack(brief: Brief): GrowthPack {
   return {
     seo: {
-      title: "Kit de prospección en LinkedIn para pymes",
-      metaDescription: "Mensajes, cadencia de 14 días y CRM en CSV para agendar reuniones B2B desde LinkedIn sin contratar un SDR.",
-      slug: "kit-prospeccion-linkedin-pymes",
+      title: brief.productName.slice(0, 60),
+      metaDescription: `${brief.oneLiner} Guía, plantillas y hoja de control listas para usar.`.slice(0, 160),
+      slug: "kit-simulado",
       keywords: brief.keywords.map((k) => k.term),
     },
     listing: {
@@ -104,18 +108,18 @@ function mockPack(brief: Brief): GrowthPack {
       tagline: brief.oneLiner,
       description: brief.mvp.deliverables.map((d) => `- **${d.name}**: ${d.description}`).join("\n"),
       price: brief.pricing.price,
-      tags: ["linkedin", "ventas b2b", "prospección", "pymes"],
+      tags: brief.keywords.map((k) => k.term).slice(0, 5),
     },
     emails: [0, 1, 3, 5, 7].map((day) => ({
       day,
-      subject: `Día ${day}: un paso para tu prospección`,
+      subject: `Día ${day}: un paso más hacia tu objetivo`,
       preview: "Una idea práctica en 2 minutos",
-      body: "Hoy te comparto una técnica simple para iniciar conversaciones en LinkedIn sin sonar a vendedor.",
+      body: `Hoy te comparto un consejo práctico sobre ${brief.niche.toLowerCase()}.`,
     })),
     social: Array.from({ length: 8 }, (_, i) => ({
-      platform: (i % 2 === 0 ? "linkedin" : "instagram") as "linkedin" | "instagram",
-      hook: `Error #${i + 1} al prospectar en LinkedIn`,
-      text: "La mayoría envía un pitch en el primer mensaje. Prueba empezar con una observación concreta sobre su negocio.",
+      platform: (i % 2 === 0 ? "instagram" : "facebook") as "instagram" | "facebook",
+      hook: `Error #${i + 1} que casi todos cometen`,
+      text: `La mayoría empieza sin un plan. Así puedes evitarlo: ${brief.oneLiner}`,
     })),
   };
 }
@@ -123,7 +127,7 @@ function mockPack(brief: Brief): GrowthPack {
 function mockLanding(brief: Brief, pack: GrowthPack, manifest: Manifest): string {
   const items = manifest.files.map((f) => `<li>${escapeHtml(f.title)}</li>`).join("");
   return `<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="${brief.language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(pack.seo.title)}</title>
 <meta name="description" content="${escapeHtml(pack.seo.metaDescription)}">
 <meta property="og:title" content="${escapeHtml(pack.seo.title)}"><meta property="og:description" content="${escapeHtml(pack.seo.metaDescription)}">
@@ -133,6 +137,6 @@ function mockLanding(brief: Brief, pack: GrowthPack, manifest: Manifest): string
 <p><a class="cta" href="{{CHECKOUT_URL}}">Comprar por US$${brief.pricing.price}</a></p>
 <h2>Qué incluye</h2><ul>${items}</ul>
 <p><a class="cta" href="{{CHECKOUT_URL}}">Obtener el kit · US$${brief.pricing.price}</a></p>
-<footer>${escapeHtml(config.launch.brandName)}</footer>
+<footer>${escapeHtml(config.launch.brandName || brief.productName)}</footer>
 </body></html>`;
 }

@@ -1,4 +1,4 @@
-import { config } from "../../src/config.ts";
+import { config, LANGUAGE_NAMES } from "../../src/config.ts";
 import { complete } from "../../src/core/llm.ts";
 import { renderGuideHtml, tryExportPdf } from "../../src/core/pdf.ts";
 import type { Defect, Feedback } from "../../src/core/types.ts";
@@ -22,7 +22,7 @@ export interface BuildReport {
  */
 export async function runBuilder(ctx: AgentContext, input: { brief: Brief; feedback: Feedback | null }): Promise<BuildReport> {
   const { workspace, logger, task } = ctx;
-  const system = loadSystemPrompt("builder", { market: config.kit.market });
+  const system = loadSystemPrompt("builder", { market: input.brief.market, language: LANGUAGE_NAMES[input.brief.language] });
   const briefContext = `# Brief aprobado (fuente de verdad)\n\n${JSON.stringify(input.brief, null, 2)}`;
   const defects = input.feedback?.target === "product" ? input.feedback.defects : [];
 
@@ -98,7 +98,7 @@ export async function runBuilder(ctx: AgentContext, input: { brief: Brief; feedb
     .map((c) => workspace.read(`product/${c.path}`))
     .join("\n\n")}`;
   workspace.write("product/guide.md", guideMd);
-  const htmlPath = workspace.write("product/guide.html", renderGuideHtml(manifest.guideTitle, input.brief.oneLiner, guideMd));
+  const htmlPath = workspace.write("product/guide.html", renderGuideHtml(manifest.guideTitle, input.brief.oneLiner, guideMd, input.brief.language));
   const pdfOk = await tryExportPdf(htmlPath, workspace.path("product/guide.pdf"));
   if (!pdfOk) logger.warn("builder", task.id, "PDF no generado (Playwright no instalado). guide.html queda listo para imprimir a PDF.");
 

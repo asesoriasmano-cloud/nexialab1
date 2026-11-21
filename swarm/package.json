@@ -12,7 +12,7 @@
   },
   "scripts": {
     "swarm": "tsx src/cli.ts",
-    "demo": "tsx src/cli.ts run --dry-run --niche \"Prospección B2B en LinkedIn para pymes de servicios en Chile\"",
+    "demo": "tsx src/cli.ts run --dry-run",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts"
   },

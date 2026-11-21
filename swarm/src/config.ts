@@ -11,6 +11,14 @@ if (fs.existsSync(envPath)) process.loadEnvFile(envPath);
 
 export type AgentName = "scout" | "builder" | "qa" | "growth" | "ops";
 export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
+export type ProductLanguage = "es" | "en" | "pt";
+
+/** Cómo se le describe el idioma de salida a los agentes de contenido. */
+export const LANGUAGE_NAMES: Record<ProductLanguage, string> = {
+  es: "español neutro",
+  en: "inglés (US)",
+  pt: "portugués de Brasil",
+};
 
 function num(name: string, def: number): number {
   const raw = process.env[name];
@@ -71,17 +79,27 @@ export const config = {
   scout: {
     /** Búsqueda web real (API de pago: ~US$10 / 1000 búsquedas). Requiere aprobación HITL #2. */
     webSearch: bool("SCOUT_WEB_SEARCH", false),
-    webSearchMaxUses: num("SCOUT_WEB_SEARCH_MAX_USES", 5),
+    webSearchMaxUses: num("SCOUT_WEB_SEARCH_MAX_USES", 8),
+    /** Cuántas oportunidades distintas explora antes de elegir una (pensamiento divergente → convergente). */
+    candidates: num("SCOUT_CANDIDATES", 10),
+    /** Mercados permitidos. Por defecto: abierto, sin anclarse a ningún país, sector ni negocio existente. */
+    markets: str("SCOUT_MARKETS", "abierto: cualquier país, idioma, sector o segmento donde la oportunidad sea mejor"),
+    /** Idiomas en los que el enjambre puede producir el kit. */
+    languages: str("SCOUT_LANGUAGES", "es,en,pt")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s): s is ProductLanguage => s === "es" || s === "en" || s === "pt"),
+    /** Temas o nichos que el Scout debe evitar (separados por coma). Opcional. */
+    exclude: str("SCOUT_EXCLUDE", ""),
   },
 
   kit: {
     maxFiles: num("KIT_MAX_FILES", 8),
-    language: str("PRODUCT_LANGUAGE", "es"),
-    market: str("TARGET_MARKET", "Chile y LatAm hispanohablante"),
   },
 
   launch: {
-    brandName: str("BRAND_NAME", "Nexia Lab Pro"),
+    /** Marca que firma la landing. Vacío = se usa el nombre del producto (independiente de cualquier empresa). */
+    brandName: str("BRAND_NAME", ""),
     supportEmail: str("SUPPORT_EMAIL", ""),
     checkoutUrl: str("CHECKOUT_URL", ""),
     deployProvider: str("DEPLOY_PROVIDER", "manual") as "manual" | "netlify" | "vercel",

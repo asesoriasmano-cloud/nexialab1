@@ -37,7 +37,7 @@ export async function runQa(
     schema: QaReviewSchema,
     maxTokens: 32000,
     expectedOutputTokens: 6000,
-    mock: () => mockReview(input.target, input.iteration),
+    mock: () => mockReview(input.target, input.iteration, firstChapter(ctx)),
   });
 
   const defects: Defect[] = [...checkDefects, ...review.defects.map((d) => ({ ...d, source: "llm" as const }))];
@@ -86,18 +86,23 @@ function growthMaterial(ctx: AgentContext): string {
 }
 
 /** En --dry-run, QA veta la primera versión del producto para demostrar el bucle Builder⇄QA. */
-function mockReview(target: "product" | "growth", iteration: number) {
+function firstChapter(ctx: AgentContext): string | null {
+  if (!ctx.workspace.exists("product/manifest.json")) return null;
+  return ctx.workspace.readJson<Manifest>("product/manifest.json").files.find((f) => f.kind === "guide_chapter")?.path ?? null;
+}
+
+function mockReview(target: "product" | "growth", iteration: number, chapter: string | null) {
   if (target === "product" && iteration === 0) {
     return {
       verdict: "reject" as const,
       score: 64,
-      summary: "Simulado: el primer capítulo carece de un ejemplo aplicado al mercado chileno.",
+      summary: "Simulado: el primer capítulo carece de un ejemplo aplicado al mercado objetivo.",
       valueProposition: "Promete un sistema, pero el capítulo 1 se queda en teoría.",
       defects: [
         {
           severity: "major" as const,
-          file: "guia/01-fundamentos-del-outbound-en-linkedin.md",
-          issue: "No incluye un ejemplo aplicado a una pyme de servicios en Chile.",
+          file: chapter,
+          issue: "No incluye un ejemplo aplicado al mercado objetivo.",
           fix: "Agregar una sección '### Ejemplo aplicado' con un caso ilustrativo.",
         },
       ],

@@ -11,7 +11,7 @@ const { Workspace } = await import("../src/core/workspace.ts");
 
 test("ciclo completo en dry-run: investiga, construye, veta, corrige, empaqueta y despliega", async () => {
   const orch = new Orchestrator(store, logger, { autoApprove: true });
-  const task = orch.createTask("Prospección B2B en LinkedIn", true);
+  const task = orch.createTask("", true); // exploración abierta
   const done = await orch.run(task.id);
 
   assert.equal(done.stage, "done");
@@ -80,4 +80,26 @@ test("gate #2: presupuesto insuficiente pausa ANTES de llamar a la API y se ampl
 
   decide(store, pending[0]!, "approved", null, 3);
   assert.equal(store.getTask(task.id).budgetUsd, 3.0001);
+});
+
+test("Scout explora oportunidades diversas y el humano puede elegir otra al rechazar", async () => {
+  const orch = new Orchestrator(store, logger);
+  const task = orch.createTask("", true);
+  assert.equal(task.title, "Exploración abierta");
+  await orch.run(task.id);
+
+  const ws = new Workspace(task.id);
+  const opps = ws.readJson<{ candidates: Array<{ market: string; segment: string }>; selectedId: number }>("opportunities.json");
+  assert.ok(opps.candidates.length >= 8);
+  assert.ok(new Set(opps.candidates.map((c) => c.market)).size >= 3, "al menos 3 mercados distintos");
+  assert.ok(new Set(opps.candidates.map((c) => c.segment)).size >= 4, "al menos 4 segmentos distintos");
+  const brief = ws.readJson<{ market: string; language: string }>("brief.json");
+  assert.ok(brief.market && brief.language);
+  assert.match(ws.read("brief.md"), /Oportunidades exploradas/);
+
+  const pending = store.pendingApprovals().find((a) => a.taskId === task.id)!;
+  decide(store, pending, "rejected", "usa la oportunidad #3");
+  const again = await orch.run(task.id);
+  assert.equal(again.iterations.research, 2);
+  assert.equal(ws.readJson<{ selectedId: number }>("opportunities.json").selectedId, 3);
 });
