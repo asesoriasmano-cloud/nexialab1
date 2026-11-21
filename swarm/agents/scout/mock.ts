@@ -89,6 +89,7 @@ export function mockBrief(attempt: number): Brief {
       "Cada capítulo termina con un ejercicio accionable",
       "Las plantillas indican claramente qué campos completar",
       "El CSV trae columnas de estado, fecha y próximo paso, con filas de ejemplo",
+      "Ninguna parte del kit promete ingresos, ahorros ni resultados garantizados",
     ],
     viabilityScore: 64,
     risks: ["Cambios normativos que desactualicen el contenido"],

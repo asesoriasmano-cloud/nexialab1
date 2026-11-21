@@ -52,7 +52,12 @@ export function shareTask(taskId: string, opts: { push: boolean }): { dir: strin
 
   const commit = git(["commit", "-m", `Comparte resultados de ${taskId}`, "--", rel], repo);
   if (!commit.ok) throw new Error(`git commit falló: ${commit.out}`);
-  const push = git(["push"], repo);
+  let push = git(["push"], repo);
+  if (!push.ok) {
+    // El remoto puede haber avanzado (p. ej. código nuevo del repo): nuestro commit solo toca shared/, el rebase es limpio.
+    const pull = git(["pull", "--rebase", "--autostash"], repo);
+    if (pull.ok) push = git(["push"], repo);
+  }
   if (!push.ok) {
     throw new Error(`Se hizo el commit pero git push falló (¿sesión de GitHub?): ${push.out}\nReintenta con: git push`);
   }

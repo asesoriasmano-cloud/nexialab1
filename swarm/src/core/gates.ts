@@ -61,7 +61,18 @@ export function decide(
   return decided;
 }
 
-/** Pregunta s/n por terminal (modo --interactive). */
+/** Pregunta de texto libre por terminal. Enter vacío devuelve "". */
+export async function askText(question: string): Promise<string> {
+  if (!process.stdin.isTTY) return "";
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    return (await rl.question(`${question} `)).trim();
+  } finally {
+    rl.close();
+  }
+}
+
+/** Pregunta s/n por terminal (modo interactivo). */
 export async function askYesNo(question: string): Promise<boolean> {
   if (!process.stdin.isTTY) return false;
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });

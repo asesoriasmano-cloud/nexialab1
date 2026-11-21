@@ -2,6 +2,7 @@ import { config, LANGUAGE_NAMES } from "../../src/config.ts";
 import { requireApproval } from "../../src/core/gates.ts";
 import { complete } from "../../src/core/llm.ts";
 import { WEB_SEARCH_USD_PER_CALL } from "../../src/core/pricing.ts";
+import { checkBrief, type BriefIssue } from "../../src/core/briefcheck.ts";
 import { collectSignals, type CandidateSignals } from "../../src/core/signals.ts";
 import type { Feedback } from "../../src/core/types.ts";
 import { BriefSchema, OpportunitiesSchema, type Brief, type Opportunities } from "../../src/schemas.ts";
@@ -76,22 +77,34 @@ Si el feedback humano elige un candidato anterior, inclúyelo en la lista nueva 
 
   // ---------- Fase 2: elección con evidencia + brief ----------
   const evidence = shortlist.map((c) => ({ ...c, signals: signals.find((s) => s.id === c.id) ?? null }));
-  const { data: brief } = await complete(ctx, {
-    agent: "scout",
-    system,
-    prompt: `FASE 2 · BRIEF
+  const phase2Prompt = (fix: string) => `FASE 2 · BRIEF
 Oportunidades preseleccionadas${signals.length ? ", con señales REALES de demanda (sugerencias de Google y YouTube: lo que la gente escribe de verdad)" : ""}:
 ${JSON.stringify(evidence, null, 2)}
 
 Recomendación provisional de la fase 1 (puedes cambiarla): #${opportunities.selectedId}. ${opportunities.selectionRationale}
-${signals.length ? `\nCómo leer las señales: "suggestionCount" alto indica que el tema se busca; "commercialCount" alto indica que buscan recursos descargables (plantilla, excel, template…), justo lo que vende un kit. Sin sugerencias suele haber poca demanda o una query mal planteada. Usa las sugerencias como evidencia citable en demandSignals y keywords, y cambia la elección de la fase 1 si la evidencia lo justifica.` : ""}${feedbackBlock}
+${signals.length ? `\nCómo leer las señales: "suggestionCount" alto indica que el tema se busca; "commercialCount" alto indica que buscan recursos descargables (plantilla, excel, template…), justo lo que vende un kit. Sin sugerencias suele haber poca demanda o una query mal planteada. Usa las sugerencias como evidencia citable en demandSignals y keywords, y cambia la elección de la fase 1 si la evidencia lo justifica.` : ""}${feedbackBlock}${fix}
 
-Elige UNA oportunidad, indica su id en "opportunityId" y entrega el brief completo. El campo "niche" describe el segmento elegido; "market" y "language" son los del público objetivo (idiomas permitidos: ${config.scout.languages.join(", ")}).`,
-    schema: BriefSchema,
-    maxTokens: 32000,
-    expectedOutputTokens: 9000,
-    mock: () => mockBrief(task.iterations.research),
-  });
+Elige UNA oportunidad, indica su id en "opportunityId" y entrega el brief completo. El campo "niche" describe el segmento elegido; "market" y "language" son los del público objetivo (idiomas permitidos: ${config.scout.languages.join(", ")}).`;
+
+  // El brief se valida solo (gratis) y se corrige automáticamente antes de molestar a una persona.
+  let brief!: Brief;
+  let issues: BriefIssue[] = [];
+  let fixBlock = "";
+  for (let attempt = 0; attempt <= config.autoFixAttempts; attempt++) {
+    ({ data: brief } = await complete(ctx, {
+      agent: "scout",
+      system,
+      prompt: phase2Prompt(fixBlock),
+      schema: BriefSchema,
+      maxTokens: 32000,
+      expectedOutputTokens: 9000,
+      mock: () => mockBrief(task.iterations.research),
+    }));
+    issues = checkBrief(brief, { opportunities, maxFiles: config.kit.maxFiles, languages: config.scout.languages });
+    if (issues.length === 0) break;
+    logger.warn("scout", task.id, `Validación automática del brief: ${issues.length} problema(s)${attempt < config.autoFixAttempts ? "; corrigiendo solo…" : "; se muestran como aviso."}`);
+    fixBlock = `\n\n## Tu brief anterior falló la validación automática (corrígelo TODO y conserva lo que estaba bien)\n${issues.map((i) => `- ${i.issue} → ${i.fix}`).join("\n")}`;
+  }
   if (!config.scout.languages.includes(brief.language)) {
     throw new Error(`El Scout eligió el idioma "${brief.language}", que no está en SCOUT_LANGUAGES (${config.scout.languages.join(", ")}).`);
   }
@@ -99,7 +112,8 @@ Elige UNA oportunidad, indica su id en "opportunityId" y entrega el brief comple
   workspace.writeJson("opportunities.json", opportunities);
 
   workspace.writeJson("brief.json", brief);
-  workspace.write("brief.md", briefToMarkdown(brief, opportunities, signals));
+  workspace.write("brief.md", briefToMarkdown(brief, opportunities, signals, issues));
+  workspace.writeJson("brief-checks.json", { passed: issues.length === 0, issues });
   logger.info(
     "scout",
     task.id,
@@ -147,7 +161,7 @@ function mockSignals(cands: Opportunities["candidates"]): CandidateSignals[] {
 }
 
 /** Versión legible para la revisión humana del gate #1: brief + todas las oportunidades exploradas. */
-export function briefToMarkdown(b: Brief, o?: Opportunities, signals: CandidateSignals[] = []): string {
+export function briefToMarkdown(b: Brief, o?: Opportunities, signals: CandidateSignals[] = [], issues: BriefIssue[] = []): string {
   const list = (xs: string[]) => xs.map((x) => `- ${x}`).join("\n");
   const ranked = o ? [...o.candidates].sort((a, b) => b.score - a.score) : [];
   const sig = (id: number) => {
@@ -178,9 +192,10 @@ ${ranked
 `
     : "";
 
+  const warnings = issues.length ? `> ⚠ **Avisos de la validación automática (sin resolver):**\n${issues.map((i) => `> - ${i.issue}`).join("\n")}\n\n` : "";
   return `# ${b.productName}
 
-> ${b.oneLiner}
+${warnings}> ${b.oneLiner}
 
 **Nicho:** ${b.niche}
 **Mercado:** ${b.market} · **Idioma del kit:** ${b.language}

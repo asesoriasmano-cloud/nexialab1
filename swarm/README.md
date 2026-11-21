@@ -25,6 +25,17 @@ Enjambre de agentes autónomos que **investiga un nicho, construye un kit digita
 - Una API key de Claude ([console.anthropic.com](https://console.anthropic.com/settings/keys)). No hace falta para el modo simulado.
 - Opcional, para generar el PDF de la guía: `npm i -D playwright && npx playwright install chromium`. Sin él se genera `guide.html`, listo para imprimir a PDF.
 
+## Cómo se usa: un comando y tres decisiones
+```bash
+npm run swarm -- run
+```
+Eso es todo. El enjambre investiga, se valida y corrige **solo**, y en una terminal te hace únicamente tres preguntas de sí o no:
+1. **Concepto:** un resumen de 8 líneas con una **recomendación automática** (APROBAR o REVISAR y por qué). Si respondes que no, escribes qué cambiar en una frase (o solo Enter).
+2. **Gasto:** solo si va a superar el presupuesto o a usar una API de pago.
+3. **Despliegue:** antes de publicar.
+
+Todo lo demás (investigar, construir, auditar con veto, escribir el copy, empaquetar) lo hacen los agentes sin pedirte nada. Con `SWARM_AUTO_SHARE=true` además los resultados quedan en el repositorio, listos para revisar sin copiar y pegar.
+
 ## Primer ciclo completo, paso a paso
 
 ### 0. Instalar

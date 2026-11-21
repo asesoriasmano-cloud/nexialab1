@@ -6,7 +6,9 @@ import { runScout } from "../agents/scout/index.ts";
 import type { AgentContext } from "../agents/shared/context.ts";
 import { config, type AgentName } from "./config.ts";
 import { BudgetExceededError, GatePendingError } from "./core/errors.ts";
-import { askYesNo, decide, requireApproval } from "./core/gates.ts";
+import { askText, askYesNo, decide, requireApproval } from "./core/gates.ts";
+import { conceptSummary, type BriefIssue } from "./core/briefcheck.ts";
+import { shareTask } from "./core/share.ts";
 import { deploySite, packageTask } from "./core/launch.ts";
 import type { Logger } from "./core/logger.ts";
 import type { Store } from "./core/store.ts";
@@ -65,8 +67,25 @@ export class Orchestrator {
     return task;
   }
 
-  /** Avanza la tarea hasta que termine, falle o requiera una decisión humana. */
+  /** Avanza la tarea hasta que termine, falle o requiera una decisión humana. Con SWARM_AUTO_SHARE, sube los resultados al terminar. */
   async run(taskId: string): Promise<Task> {
+    try {
+      return await this.runInner(taskId);
+    } finally {
+      this.autoShare(taskId);
+    }
+  }
+
+  private autoShare(taskId: string): void {
+    if (!config.autoShare || this.store.getTask(taskId).dryRun) return;
+    try {
+      this.logger.info("orchestrator", taskId, shareTask(taskId, { push: true }).message);
+    } catch (e) {
+      this.logger.warn("orchestrator", taskId, `No se pudieron compartir los resultados: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  private async runInner(taskId: string): Promise<Task> {
     if (this.opts.autoApprove && !this.store.getTask(taskId).dryRun) {
       throw new Error("--yes (auto-aprobación) solo se permite en tareas --dry-run. Los gates reales requieren tu decisión.");
     }
@@ -110,10 +129,14 @@ export class Orchestrator {
 
       case "concept_gate": {
         const brief = ws.readJson<Brief>("brief.json");
+        const checks = ws.exists("brief-checks.json") ? ws.readJson<{ issues: BriefIssue[] }>("brief-checks.json").issues : [];
+        const signals = ws.exists("signals.json") ? ws.readJson<Array<{ id: number; signalScore: number; commercialCount: number }>>("signals.json") : [];
+        const sig = signals.find((s) => s.id === brief.opportunityId);
+        const { text } = conceptSummary(brief, { signalScore: sig?.signalScore ?? null, commercial: sig?.commercialCount ?? null, remainingIssues: checks });
         const approval = requireApproval(this.store, task, {
           gate: "concept",
           key: `concept:${task.iterations.research}`,
-          summary: `Concepto "${brief.productName}" · ${brief.market} (${brief.language}) · US$${brief.pricing.price} · viabilidad ${brief.viabilityScore}/100. Revisa ${ws.path("brief.md")} (incluye las demás oportunidades exploradas)`,
+          summary: `${text}\n   Detalle completo: ${ws.path("brief.md")}`,
         });
         if (approval.status === "approved") {
           this.store.updateTask(task.id, { title: brief.productName });
@@ -316,7 +339,11 @@ export class Orchestrator {
     if (!this.opts.interactive) return false;
     console.log(`\n⏸  ${gateTitle(approval)}\n   ${approval.summary}`);
     const ok = await askYesNo("¿Apruebas?");
-    decide(this.store, approval, ok ? "approved" : "rejected", ok ? null : "Rechazado en modo interactivo");
+    let note: string | null = null;
+    if (!ok) {
+      note = (await askText(approval.gate === "concept" ? "¿Qué cambiar? (Enter = que el Scout proponga otro ángulo; o escribe p. ej. «usa la #3»):" : "Motivo (opcional):")) || "Rechazado en modo interactivo";
+    }
+    decide(this.store, approval, ok ? "approved" : "rejected", note);
     return true;
   }
 

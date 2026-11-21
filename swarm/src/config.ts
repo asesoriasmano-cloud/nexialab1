@@ -88,6 +88,11 @@ export const config = {
 
   profile: PROFILE,
 
+  /** Reintentos automáticos del Scout cuando la validación del brief encuentra problemas (antes de molestar a una persona). */
+  autoFixAttempts: num("SCOUT_AUTO_FIX_ATTEMPTS", 2),
+  /** Sube los resultados (brief, kit, reportes) a la rama actual en cada pausa y al terminar, para revisarlos sin copiar y pegar. */
+  autoShare: bool("SWARM_AUTO_SHARE", false),
+
   llm: {
     fallbacks: str("LLM_FALLBACKS", "default"), // "default" | "off"
     model(agent: AgentName): string {

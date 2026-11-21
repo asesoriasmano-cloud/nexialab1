@@ -21,10 +21,14 @@ program
   .description("Enjambre de agentes: investiga, construye, audita, empaqueta y lanza productos digitales.")
   .showHelpAfterError();
 
+/** En una terminal real el enjambre pregunta s/n en cada gate y sigue solo; sin terminal (scripts, CI) se pausa y espera `approve`. */
+const IS_TTY = Boolean(process.stdin.isTTY && process.stdout.isTTY);
+
 function setup(opts: { interactive?: boolean; yes?: boolean } = {}) {
   const store = new Store();
   const logger = new Logger(store);
-  return { store, logger, orchestrator: new Orchestrator(store, logger, { interactive: opts.interactive, autoApprove: opts.yes }) };
+  const interactive = opts.yes ? false : (opts.interactive ?? IS_TTY);
+  return { store, logger, orchestrator: new Orchestrator(store, logger, { interactive, autoApprove: opts.yes }) };
 }
 
 function requireCredentials(dryRun: boolean) {
@@ -51,7 +55,8 @@ program
   .option("-n, --niche <texto>", "semilla opcional: punto de partida para explorar, no un límite")
   .option("-t, --task <id>", "reanudar una tarea existente")
   .option("--dry-run", "simula todos los agentes sin llamadas a la API (costo US$0)")
-  .option("-i, --interactive", "preguntar s/n en cada gate en lugar de pausar")
+  .option("-i, --interactive", "preguntar s/n en cada gate en lugar de pausar (ya es el modo por defecto en una terminal)")
+  .option("--no-interactive", "pausar en cada gate y esperar `approve`/`reject` en lugar de preguntar")
   .option("-y, --yes", "auto-aprobar gates (solo permitido con --dry-run)")
   .action(async (opts: { niche?: string; task?: string; dryRun?: boolean; interactive?: boolean; yes?: boolean }) => {
     const { store, orchestrator } = setup(opts);

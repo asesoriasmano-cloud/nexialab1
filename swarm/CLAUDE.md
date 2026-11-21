@@ -54,6 +54,7 @@ El HITL#2 (gasto) puede saltar en cualquier etapa.
 8. **Rutas del modelo:** todo archivo que escribe un agente pasa por `Workspace`, que bloquea rutas fuera de `output/<tarea>/`.
 9. Los agentes no cambian la etapa de la tarea; eso lo decide solo el orquestador.
 10. **El Scout no tiene nicho de origen.** No lo ancles a los negocios ni a la experiencia de los dueños del repo: explora en tres pasos (oportunidades diversas con modelo barato → validación gratis con Google/YouTube Suggest en `src/core/signals.ts` → brief de la mejor con evidencia) y el mercado y el idioma los decide el brief. Builder, Growth y QA leen `brief.market` y `brief.language`; no fijes mercado ni idioma en sus prompts.
+12. **Poca interacción humana es un requisito, no un extra.** Todo lo que se pueda validar con código o con otro agente debe validarse antes de llegar a una persona (ver `src/core/briefcheck.ts`: el Scout se autocorrige). Los gates muestran un resumen corto con recomendación, no documentos para leer. Si descubres un error que una persona tuvo que señalar, agrega la regla al validador y un test.
 11. **La investigación debe seguir siendo casi gratis:** no subas el modelo de exploración ni reemplaces las señales gratuitas por APIs de pago sin pasar por el gate #2.
 
 ## Convenciones
