@@ -8,6 +8,7 @@ import { runScout } from "../agents/scout/index.ts";
 import { config, hasApiCredentials, type AgentName } from "./config.ts";
 import { decide } from "./core/gates.ts";
 import { Logger } from "./core/logger.ts";
+import { shareTask } from "./core/share.ts";
 import { Store } from "./core/store.ts";
 import type { Task } from "./core/types.ts";
 import { Workspace } from "./core/workspace.ts";
@@ -245,6 +246,16 @@ program
     store.updateTask(taskId, { market: { visits: opts.visits, sales: opts.sales, revenueUsd: opts.revenue, refunds: opts.refunds } });
     await orchestrator.withRun(taskId, "ops", (ctx) => runOps(ctx, { insights: false }));
     console.log(new Workspace(taskId).read("reports/ops.md"));
+  });
+
+program
+  .command("share <taskId>")
+  .description("Sube a la rama actual los resultados de una tarea (brief, kit, reportes) para revisarlos con un git pull. Nunca sube .env ni la clave.")
+  .option("--no-push", "solo copiar a swarm/shared/<tarea>/ sin commitear ni subir")
+  .action((taskId: string, opts: { push: boolean }) => {
+    const { store } = setup();
+    store.getTask(taskId); // valida que la tarea exista
+    console.log(shareTask(taskId, { push: opts.push }).message);
   });
 
 program

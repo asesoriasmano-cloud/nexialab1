@@ -20,6 +20,7 @@ CLI (`npm run swarm -- …`):
 | `approve T0001 [--amount N] [--note …]` | Aprueba el gate pendiente y reanuda. |
 | `reject T0001 --note "…"` | Rechaza. En el concepto, la nota vuelve al Scout como feedback. |
 | `retry T0001` | Reinicia el contador de iteraciones de una tarea fallida por el límite de QA. |
+| `share T0001 [--no-push]` | Copia los resultados de texto de la tarea a `swarm/shared/T0001/` y los sube a la rama actual (nunca `.env`, estado ni logs), para revisarlos con un `git pull`. |
 | `status [T0001]` · `approvals` · `config` | Estado, gates pendientes y configuración efectiva. |
 | `report T0001 [--insights]` | Reporte de Ops (`--insights` usa el LLM). |
 | `metrics T0001 --visits N --sales N --revenue N` | Registra datos reales de mercado para que Ops recomiende iteraciones. |
