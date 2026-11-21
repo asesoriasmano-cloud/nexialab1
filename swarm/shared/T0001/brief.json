@@ -1,0 +1,211 @@
+{
+  "opportunityId": 1,
+  "productName": "Pressure Washing Quote, Contract and Collection Kit",
+  "oneLiner": "Price, contract and collect on every pressure washing job using real sq ft, gallon and labor costs, with plain Markdown and CSV tools and no software.",
+  "niche": "Solo and small pressure washing operators in the US who quote, sign contracts and collect payment by text and phone",
+  "market": "United States",
+  "language": "en",
+  "targetAudience": {
+    "persona": "Operador independiente de lavado a presión (1 a 3 personas) que atiende entradas de autos, terrazas y fachadas comerciales pequeñas, gestiona todo por mensajes y llamadas, no usa software de gestión y cotiza de memoria o con hojas improvisadas.",
+    "pains": [
+      "Pasa horas armando presupuestos, contratos y facturas desde cero para cada trabajo",
+      "Cotiza por debajo de su costo real porque no calcula el costo por pie cuadrado ni por galón de solución",
+      "Persigue pagos atrasados después del trabajo y no tiene un registro ordenado de lo que le deben"
+    ],
+    "jobsToBeDone": [
+      "Cotizar un trabajo de entrada de autos o terraza con un costo real en menos de 15 minutos",
+      "Enviar un contrato de servicio firmado antes de presentarse al trabajo",
+      "Cobrar a tiempo y saber qué clientes tienen saldo pendiente"
+    ]
+  },
+  "demandSignals": [
+    {
+      "signal": "Búsqueda de plantillas descargables de presupuesto y contrato",
+      "evidence": "Sugerencias de Google para la consulta 'pressure washing contract template' incluyen 'pressure washing contract template free printable', 'pressure washing service contract template' y 'commercial pressure washing contract template'. Para presupuestos aparece 'pressure washing estimate template pdf free download'. Señal de intención de descarga, sin volumen medido.",
+      "confidence": "media"
+    },
+    {
+      "signal": "Búsqueda de calculadoras de precio por trabajo",
+      "evidence": "Sugerencias de Google: 'pressure washing pricing calculator', 'pressure washing driveway cost calculator', 'pressure washing estimate calculator' y 'commercial pressure washing estimate calculator'. Indica que el operador busca una herramienta para calcular el precio, no solo una plantilla.",
+      "confidence": "media"
+    },
+    {
+      "signal": "Preguntas informacionales sobre cómo cobrar y conseguir contratos",
+      "evidence": "Sugerencias de Google: 'how do you price pressure washing', 'how much should i charge for pressure washing' y 'how to get pressure washing contracts'. Son preguntas repetidas que el kit responde con método y ejemplo resuelto.",
+      "confidence": "media"
+    },
+    {
+      "signal": "Interés en video sobre cotización",
+      "evidence": "Sugerencias de YouTube: 'how to quote a pressure washing job', 'pressure washing estimate', 'pressure washing pricing guide' y 'pricing a pressure washing job'. Son pocas sugerencias, por lo que la señal es débil.",
+      "confidence": "baja"
+    },
+    {
+      "signal": "Preguntas recurrentes en comunidades del oficio",
+      "evidence": "Publicaciones en grupos de lavado a presión sobre cómo cobrar por pie cuadrado en entradas, terrazas y fachadas, y cómo cobrar después del trabajo. Señal cualitativa sin medición.",
+      "confidence": "baja"
+    }
+  ],
+  "keywords": [
+    {
+      "term": "pressure washing estimate template",
+      "intent": "transaccional",
+      "priority": "alta"
+    },
+    {
+      "term": "pressure washing pricing calculator",
+      "intent": "comercial",
+      "priority": "alta"
+    },
+    {
+      "term": "pressure washing contract template",
+      "intent": "transaccional",
+      "priority": "alta"
+    },
+    {
+      "term": "how do you price pressure washing",
+      "intent": "informacional",
+      "priority": "alta"
+    },
+    {
+      "term": "how much should i charge for pressure washing",
+      "intent": "informacional",
+      "priority": "alta"
+    },
+    {
+      "term": "pressure washing driveway cost calculator",
+      "intent": "comercial",
+      "priority": "media"
+    },
+    {
+      "term": "pressure washing service contract template",
+      "intent": "comercial",
+      "priority": "media"
+    },
+    {
+      "term": "pressure washing contract template free printable",
+      "intent": "transaccional",
+      "priority": "media"
+    },
+    {
+      "term": "how to get pressure washing contracts",
+      "intent": "informacional",
+      "priority": "media"
+    },
+    {
+      "term": "how to quote a pressure washing job",
+      "intent": "informacional",
+      "priority": "baja"
+    }
+  ],
+  "competitors": [
+    {
+      "name": "Plantillas genéricas gratuitas (PDF y Word de resultados de búsqueda)",
+      "offer": "Formatos de presupuesto y contrato para descargar sin costo",
+      "price": "Gratis",
+      "weakness": "No incluyen lógica de costo por pie cuadrado ni por galón, obligan a recalcular a mano y no son fáciles de editar en el teléfono."
+    },
+    {
+      "name": "Software de gestión de servicios de campo (por ejemplo Jobber o Housecall Pro)",
+      "offer": "Presupuestos, contratos, facturación y cobro en línea dentro de una aplicación",
+      "price": "Suscripción mensual; verificar el plan vigente antes de publicar",
+      "weakness": "Diseñado para equipos, con curva de aprendizaje y costo recurrente, excesivo para un operador solo que solo necesita que el cálculo sea correcto."
+    },
+    {
+      "name": "Hacerlo a mano (notas, hoja de cálculo propia, texto o llamada)",
+      "offer": "Cotización improvisada por mensaje o llamada",
+      "price": "Tiempo del operador: varias horas por semana",
+      "weakness": "Errores en el costo por pie cuadrado y en los galones, precios bajos, contratos olvidados y cobro lento."
+    },
+    {
+      "name": "Videos y hilos de foros sobre precios",
+      "offer": "Consejos de precio en formato de video o conversación",
+      "price": "Gratis",
+      "weakness": "Anecdóticos, sin hoja de trabajo descargable ni ejemplo completo que el operador pueda reproducir."
+    }
+  ],
+  "gap": "Hay plantillas gratis sin modelo de costos y software completo que cuesta mensualidad y está pensado para equipos. La brecha es un kit en texto plano (Markdown y CSV, sin software ni fórmulas) que enseña a calcular el costo real por pie cuadrado y por galón, y que cubre la cotización, el contrato y el cobro con un ejemplo resuelto paso a paso. El operador paga por ahorrar horas y dejar de regalar margen, no por otra plantilla.",
+  "mvp": {
+    "format": "Descarga digital de pago único con tres capítulos en Markdown, una plantilla de contrato en Markdown y tres hojas de trabajo en CSV plano, sin pestañas, sin fórmulas y sin DOCX",
+    "deliverables": [
+      {
+        "name": "Chapter 1: Job costing by sq ft and gallons",
+        "kind": "guide_chapter",
+        "description": "Cómo medir la superficie en sq ft, convertir el uso de solución en galones, sumar horas de mano de obra y materiales, y fijar un precio con margen en USD. Termina con un ejemplo resuelto paso a paso de un trabajo de entrada de auto, mostrando cada operación y cada resultado."
+      },
+      {
+        "name": "Chapter 2: Writing quotes that get signed",
+        "kind": "guide_chapter",
+        "description": "Estructura de una cotización de una página: alcance, exclusiones, vigencia y condiciones de acceso al agua y a la propiedad. Incluye un segundo ejemplo resuelto para una terraza y una fachada comercial, tomando los números del Capítulo 1 y la hoja de costos."
+      },
+      {
+        "name": "Chapter 3: Service agreements and getting paid",
+        "kind": "guide_chapter",
+        "description": "Depósito, calendario de pagos, fechas de vencimiento, mensajes de seguimiento por pago atrasado y uso del registro de facturas. Incluye una línea de tiempo resuelta de cobro con fechas y saldos en USD."
+      },
+      {
+        "name": "Service Agreement Template",
+        "kind": "template",
+        "description": "Contrato de servicio en Markdown con campos entre corchetes para cliente, dirección, alcance en sq ft, precio en USD, depósito, plazos de pago, reprogramación por clima y cancelación. Incluye la advertencia de que no es asesoría legal y debe revisarlo un abogado local."
+      },
+      {
+        "name": "Job Cost Calculator worksheet",
+        "kind": "csv",
+        "description": "CSV en blanco con filas de entrada (superficie en sq ft, tasa de cobertura, galones de solución por trabajo, horas de mano de obra, tarifa por hora, costo de químicos, combustible y porcentaje de gastos generales) y una columna de resultado. Sin fórmulas; el Capítulo 1 explica cada cálculo."
+      },
+      {
+        "name": "Quote Log",
+        "kind": "csv",
+        "description": "Registro de cotizaciones con fecha, cliente, dirección, tipo de trabajo, sq ft, monto cotizado en USD, estado (enviada, firmada, perdida) y fecha de seguimiento."
+      },
+      {
+        "name": "Invoice and Payment Tracker",
+        "kind": "csv",
+        "description": "Registro de facturas con número, ID de trabajo, monto en USD, fecha de vencimiento, monto pagado, saldo, días de atraso y fecha del último recordatorio."
+      }
+    ],
+    "outOfScope": [
+      "Asesoría contable, fiscal o de bookkeeping",
+      "Contratos con validez legal garantizada en cualquier estado",
+      "Asesoría de seguros o guías de seguridad química",
+      "Pestañas, fórmulas, macros o aplicaciones de software",
+      "Herramientas de marketing, anuncios o generación de leads",
+      "Licitaciones para gobierno o contratos grandes",
+      "Guía de compra de equipos"
+    ]
+  },
+  "pricing": {
+    "currency": "USD",
+    "price": 19,
+    "rationale": "Un operador solo que cobra entre USD 150 y USD 400 por trabajo recupera el precio con un solo presupuesto mejor calculado. Está por debajo de una suscripción mensual de software y por encima de las plantillas gratuitas, que no incluyen el modelo de costos. Precio a validar con prueba de 2 o 3 precios.",
+    "upsell": "Pressure Washing Pricing Pro Bundle a USD 39: agrega una hoja de programación de rutas y trabajos en CSV, un capítulo de ajuste de precios por temporada y una hoja de precios para cuentas comerciales recurrentes."
+  },
+  "acceptanceCriteria": [
+    "La guía contiene al menos tres capítulos en Markdown que se renderizan sin errores en un visor estándar y no depende de DOCX ni de PDF",
+    "El ejemplo resuelto de cada capítulo muestra cada operación con sus unidades (sq ft, galones, horas y USD), y cualquier resultado intermedio puede recalcularse a mano con los números mostrados, sin errores aritméticos",
+    "Todos los archivos CSV son UTF-8 plano, tienen una sola fila de encabezado, no tienen celdas combinadas, fórmulas ni varias pestañas, y abren en Excel y en Google Sheets sin avisos de reparación",
+    "La hoja Job Cost Calculator tiene una fila por cada entrada y una columna de resultado vacía, y el Capítulo 1 explica cómo calcular cada resultado",
+    "La plantilla de contrato está en Markdown, tiene campos entre corchetes para alcance, sq ft, precio en USD, depósito, plazos de pago, reprogramación y cancelación, y contiene la advertencia de que no es asesoría legal",
+    "Todas las medidas están en sq ft, galones y USD; no aparecen unidades métricas ni monedas distintas al USD",
+    "El nombre del producto y de todos los entregables está en inglés",
+    "Ninguna parte del kit promete ingresos, ganancias, tasas de cierre ni resultados garantizados",
+    "El kit contiene entre 4 y 8 entregables, con al menos 3 de tipo guide_chapter y al menos 1 herramienta práctica"
+  ],
+  "viabilityScore": 68,
+  "risks": [
+    "La distribución depende de comunidades de lavado a presión; un vendedor nuevo y sin audiencia puede tener alcance bajo",
+    "Las plantillas gratuitas son abundantes y pueden fijar la disposición a pagar cerca de cero",
+    "Las sugerencias de Google no son volumen de búsqueda; la demanda real puede ser menor que el score de señal sugiere",
+    "Riesgo legal si el contrato se usa tal cual en estados con requisitos específicos",
+    "El costo por pie cuadrado y los galones varían mucho por región, así que el ejemplo puede no coincidir con el mercado del comprador",
+    "Los compradores que quieran un CRM completo pueden migrar a software; el kit no automatiza agenda ni recordatorios",
+    "Demanda estacional: el lavado a presión baja en invierno, lo que afecta las ventas"
+  ],
+  "assumptionsToValidate": [
+    "Operadores solos pagarán USD 19 por el kit frente a plantillas gratuitas",
+    "La cotización y el cobro son un dolor principal, no solo el precio",
+    "Las tres consultas de validación muestran volumen real con una herramienta de palabras clave",
+    "Las comunidades de Facebook y YouTube de lavado a presión aceptan el imán de leads sin marcarlo como spam",
+    "El consumo típico de galones y la cobertura por sq ft del ejemplo coinciden con la práctica de campo; validar con 3 operadores",
+    "Las sugerencias de Google reflejan búsquedas en Estados Unidos"
+  ]
+}
