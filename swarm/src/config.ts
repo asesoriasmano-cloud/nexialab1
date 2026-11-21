@@ -61,13 +61,13 @@ const DEFAULT_MODEL_BY_AGENT: Partial<Record<AgentName, string>> = {
   scout: PROFILE === "eco" ? "claude-haiku-5-5" : "claude-sonnet-5-5",
 };
 
-const DEFAULT_EFFORT: Record<AgentName, Effort> = {
-  scout: "high",
-  builder: "medium",
-  qa: "high",
-  growth: "medium",
-  ops: "low",
+const DEFAULT_EFFORT_BY_PROFILE: Record<Profile, Record<AgentName, Effort>> = {
+  quality: { scout: "high", builder: "medium", qa: "high", growth: "medium", ops: "low" },
+  balanced: { scout: "medium", builder: "medium", qa: "high", growth: "medium", ops: "low" },
+  // eco: menos razonamiento = más barato y rápido (y respuestas largas con menos riesgo de cortes de conexión)
+  eco: { scout: "medium", builder: "low", qa: "medium", growth: "low", ops: "low" },
 };
+const DEFAULT_EFFORT = DEFAULT_EFFORT_BY_PROFILE[PROFILE];
 
 export const config = {
   root: ROOT,

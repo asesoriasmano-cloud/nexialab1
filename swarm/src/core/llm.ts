@@ -45,6 +45,33 @@ function getClient(): Anthropic {
   return client;
 }
 
+const MAX_RETRIES = 4;
+
+function errorText(e: unknown): string {
+  const cause = (e as { cause?: { message?: string } } | null)?.cause?.message;
+  return `${e instanceof Error ? e.message : String(e)}${cause ? ` · ${cause}` : ""}`;
+}
+
+/** Errores que suelen desaparecer al reintentar: conexión cortada a mitad de respuesta, API saturada o 5xx / 429. */
+export function isTransient(e: unknown): boolean {
+  if (e instanceof Anthropic.APIConnectionError) return true; // incluye timeouts
+  if (e instanceof Anthropic.APIError && typeof e.status === "number") return e.status === 429 || e.status === 529 || (e.status >= 500 && e.status !== 501);
+  return /terminated|ECONNRESET|ETIMEDOUT|EPIPE|ENOTFOUND|EAI_AGAIN|socket|fetch failed|stream (?:ended|closed)|overloaded|UND_ERR/i.test(errorText(e));
+}
+
+/** Reintenta con espera creciente (3 s, 6 s, 9 s…). Los errores permanentes (400, 401, rechazos) se lanzan de inmediato. */
+export async function withRetry<T>(fn: () => Promise<T>, onRetry: (attempt: number, e: unknown) => void, baseDelayMs = 3000): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (attempt >= MAX_RETRIES || !isTransient(e)) throw e;
+      onRetry(attempt, e);
+      await new Promise((r) => setTimeout(r, baseDelayMs * attempt));
+    }
+  }
+}
+
 function extractJson(text: string): unknown {
   const trimmed = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
   return JSON.parse(trimmed);
@@ -91,7 +118,8 @@ export async function complete<T>(ctx: AgentContext, req: LlmRequest<T>): Promis
   // Bucle corto: continúa turnos pausados por la búsqueda web (pause_turn) y reintenta una vez si el JSON no valida.
   while (true) {
     attempts += 1;
-    const message = await getClient()
+    const message = await withRetry(
+      () => getClient()
       .beta.messages.stream({
         model,
         max_tokens: req.maxTokens,
@@ -114,7 +142,9 @@ export async function complete<T>(ctx: AgentContext, req: LlmRequest<T>): Promis
           : {}),
         ...(useFallbacks ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
       })
-      .finalMessage();
+      .finalMessage(),
+      (n, err) => ctx.logger.warn(req.agent, ctx.task.id, `Corte de red o API saturada (${errorText(err)}); reintento ${n}/${MAX_RETRIES - 1}…`),
+    );
 
     const u = message.usage;
     totals.input += u.input_tokens;
