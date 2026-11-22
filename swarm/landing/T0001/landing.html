@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pressure Washing Quote, Contract &amp; Collection Kit</title>
+<meta name="description" content="Price jobs by sq ft and gallons, send a service agreement before you show up, and track every balance. Plain Markdown and CSV, no software. $19.">
+<meta property="og:title" content="Pressure Washing Quote, Contract and Collection Kit">
+<meta property="og:description" content="Price by sq ft and gallons, get the agreement signed, and track every balance. Plain Markdown and CSV, no software.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/hero-poster.webp">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F3EE;--surface:#FFFFFF;--ink:#14181F;--muted:#4C5663;--line:#D9D3C8;
+  --blue:#0B3D91;--cta:#C2410C;--cta-ink:#FFFFFF;
+  --r-s:6px;--r-m:12px;--w:1120px;
+  --head:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#12161C;--surface:#1B212A;--ink:#EEF1F5;--muted:#A9B3C0;--line:#2D3644;--blue:#8DB4FF;--cta:#E8590C}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 var(--body);-webkit-text-size-adjust:100%}
+img,video{display:block;max-width:100%;height:auto}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:var(--r-s)}
+.wrap{width:min(100% - 32px,var(--w));margin-inline:auto}
+h1,h2,h3{font-family:var(--head);line-height:1.1;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2.25rem,6vw,3.5rem);font-weight:800}
+h2{font-size:clamp(1.75rem,4vw,2.5rem);font-weight:800}
+h3{font-size:1.375rem;font-weight:700}
+p{margin:0}
+.lead{font-size:1.125rem;max-width:62ch}
+.muted{color:var(--muted)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--surface);color:var(--ink);padding:8px 16px;border-radius:var(--r-s);z-index:10}
+.skip:focus{left:16px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border-radius:var(--r-s);font:700 1.0625rem/1 var(--head);text-decoration:none;background:var(--cta);color:var(--cta-ink);border:2px solid var(--cta)}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:inherit;border-color:currentColor}
+
+/* Hero */
+.hero{position:relative;isolation:isolate;color:#fff;min-height:min(86vh,720px);display:flex;align-items:flex-end;background:#0e1218 center/cover no-repeat url("assets/hero-poster.webp")}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(10,14,20,.88) 0%,rgba(10,14,20,.62) 55%,rgba(10,14,20,.35) 100%)}
+.hero .wrap{padding:72px 0 56px}
+.eyebrow{font:700 .875rem/1.4 var(--head);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px;color:#cfe0ff}
+.hero h1{max-width:16ch}
+.hero .lead{margin:24px 0 32px;color:#e8edf4}
+.hero .cta-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.hero .price-note{font-size:.9375rem;color:#d6dde8}
+.hero a.ghost{color:#fff}
+
+section{padding:72px 0}
+@media (min-width:900px){section{padding:112px 0}}
+.kicker{font:700 .875rem/1 var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:16px}
+
+/* Problem */
+.problem{display:grid;gap:32px}
+.pains{display:grid;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.pains li{padding:20px 0;border-bottom:1px solid var(--line);font-size:1.125rem}
+@media (min-width:900px){.problem{grid-template-columns:1fr 1fr;gap:72px;align-items:start}}
+
+/* Steps */
+.steps-grid{display:grid;gap:48px;align-items:center}
+.steps-grid img{border-radius:var(--r-m)}
+.steps{list-style:none;margin:32px 0 0;padding:0;display:grid;gap:28px}
+.steps li{display:grid;grid-template-columns:56px 1fr;gap:16px}
+.steps .n{font:800 2.5rem/1 var(--head);color:var(--blue)}
+.steps h3{margin-bottom:6px}
+@media (min-width:900px){.steps-grid{grid-template-columns:1fr 1fr;gap:72px}}
+
+/* Included */
+.included{background:var(--surface);border-block:1px solid var(--line)}
+.inc-grid{display:grid;gap:48px;align-items:start}
+.inc-grid img{border-radius:var(--r-m);width:100%;aspect-ratio:4/3;object-fit:cover}
+.files{list-style:none;margin:32px 0 0;padding:0}
+.files li{display:grid;gap:4px;padding:18px 0;border-top:1px solid var(--line)}
+.files li:last-child{border-bottom:1px solid var(--line)}
+.files strong{font-size:1.0625rem}
+.tag{display:inline-block;font:700 .75rem/1 var(--head);letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin-right:8px}
+@media (min-width:900px){.inc-grid{grid-template-columns:5fr 7fr;gap:72px}.inc-grid img{position:sticky;top:24px}}
+
+/* Fit */
+.fit{display:grid;gap:40px}
+.fit ul{margin:16px 0 0;padding-left:20px}
+.fit li{margin-bottom:10px}
+@media (min-width:900px){.fit{grid-template-columns:1fr 1fr;gap:72px}}
+
+/* Price */
+.price{text-align:center}
+.price .box{max-width:560px;margin:32px auto 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:40px 24px}
+.price .amount{font:800 4rem/1 var(--head)}
+.price .amount small{font-size:1.125rem;font-weight:600;margin-left:6px;color:var(--muted)}
+.price ul{list-style:none;margin:24px 0 32px;padding:0;display:grid;gap:8px}
+
+/* FAQ */
+.faq{max-width:780px}
+details{border-top:1px solid var(--line);padding:18px 0}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font:700 1.125rem/1.4 var(--head);list-style:none;display:flex;justify-content:space-between;gap:16px;min-height:44px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:1.5rem;line-height:1}
+details[open] summary::after{content:"\2212"}
+details p{margin-top:10px;color:var(--muted);max-width:62ch}
+
+footer{padding:40px 0 56px;border-top:1px solid var(--line);color:var(--muted);font-size:.9375rem}
+footer p+p{margin-top:8px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hero">
+  <video autoplay muted loop playsinline preload="metadata" poster="assets/hero-poster.webp" aria-hidden="true" tabindex="-1">
+    <source src="assets/hero.mp4" type="video/mp4">
+  </video>
+  <div class="wrap">
+    <p class="eyebrow">For solo and small pressure washing crews</p>
+    <h1>Stop quoting from memory.</h1>
+    <p class="lead">Work out your real cost per sq ft and per gallon, turn it into a price with a target margin, send a service agreement before you show up, and keep a clear record of who owes you what.</p>
+    <div class="cta-row">
+      <a class="btn" href="{{CHECKOUT_URL}}">Get the kit, $19</a>
+      <a class="btn ghost" href="#included">See what's inside</a>
+    </div>
+    <p class="price-note" style="margin-top:16px">One-time download. Plain Markdown and CSV, no software to learn.</p>
+  </div>
+</header>
+
+<main id="main">
+
+<section>
+  <div class="wrap problem">
+    <div>
+      <p class="kicker">The problem</p>
+      <h2>Most jobs get priced on a gut feeling.</h2>
+    </div>
+    <ul class="pains">
+      <li>You quote the driveway from memory, then find out the solution and hours cost more than you charged.</li>
+      <li>The contract gets written after the job starts, or never.</li>
+      <li>Payments are chased by text, and nobody can say exactly who owes what.</li>
+    </ul>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap steps-grid">
+    <img src="assets/tailgate-quote.webp" width="1100" height="614" loading="lazy" alt="Printed quote forms, a clipboard, a pen and a calculator on a work truck tailgate next to a pressure washer wand">
+    <div>
+      <p class="kicker">How it works</p>
+      <h2>From the calculator to the payment.</h2>
+      <ol class="steps">
+        <li><span class="n" aria-hidden="true">1</span><div><h3>Know your real cost</h3><p class="muted">Measure the surface in sq ft, convert coverage to gallons, add labor, chemicals, fuel and overhead, and set the price from a target margin.</p></div></li>
+        <li><span class="n" aria-hidden="true">2</span><div><h3>Quote and sign</h3><p class="muted">Send a one-page quote with scope, exclusions and validity, then a service agreement with deposit and payment terms before you show up.</p></div></li>
+        <li><span class="n" aria-hidden="true">3</span><div><h3>Collect and track</h3><p class="muted">Follow up on late balances with ready-to-send messages, and log every invoice and payment in one sheet.</p></div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="included" class="included">
+  <div class="wrap inc-grid">
+    <img src="assets/tailgate-flatlay.webp" width="800" height="800" loading="lazy" alt="Top-down view of a clipboard with forms, a receipt book, a calculator, a pen and a pressure washer wand on a truck tailgate">
+    <div>
+      <p class="kicker">What's included</p>
+      <h2>7 files, ready to use.</h2>
+      <p class="lead muted" style="margin-top:16px">Three guide chapters, one contract template and three worksheets. Every example uses US units and USD.</p>
+      <ul class="files">
+        <li><span><span class="tag">Guide</span><strong>Chapter 1: Job costing by sq ft and gallons</strong></span><span class="muted">Measure, convert coverage to gallons, add labor, chemicals, fuel and overhead, and price with a target margin. Includes a step-by-step driveway example and a minimum job charge.</span></li>
+        <li><span><span class="tag">Guide</span><strong>Chapter 2: Writing quotes that get signed</strong></span><span class="muted">A one-page quote structure with scope, exclusions, 14-day validity, water and property access, and deposit terms. Includes good and bad quote text plus worked deck and commercial storefront facade examples.</span></li>
+        <li><span><span class="tag">Guide</span><strong>Chapter 3: Service agreements and getting paid</strong></span><span class="muted">Deposit, Net 7 balance, a reminder schedule at 1, 7 and 14 days past due with copy-paste text messages, and a full collection timeline with dates and balances in USD.</span></li>
+        <li><span><span class="tag">Template</span><strong>Service Agreement Template</strong></span><span class="muted">Markdown contract with fields for client, address, scope in sq ft, price, deposit, payment terms, weather rescheduling and cancellation. Not legal advice: have a local attorney review it.</span></li>
+        <li><span><span class="tag">Worksheet</span><strong>Job Cost Calculator</strong></span><span class="muted">A CSV with one row per cost input and a blank result column. No formulas; Chapter 1 explains each calculation.</span></li>
+        <li><span><span class="tag">Worksheet</span><strong>Quote Log</strong></span><span class="muted">Track date, client, address, job type, sq ft, amount, status and follow-up date, with example rows.</span></li>
+        <li><span><span class="tag">Worksheet</span><strong>Invoice and Payment Tracker</strong></span><span class="muted">Invoice number, amount, due date, amount paid, balance, days late and last reminder, with example rows.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap fit">
+    <div>
+      <p class="kicker">Who it's for</p>
+      <h2>Built for one- to three-person crews.</h2>
+      <ul>
+        <li>You wash driveways, decks and small commercial facades.</li>
+        <li>You quote, sign and collect by text and phone.</li>
+        <li>You want the math done right without another subscription.</li>
+      </ul>
+    </div>
+    <div>
+      <p class="kicker">Who it's not for</p>
+      <h2>Probably not a fit if&hellip;</h2>
+      <ul>
+        <li>You need software with automatic invoicing and online payments.</li>
+        <li>You want formulas that calculate for you. The worksheets are plain CSV.</li>
+        <li>You need a contract reviewed for your state. Use a local attorney for that.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="price" id="buy" style="background:var(--surface);border-block:1px solid var(--line)">
+  <div class="wrap">
+    <p class="kicker">Get the kit</p>
+    <h2>One price, yours to keep.</h2>
+    <div class="box">
+      <p class="amount">$19<small>USD, one time</small></p>
+      <ul>
+        <li>3 guide chapters in Markdown</li>
+        <li>Service agreement template</li>
+        <li>3 CSV worksheets</li>
+      </ul>
+      <a class="btn" href="{{CHECKOUT_URL}}">Get the kit, $19</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap faq">
+    <p class="kicker">Questions</p>
+    <h2 style="margin-bottom:32px">Before you buy.</h2>
+    <details><summary>What format are the files?</summary><p>Guide chapters and the contract are Markdown (.md) and the worksheets are CSV. Both open in any text editor, and the CSV files open in Excel or Google Sheets.</p></details>
+    <details><summary>Do I need any software?</summary><p>No. There is nothing to install and nothing to log into. You download a zip and open the files.</p></details>
+    <details><summary>Do the worksheets calculate automatically?</summary><p>No. They are plain CSV without formulas, and Chapter 1 shows each calculation step by step with a worked example.</p></details>
+    <details><summary>Is the contract legal advice?</summary><p>No. The Service Agreement Template is a starting point. Have a local attorney review it before you use it.</p></details>
+    <details><summary>How do I get the files?</summary><p>After checkout you get a download link for the zip file.</p></details>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Pressure Washing Quote, Contract and Collection Kit</p>
+    <p>The kit is educational material and templates, not legal, tax or financial advice. Prices and costs in the examples are illustrations; use your own numbers.</p>
+  </div>
+</footer>
+</body>
+</html>

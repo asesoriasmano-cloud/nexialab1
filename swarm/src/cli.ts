@@ -1,4 +1,6 @@
 #!/usr/bin/env -S npx tsx
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { runBuilder } from "../agents/builder/index.ts";
 import { runGrowth } from "../agents/growth/index.ts";
@@ -8,6 +10,7 @@ import { runScout } from "../agents/scout/index.ts";
 import { config, hasApiCredentials, type AgentName } from "./config.ts";
 import { decide } from "./core/gates.ts";
 import { Logger } from "./core/logger.ts";
+import { applyLanding } from "./core/launch.ts";
 import { shareTask } from "./core/share.ts";
 import { Store } from "./core/store.ts";
 import type { Task } from "./core/types.ts";
@@ -264,6 +267,20 @@ program
     const { store } = setup();
     store.getTask(taskId); // valida que la tarea exista
     console.log((await shareTask(taskId, { push: opts.push, withProduct: opts.withProduct })).message);
+  });
+
+program
+  .command("landing <taskId>")
+  .description("Aplica la landing diseñada (swarm/landing/<tarea>/landing.html + assets/) y regenera dist/site con tu CHECKOUT_URL. Sin gasto de API.")
+  .option("--dir <ruta>", "carpeta con landing.html y assets/ (por defecto swarm/landing/<tarea>)")
+  .action((taskId: string, opts: { dir?: string }) => {
+    const { store } = setup();
+    store.getTask(taskId);
+    const dir = opts.dir ?? path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "landing", taskId);
+    const res = applyLanding(new Workspace(taskId), dir);
+    const site = new Workspace(taskId).path("dist/site");
+    console.log(`Landing aplicada (${res.assets} archivos de medios). Carpeta lista para subir a Netlify Drop:\n  ${site}`);
+    if (!res.checkoutConfigured) console.log("⚠ Falta CHECKOUT_URL en swarm/.env: los botones de compra quedarían sin enlace.");
   });
 
 program

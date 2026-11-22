@@ -21,6 +21,7 @@ CLI (`npm run swarm -- …`):
 | `reject T0001 --note "…"` | Rechaza. En el concepto, la nota vuelve al Scout como feedback. |
 | `retry T0001` | Reinicia el contador de iteraciones de una tarea fallida por el límite de QA. |
 | `share T0001 [--no-push] [--with-product]` | Copia los resultados de la tarea a `swarm/shared/T0001/` y los sube a la rama actual. Por defecto NO incluye el kit ni el copy (lo que se vende); `--with-product` solo funciona si el repo es privado. Nunca `.env`, estado ni logs. |
+| `landing T0001 [--dir ruta]` | Aplica una landing diseñada (`swarm/landing/<tarea>/landing.html` + `assets/`) y regenera `dist/site` con tu `CHECKOUT_URL`. Sin gasto de API; la landing debe conservar `{{CHECKOUT_URL}}`. |
 | `status [T0001]` · `approvals` · `config` | Estado, gates pendientes y configuración efectiva. |
 | `report T0001 [--insights]` | Reporte de Ops (`--insights` usa el LLM). |
 | `metrics T0001 --visits N --sales N --revenue N` | Registra datos reales de mercado para que Ops recomiende iteraciones. |

@@ -46,7 +46,7 @@ export function packageTask(ws: Workspace): PackageSummary {
   ws.write(zipRel, zipSync(zipEntries, { level: 9 }));
 
   for (const rel of ws.list("marketing")) {
-    if (rel.endsWith("landing.html")) continue;
+    if (rel.endsWith("landing.html") || rel.startsWith("assets/")) continue;
     ws.write(`dist/${rel}`, fs.readFileSync(ws.path(rel)));
   }
 
@@ -60,7 +60,34 @@ export function renderSite(ws: Workspace): boolean {
   const url = config.launch.checkoutUrl;
   const html = ws.read("marketing/landing.html");
   ws.write("dist/site/index.html", url ? html.replaceAll("{{CHECKOUT_URL}}", url) : html);
+  // Medios de la landing (imágenes, video): viajan junto al index.html.
+  for (const rel of ws.list("marketing/assets")) {
+    ws.write(`dist/site/${rel.replace(/^marketing\//, "")}`, fs.readFileSync(ws.path(rel)));
+  }
   return Boolean(url);
+}
+
+/**
+ * Aplica una landing diseñada a mano (landing.html + assets/) a una tarea y regenera dist/site.
+ * Sirve para mejorar el diseño sin gastar tokens; la landing debe conservar {{CHECKOUT_URL}}.
+ */
+export function applyLanding(ws: Workspace, dir: string): { assets: number; checkoutConfigured: boolean } {
+  const htmlPath = path.join(dir, "landing.html");
+  if (!fs.existsSync(htmlPath)) throw new Error(`No existe ${htmlPath}`);
+  const html = fs.readFileSync(htmlPath, "utf8");
+  if (!html.includes("{{CHECKOUT_URL}}")) throw new Error("La landing no usa {{CHECKOUT_URL}} en sus botones de compra.");
+  ws.write("marketing/landing.html", html);
+  let assets = 0;
+  const assetsDir = path.join(dir, "assets");
+  if (fs.existsSync(assetsDir)) {
+    for (const name of fs.readdirSync(assetsDir)) {
+      const file = path.join(assetsDir, name);
+      if (!fs.statSync(file).isFile()) continue;
+      ws.write(`marketing/assets/${name}`, fs.readFileSync(file));
+      assets++;
+    }
+  }
+  return { assets, checkoutConfigured: renderSite(ws) };
 }
 
 function launchChecklist(brief: Brief, pack: GrowthPack, manifest: Manifest, zipRel: string, checkout: boolean): string {
