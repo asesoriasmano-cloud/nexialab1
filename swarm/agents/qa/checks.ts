@@ -110,6 +110,12 @@ export function checkGrowth(ws: Workspace, brief: Brief): Defect[] {
     if (/<script[^>]+src=/i.test(html)) add("major", "landing.html", "Carga scripts externos", "Eliminar scripts externos (la landing debe ser HTML+CSS autocontenido)");
     if (RISKY_CLAIMS_RE.test(html)) add("major", "landing.html", "Promete resultados o ingresos garantizados", "Reformular sin promesas de resultados");
     if (!html.includes(String(brief.pricing.price))) add("major", "landing.html", `El precio de la landing no coincide con el brief (${brief.pricing.price})`, "Mostrar el precio aprobado");
+    // Estándar visual: toda landing lleva hero con video o imagen y al menos 2 imágenes con alt.
+    const imgs = html.match(/<img\b[^>]*>/gi) ?? [];
+    const withAlt = imgs.filter((t) => /\balt=["'][^"']{3,}["']/i.test(t));
+    if (imgs.length < 2) add("major", "landing.html", `La landing tiene ${imgs.length} imágenes (mínimo 2 además del hero)`, "Agregar imágenes con rutas assets/<archivo> según pack.visuals");
+    if (withAlt.length < imgs.length) add("major", "landing.html", "Hay imágenes sin texto alt", "Agregar alt descriptivo a cada imagen");
+    if (!/<video\b/i.test(html)) add("minor", "landing.html", "El hero no tiene video en bucle", "Agregar un video corto mudo con poster (estándar visual)");
   }
 
   if (!ws.exists("marketing/growth.json")) {

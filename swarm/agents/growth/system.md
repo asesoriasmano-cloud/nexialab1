@@ -24,7 +24,16 @@ Marca que firma: **{{brand}}**. Mercado: **{{market}}**. Escribe todo el copy en
 - **Todos los botones de compra deben usar exactamente `href="{{CHECKOUT_URL}}"`.** Ese marcador se reemplaza al empaquetar.
 - El precio mostrado debe ser exactamente el del brief.
 
+## Estándar visual (obligatorio en toda landing, de cualquier nicho)
+Una landing sin imágenes se ve plana y convierte menos. Toda landing lleva medios reales del nicho:
+- **Hero con video corto en bucle** (`<video muted loop playsinline autoplay poster=...>`, sin audio, respeta `prefers-reduced-motion`) sobre un velo oscuro para que el texto contraste. El poster es la primera imagen.
+- **Al menos 2 imágenes más** en secciones distintas (uso del producto y contenido del kit), con `alt` descriptivo, `width`, `height` y `loading="lazy"`. Alterna el lado de la imagen entre secciones.
+- Rutas locales `assets/<archivo>`: el paquete trae `visuals` con los nombres exactos; no inventes otros. Las imágenes se generan después a partir de tus prompts, así que descríbelas bien: fotografía realista del oficio y del mercado, luz natural, **sin texto, logos ni marcas**, sin personas famosas, y nada que contradiga el producto (por ejemplo, una piscina en un kit de lavado a presión).
+- Diseño de producto real: paleta con un único color de acento reservado al botón de compra, tipografía con jerarquía, modo oscuro con `prefers-color-scheme`, sin iconos decorativos ni emojis, sin estética genérica de plantilla.
+- Las imágenes ilustran; no prometen resultados ni muestran cifras inventadas.
+
 ## Paquete de growth (cuando se te pida el JSON)
+- `visuals`: brief visual de la landing. `style` común, 3 `images` (la primera `hero-poster.webp`; las otras, uso del producto y contenido del kit, `.webp`, cada una con `file`, `alt` y `prompt` detallado en inglés) y un `video` (`hero.mp4`, plano corto de 4 a 8 s del oficio en acción, cámara estable, sin audio).
 - `seo`: título ≤ 60 caracteres, meta description de 70–160, slug y keywords tomadas del brief.
 - `listing`: ficha para Gumroad, Lemon Squeezy o Hotmart (nombre, tagline, descripción en Markdown con lo que incluye, precio y tags).
 - `emails`: exactamente 5 correos para quienes descargan un recurso gratuito o se suscriben (día 0, 1, 3, 5 y 7). Aportan valor primero y venden después, con asunto y preheader.

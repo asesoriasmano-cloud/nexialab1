@@ -73,10 +73,14 @@ export function renderSite(ws: Workspace): boolean {
  */
 export function applyLanding(ws: Workspace, dir: string): { assets: number; checkoutConfigured: boolean } {
   const htmlPath = path.join(dir, "landing.html");
-  if (!fs.existsSync(htmlPath)) throw new Error(`No existe ${htmlPath}`);
-  const html = fs.readFileSync(htmlPath, "utf8");
-  if (!html.includes("{{CHECKOUT_URL}}")) throw new Error("La landing no usa {{CHECKOUT_URL}} en sus botones de compra.");
-  ws.write("marketing/landing.html", html);
+  // Si la carpeta solo trae assets/ (imágenes generadas a partir de visuals.md), se conserva la landing del Growth.
+  if (fs.existsSync(htmlPath)) {
+    const html = fs.readFileSync(htmlPath, "utf8");
+    if (!html.includes("{{CHECKOUT_URL}}")) throw new Error("La landing no usa {{CHECKOUT_URL}} en sus botones de compra.");
+    ws.write("marketing/landing.html", html);
+  } else if (!fs.existsSync(path.join(dir, "assets"))) {
+    throw new Error(`No existe ${htmlPath} ni una carpeta assets/ en ${dir}`);
+  }
   let assets = 0;
   const assetsDir = path.join(dir, "assets");
   if (fs.existsSync(assetsDir)) {
@@ -103,6 +107,7 @@ El enjambre dejó todo listo. Estos pasos requieren tu cuenta y tu aprobación (
 - [ ] Copia la URL de checkout en \`swarm/.env\` → \`CHECKOUT_URL=\` ${checkout ? "(✔ ya configurada)" : "(⚠ pendiente: la landing no se publica sin ella)"}
 
 ## 2. Landing
+- [ ] Imágenes y video: genera las piezas de \`marketing/visuals.md\` (Google Flow u otra), guárdalas en \`swarm/landing/<ID_TAREA>/assets/\` con esos nombres y ejecuta \`npm run swarm -- landing <ID_TAREA>\`. Sin ellas la landing se ve con huecos.
 - [ ] Revisa \`dist/site/index.html\` en el navegador (móvil y escritorio).
 - [ ] Aprueba el despliegue: \`npm run swarm -- approve <ID_TAREA>\`, que publica en ${config.launch.deployProvider === "manual" ? "tu hosting (modo manual: sube la carpeta dist/site)" : config.launch.deployProvider}.
 

@@ -59,7 +59,7 @@ export async function runGrowth(ctx: AgentContext, input: { brief: Brief; feedba
       context: `${context}\n\n# SEO y ficha aprobados\n\n${JSON.stringify({ seo: pack.seo, listing: pack.listing }, null, 2)}`,
       prompt: previous
         ? `Corrige la landing.\n\n## Versión actual\n${previous}\n\n${formatDefects(landingDefects)}\n\nEntrega el HTML completo corregido.`
-        : `Crea la landing de conversión completa (HTML autocontenido). Precio: US$${input.brief.pricing.price}. CTA: href="{{CHECKOUT_URL}}".`,
+        : `Crea la landing de conversión completa (HTML autocontenido). Precio: US$${input.brief.pricing.price}. CTA: href="{{CHECKOUT_URL}}".${visualsHint(pack)}`,
       maxTokens: 32000,
       expectedOutputTokens: 9000,
       mock: () => mockLanding(input.brief, pack, manifest),
@@ -68,6 +68,15 @@ export async function runGrowth(ctx: AgentContext, input: { brief: Brief; feedba
     logger.info("growth", task.id, "Landing generada: marketing/landing.html");
   }
   return pack;
+}
+
+function visualsHint(pack: GrowthPack): string {
+  if (!pack.visuals) return "";
+  const media = [
+    ...pack.visuals.images.map((i) => `assets/${i.file} (alt: "${i.alt}")`),
+    `assets/${pack.visuals.video.file} (video del hero, con poster assets/${pack.visuals.images[0]?.file ?? "hero-poster.webp"})`,
+  ];
+  return `\n\nUsa EXACTAMENTE estas rutas de medios (se generan después, no las inventes): ${media.join("; ")}.`;
 }
 
 function formatDefects(defects: Defect[]): string {
@@ -83,6 +92,14 @@ function writeReadableExports(ctx: AgentContext, pack: GrowthPack): void {
       `---\nasunto: ${JSON.stringify(e.subject)}\npreheader: ${JSON.stringify(e.preview)}\ndia: ${e.day}\n---\n\n${e.body}\n`,
     );
   });
+  if (pack.visuals) {
+    const v = pack.visuals;
+    const images = v.images.map((i, n) => `## Imagen ${n + 1}: \`${i.file}\`\n\n- Alt: ${i.alt}\n- Prompt: ${i.prompt}\n`).join("\n");
+    ws.write(
+      "marketing/visuals.md",
+      `# Brief visual de la landing\n\nGenera estas piezas (Google Flow, Higgsfield u otro) y guárdalas en \`swarm/landing/${ctx.task.id}/assets/\` con estos nombres exactos. Luego ejecuta \`npm run swarm -- landing ${ctx.task.id}\`.\n\n**Estilo común:** ${v.style}\n\n${images}\n## Video del hero: \`${v.video.file}\`\n\n- Prompt: ${v.video.prompt}\n- Mudo, de 4 a 8 s, en bucle. Comprímelo a menos de 1 MB.\n`,
+    );
+  }
   ws.write(
     "marketing/social.md",
     `# Piezas para redes sociales\n\n${pack.social.map((s, i) => `## ${i + 1}. ${s.platform}\n\n**Gancho:** ${s.hook}\n\n${s.text}\n`).join("\n")}`,
@@ -121,6 +138,15 @@ function mockPack(brief: Brief): GrowthPack {
       hook: `Error #${i + 1} que casi todos cometen`,
       text: `La mayoría empieza sin un plan. Así puedes evitarlo: ${brief.oneLiner}`,
     })),
+    visuals: {
+      style: "fotografía realista, luz natural, sin texto ni logos",
+      images: [
+        { file: "hero-poster.webp", alt: "Escena principal del oficio", prompt: "Escena principal del nicho, luz natural" },
+        { file: "uso.webp", alt: "La persona usando el kit", prompt: "Persona del nicho usando el producto" },
+        { file: "contenido.webp", alt: "Los archivos del kit sobre una mesa", prompt: "Vista cenital de los materiales" },
+      ],
+      video: { file: "hero.mp4", prompt: "Plano corto del oficio en acción, cámara estable" },
+    },
   };
 }
 
@@ -135,7 +161,9 @@ function mockLanding(brief: Brief, pack: GrowthPack, manifest: Manifest): string
 </head><body>
 <h1>${escapeHtml(brief.oneLiner)}</h1>
 <p><a class="cta" href="{{CHECKOUT_URL}}">Comprar por US$${brief.pricing.price}</a></p>
+<img src="assets/hero-poster.webp" alt="Escena principal del oficio" width="1280" height="720">
 <h2>Qué incluye</h2><ul>${items}</ul>
+<img src="assets/uso.webp" alt="La persona usando el kit" width="1280" height="720" loading="lazy">
 <p><a class="cta" href="{{CHECKOUT_URL}}">Obtener el kit · US$${brief.pricing.price}</a></p>
 <footer>${escapeHtml(config.launch.brandName || brief.productName)}</footer>
 </body></html>`;

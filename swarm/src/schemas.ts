@@ -151,6 +151,14 @@ export const GrowthPackSchema = z.object({
       text: z.string(),
     }),
   ),
+  /** Brief visual: prompts para generar las imágenes y el video de la landing (estándar de landing atractiva). */
+  visuals: z
+    .object({
+      style: z.string(),
+      images: z.array(z.object({ file: z.string(), alt: z.string(), prompt: z.string() })),
+      video: z.object({ file: z.string(), prompt: z.string() }),
+    })
+    .optional(),
 });
 export type GrowthPack = z.infer<typeof GrowthPackSchema>;
 

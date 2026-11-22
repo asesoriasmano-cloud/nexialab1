@@ -27,3 +27,25 @@ test("applyLanding rechaza una landing sin {{CHECKOUT_URL}}", () => {
   fs.writeFileSync(path.join(dir, "landing.html"), "<a href='#'>Buy</a>");
   assert.throws(() => applyLanding(new Workspace("T-landing2"), dir), /CHECKOUT_URL/);
 });
+
+test("applyLanding acepta una carpeta con solo assets/ y conserva la landing existente", () => {
+  const ws = new Workspace("T-landing3");
+  ws.write("marketing/landing.html", '<a href="{{CHECKOUT_URL}}">Buy</a>');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "landing-"));
+  fs.mkdirSync(path.join(dir, "assets"));
+  fs.writeFileSync(path.join(dir, "assets", "uso.webp"), Buffer.from([1]));
+  const res = applyLanding(ws, dir);
+  assert.equal(res.assets, 1);
+  assert.match(ws.read("marketing/landing.html"), /CHECKOUT_URL/);
+  assert.ok(ws.exists("dist/site/assets/uso.webp"));
+});
+
+test("estándar visual: QA marca una landing sin imágenes", async () => {
+  const { checkGrowth } = await import("../agents/qa/checks.ts");
+  const ws = new Workspace("T-visual");
+  ws.write("marketing/landing.html", '<!doctype html><html><head><meta name="viewport" content="x"><meta name="description" content="d"><title>Titulo largo</title></head><body><h1>x</h1><a href="{{CHECKOUT_URL}}">US$19</a></body></html>');
+  const brief = { pricing: { price: 19 } } as never;
+  const issues = checkGrowth(ws, brief).map((d) => d.issue);
+  assert.ok(issues.some((i) => /imágenes/.test(i)));
+  assert.ok(issues.some((i) => /video/.test(i)));
+});
